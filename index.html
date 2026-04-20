@@ -1,696 +1,564 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Car Word Game</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>单词修路小车</title>
   <style>
-    /* Basic resets */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    :root{
+      --bg:#f4f8ff;
+      --card:#ffffff;
+      --text:#1d2a3a;
+      --sub:#5b6b80;
+      --accent:#4b8bff;
+      --accent2:#6dd3a8;
+      --danger:#ff6b6b;
+      --road:#59646f;
+      --roadLine:#f6d85f;
+      --gap:#dce7f4;
+      --shadow:0 8px 24px rgba(19,40,72,.12);
+      --radius:18px;
     }
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f4f7;
-      color: #333;
-      overflow-x: hidden;
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,#dff1ff 0%,#edf6ff 42%,#f7fbff 100%);color:var(--text);}
+    body{display:flex;justify-content:center;align-items:stretch;overflow:hidden;}
+    .app{width:100%;max-width:430px;height:100dvh;position:relative;overflow:hidden;margin:0 auto;background:linear-gradient(180deg,#d5ecff 0%,#edf6ff 45%,#f8fbff 100%);}
+    .hud{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;z-index:6;gap:10px;}
+    .pill{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);box-shadow:var(--shadow);border-radius:999px;padding:10px 14px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
+    .game-area{position:absolute;inset:0;}
+    .sky{position:absolute;inset:0;background:
+      radial-gradient(circle at 15% 16%, rgba(255,255,255,.9) 0 34px, transparent 35px),
+      radial-gradient(circle at 22% 14%, rgba(255,255,255,.88) 0 26px, transparent 27px),
+      radial-gradient(circle at 73% 20%, rgba(255,255,255,.82) 0 30px, transparent 31px),
+      radial-gradient(circle at 80% 18%, rgba(255,255,255,.82) 0 22px, transparent 23px),
+      linear-gradient(180deg,#bfe8ff 0%,#edf7ff 58%,#f8fbff 100%);
+      z-index:0;
     }
-
-    :root {
-      /* Responsive width for road segments: clamps between 80px and 120px based on viewport width */
-      --segment-width: clamp(80px, 18vw, 120px);
-    }
-
-    /* Game container */
-    #game {
-      position: relative;
-      width: 100%;
-      height: 60vh;
-      max-height: 480px;
-      margin-top: 20px;
-      overflow: hidden;
-      border-top: 4px solid #999;
-      border-bottom: 4px solid #999;
-      background: linear-gradient(#e0e5ec, #f5f7fa);
-    }
-
-    /* HUD (score and lives display) */
-    #hud {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 12px;
-      align-items: center;
-      pointer-events: none;
-      z-index: 3;
-    }
-    #lives {
-      display: flex;
-      gap: 4px;
-      font-size: 22px;
-      color: #e63946;
-    }
-    #score {
-      font-size: 18px;
-      color: #333;
-    }
-
-    /* Road wrapper */
-    #road {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 80px;
-      display: flex;
-      flex-direction: row;
-    }
-
-    /* Each road segment */
-    .segment {
-      width: var(--segment-width);
-      height: 100%;
-      border-right: 2px solid #ccc;
-      position: relative;
-      background: #7a7a7a;
-    }
-    .segment.full {
-      background: #7a7a7a;
-    }
-    .segment.missing {
-      background: none;
-    }
-
-    /* Placeholder for missing segment (dashed outline) */
-    .segment.missing::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border: 3px dashed #bbb;
-      border-radius: 4px;
-    }
-
-    /* Car sprite */
-    #car {
-      position: absolute;
-      bottom: 88px;
-      left: 0;
-      width: 60px;
-      height: 40px;
-      background: #ff5555;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      transition: transform 0.6s ease;
-      z-index: 2;
-    }
-    /* Wheels on the car */
-    #car::before,
-    #car::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      width: 18px;
-      height: 18px;
-      background: #222;
-      border-radius: 50%;
-    }
-    #car::before {
-      left: 8px;
-    }
-    #car::after {
-      right: 8px;
-    }
-
-    /* Question overlay */
-    #question-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      padding: 1rem;
-    }
-    #question-overlay.active {
-      display: flex;
-    }
-    .question-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 90%;
-      width: 360px;
-      text-align: center;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    .question-content img {
-      width: 100%;
-      max-height: 150px;
-      object-fit: contain;
-      margin-bottom: 10px;
-    }
-    .word-display {
-      font-size: 24px;
-      margin: 10px 0;
-      letter-spacing: 3px;
-      font-weight: bold;
-    }
-    .options {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 15px;
-    }
-    .option-button {
-      flex: 1;
-      margin: 0 5px;
-      padding: 10px;
-      font-size: 18px;
-      background: #f0f0f0;
-      border: 2px solid #ccc;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.2s;
-    }
-    .option-button:hover {
-      background: #e0e0e0;
-      transform: translateY(-2px);
-    }
-    .option-button:disabled {
-      background: #ddd;
-      cursor: default;
-    }
-    .message {
-      margin-top: 15px;
-      font-size: 16px;
-      min-height: 24px;
-      color: #333;
-    }
-
-    /* Progress indicator in question overlay */
-    .progress {
-      font-size: 14px;
-      margin-bottom: 5px;
-      color: #555;
-    }
-
-    /* Road piece for drag-and-drop */
-    #road-piece {
-      position: absolute;
-      width: var(--segment-width);
-      height: 80px;
-      background: #7a7a7a;
-      border-radius: 2px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.4);
-      z-index: 9;
-      display: none;
-    }
-
-    /* Game over overlay */
-    #game-over {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 20;
-      color: #fff;
-      flex-direction: column;
-      text-align: center;
-    }
-    #game-over.active {
-      display: flex;
-    }
-    #game-over button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background: #ff5555;
-      border: none;
-      border-radius: 5px;
-      font-size: 18px;
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    #game-over button:hover {
-      background: #e04444;
-    }
+    .ground{position:absolute;left:-5%;right:-5%;bottom:-80px;height:38%;background:linear-gradient(180deg,#8fd386 0%,#71c36f 60%,#64b563 100%);border-radius:50% 50% 0 0/100% 100% 0 0;z-index:0;}
+    .road-wrap{position:absolute;inset:0;z-index:1;}
+    svg{width:100%;height:100%;display:block;}
+    .car{position:absolute;width:56px;height:34px;z-index:4;transform:translate(-50%,-50%);transition:left .85s linear, top .85s linear, transform .85s linear;}
+    .car svg{overflow:visible;filter:drop-shadow(0 3px 5px rgba(0,0,0,.18));}
+    .bridge-zone{position:absolute;left:50%;top:51%;transform:translate(-50%,-50%);width:270px;height:180px;z-index:5;display:none;pointer-events:none;}
+    .bridge-zone.active{display:block;pointer-events:auto;}
+    .bridge-piece{position:absolute;left:110px;top:60px;width:130px;height:24px;border-radius:20px;background:var(--road);box-shadow:0 4px 14px rgba(0,0,0,.18);touch-action:none;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.45);}
+    .bridge-piece::before{content:"";position:absolute;left:10px;right:10px;top:50%;height:3px;transform:translateY(-50%);background:repeating-linear-gradient(90deg,var(--roadLine) 0 16px, transparent 16px 24px);opacity:.85;}
+    .target-dot{position:absolute;width:18px;height:18px;background:#fff;border:3px solid var(--accent);border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+    .target-label{position:absolute;transform:translate(-50%, 18px);font-size:12px;font-weight:700;color:var(--sub);}
+    .panel{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-radius:24px;padding:14px 14px 16px;box-shadow:var(--shadow);z-index:7;}
+    .panel.hidden{display:none;}
+    .quiz-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;}
+    .title{font-size:18px;font-weight:800;}
+    .subtitle{font-size:13px;color:var(--sub);line-height:1.4;}
+    .quiz-card{display:flex;gap:12px;align-items:center;background:#f7fbff;border-radius:20px;padding:12px;margin-bottom:12px;border:1px solid #e1edfb;}
+    .pic{width:90px;height:90px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px #e9eef7;overflow:hidden;flex:0 0 auto;}
+    .word-box{flex:1;min-width:0;}
+    .word-cn{font-size:14px;color:var(--sub);margin-bottom:8px;}
+    .word-mask{font-size:32px;font-weight:900;letter-spacing:2px;word-break:break-word;}
+    .options{display:grid;grid-template-columns:1fr;gap:10px;}
+    .option-btn{border:none;border-radius:16px;padding:13px 14px;font-size:17px;font-weight:800;background:#edf4ff;color:#1d3557;box-shadow:none;}
+    .option-btn:active{transform:scale(.99);}
+    .option-btn.correct{background:#ddf7ec;color:#145c42;}
+    .option-btn.wrong{background:#ffe4e4;color:#8c1f1f;}
+    .feedback{min-height:24px;margin-top:10px;font-size:14px;font-weight:700;}
+    .feedback.ok{color:#128058;}
+    .feedback.bad{color:#cf3a3a;}
+    .overlay{position:absolute;inset:0;background:rgba(17,28,43,.42);z-index:10;display:flex;align-items:center;justify-content:center;padding:18px;}
+    .overlay.hidden{display:none;}
+    .dialog{background:#fff;width:100%;border-radius:24px;padding:24px 18px;box-shadow:var(--shadow);text-align:center;}
+    .dialog h2{margin:0 0 10px;font-size:26px;}
+    .dialog p{margin:0 0 16px;color:var(--sub);line-height:1.6;}
+    .btn{border:none;border-radius:16px;padding:14px 18px;font-size:17px;font-weight:800;background:var(--accent);color:#fff;width:100%;}
+    .btn.secondary{margin-top:10px;background:#eef4ff;color:#1b3355;}
+    .small-note{font-size:12px;color:var(--sub);margin-top:10px;line-height:1.5;}
+    .mini{font-size:13px;color:var(--sub);}
   </style>
 </head>
 <body>
-  <div id="game">
-    <div id="road"></div>
-    <div id="car"></div>
-  </div>
+<div class="app">
+  <div class="game-area">
+    <div class="sky"></div>
+    <div class="ground"></div>
 
-  <!-- Heads-up display showing remaining lives and score -->
-  <div id="hud">
-    <div id="lives"></div>
-    <div id="score"></div>
-  </div>
+    <div class="hud">
+      <div class="pill"><span>🚗</span><span id="stageInfo">第 1 / 5 关</span></div>
+      <div class="pill"><span>❌</span><span id="lifeInfo">答错 0 / 3</span></div>
+    </div>
 
-  <!-- Road piece (hidden until needed) -->
-  <div id="road-piece"></div>
+    <div class="road-wrap">
+      <svg viewBox="0 0 430 932" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.18"/></filter>
+        </defs>
+        <g filter="url(#shadow)">
+          <path d="M215 820 L215 610" stroke="#59646f" stroke-width="54" stroke-linecap="round" fill="none"/>
+          <path d="M215 820 L215 610" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
 
-  <!-- Question overlay -->
-  <div id="question-overlay">
-    <div class="question-content">
-      <div class="progress" id="progress"></div>
-      <img id="question-image" src="" alt="Question image">
-      <div class="word-display" id="word-display"></div>
-      <div class="options">
-        <button class="option-button" id="opt1"></button>
-        <button class="option-button" id="opt2"></button>
-        <button class="option-button" id="opt3"></button>
+          <path d="M120 370 L40 230" stroke="#59646f" stroke-width="54" stroke-linecap="round" fill="none"/>
+          <path d="M120 370 L40 230" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+
+          <path d="M215 370 L215 210" stroke="#59646f" stroke-width="54" stroke-linecap="round" fill="none"/>
+          <path d="M215 370 L215 210" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+
+          <path d="M310 370 L390 230" stroke="#59646f" stroke-width="54" stroke-linecap="round" fill="none"/>
+          <path d="M310 370 L390 230" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+        </g>
+
+        <rect x="92" y="357" width="246" height="26" rx="13" fill="#dbe8f5"/>
+      </svg>
+    </div>
+
+    <div class="car" id="car">
+      <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="80" height="28" rx="12" fill="#ff6666"/>
+        <path d="M36 20 L52 8 H79 C88 8 96 14 100 20Z" fill="#ff8787"/>
+        <rect x="52" y="12" width="20" height="12" rx="4" fill="#d9f2ff"/>
+        <circle cx="38" cy="54" r="11" fill="#293241"/>
+        <circle cx="83" cy="54" r="11" fill="#293241"/>
+        <circle cx="38" cy="54" r="5" fill="#adb5bd"/>
+        <circle cx="83" cy="54" r="5" fill="#adb5bd"/>
+        <circle cx="101" cy="31" r="4" fill="#ffd166"/>
+      </svg>
+    </div>
+
+    <div class="bridge-zone" id="bridgeZone">
+      <div class="target-dot" style="left:22px; top:18px"></div>
+      <div class="target-label" style="left:31px; top:40px">左路</div>
+      <div class="target-dot" style="left:126px; top:2px"></div>
+      <div class="target-label" style="left:135px; top:24px">中路</div>
+      <div class="target-dot" style="left:228px; top:18px"></div>
+      <div class="target-label" style="left:237px; top:40px">右路</div>
+      <div class="bridge-piece" id="bridgePiece"></div>
+    </div>
+
+    <div class="panel" id="quizPanel">
+      <div class="quiz-head">
+        <div>
+          <div class="title">补全单词，修好前方的路</div>
+          <div class="subtitle" id="instructionText">先从下方选出正确字母，答对后才能拖拽道路。</div>
+        </div>
+        <div class="mini" id="statusMini">等待作答</div>
       </div>
-      <div class="message" id="message"></div>
+      <div class="quiz-card">
+        <div class="pic" id="picBox"></div>
+        <div class="word-box">
+          <div class="word-cn" id="cnHint"></div>
+          <div class="word-mask" id="wordMask"></div>
+        </div>
+      </div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="overlay" id="startOverlay">
+      <div class="dialog">
+        <h2>单词修路小车</h2>
+        <p>小车开到岔路口时，前方会断路。你需要先做对单词补全题，才能把前方道路拖到你想去的那条路上。</p>
+        <button class="btn" id="startBtn">开始游戏</button>
+        <div class="small-note">规则：累计答错 3 次游戏结束。答对后，直接用手指拖动前方路段，吸附到左路 / 中路 / 右路之一，小车会继续前进。</div>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="endOverlay">
+      <div class="dialog">
+        <h2 id="endTitle">游戏结束</h2>
+        <p id="endDesc"></p>
+        <button class="btn" id="restartBtn">再玩一次</button>
+        <button class="btn secondary" id="closeBtn">停留在结果页</button>
+      </div>
     </div>
   </div>
+</div>
 
-  <!-- Game over overlay -->
-  <div id="game-over">
-    <h2 id="game-over-title">Game Over</h2>
-    <p id="game-over-text"></p>
-    <button id="restart-btn">Restart</button>
-  </div>
+<script>
+(() => {
+  const roadTargets = {
+    left: { x: 31, y: 27 },
+    center: { x: 135, y: 11 },
+    right: { x: 237, y: 27 }
+  };
 
-  <script>
-    // List of questions for the game.
-    const questions = [
-      {
-        image: 'images/apple.png',
-        word: 'apple'
-      },
-      {
-        image: 'images/ball.png',
-        word: 'ball'
-      },
-      {
-        image: 'images/tree.png',
-        word: 'tree'
-      },
-      {
-        image: 'images/house.png',
-        word: 'house'
-      },
-      {
-        image: 'images/cat.png',
-        word: 'cat'
-      }
-    ];
+  const stagePathMap = ['center','left','right','center','left'];
 
-    // Game state variables
-    let currentSegmentIndex = 0;
-    let wrongCount = 0;
-    const maxWrong = 3;
-    let currentQuestionIndex = 0;
-let segmentWidth = 120; // will be updated on init based on CSS variable
-let totalSegments = questions.length + 2; // starting and ending segments
-let currentMissingSegment = null;
-// Additional game state for score and lives
-let score = 0;
-let lives = maxWrong;
-
-    // High score tracked across sessions
-    let highScore = 0;
-
-    /**
-     * Preprocess the questions to generate missing substrings, masked display strings,
-     * and distractor options automatically. This allows adding new words easily.
-     */
-    function preprocessQuestions() {
-      const letters = 'abcdefghijklmnopqrstuvwxyz';
-      questions.forEach(q => {
-        const word = q.word.toLowerCase();
-        // Decide whether to remove one or two characters based on word length
-        let removeLength = 1;
-        if (word.length >= 5 && Math.random() < 0.5) {
-          removeLength = 2;
-        }
-        // Choose a start index for removal
-        const maxStart = word.length - removeLength;
-        const startIdx = Math.floor(Math.random() * (maxStart + 1));
-        q.missing = word.substring(startIdx, startIdx + removeLength);
-        // Create the masked display with underscores
-        q.display = word.substring(0, startIdx) + '_'.repeat(removeLength) + word.substring(startIdx + removeLength);
-        // Generate two distractor options of the same length as the missing part
-        const distractors = [];
-        while (distractors.length < 2) {
-          let candidate = '';
-          if (removeLength === 1) {
-            candidate = letters[Math.floor(Math.random() * letters.length)];
-          } else {
-            // Two-letter candidate; choose two random letters
-            const c1 = letters[Math.floor(Math.random() * letters.length)];
-            const c2 = letters[Math.floor(Math.random() * letters.length)];
-            candidate = c1 + c2;
-          }
-          if (candidate !== q.missing && !distractors.includes(candidate)) {
-            distractors.push(candidate);
-          }
-        }
-        q.options = [q.missing, ...distractors];
-      });
+  const questions = [
+    {
+      key: 'apple',
+      zh: '图片提示：苹果',
+      word: 'APPLE',
+      mask: 'A__LE',
+      answer: 'PP',
+      options: ['PP', 'PL', 'AP'],
+      image: svgApple()
+    },
+    {
+      key: 'cat',
+      zh: '图片提示：猫',
+      word: 'CAT',
+      mask: 'C_T',
+      answer: 'A',
+      options: ['O', 'A', 'U'],
+      image: svgCat()
+    },
+    {
+      key: 'book',
+      zh: '图片提示：书',
+      word: 'BOOK',
+      mask: 'BO_K',
+      answer: 'O',
+      options: ['A', 'E', 'O'],
+      image: svgBook()
+    },
+    {
+      key: 'fish',
+      zh: '图片提示：鱼',
+      word: 'FISH',
+      mask: 'FI_H',
+      answer: 'S',
+      options: ['S', 'T', 'R'],
+      image: svgFish()
+    },
+    {
+      key: 'sun',
+      zh: '图片提示：太阳',
+      word: 'SUN',
+      mask: 'S_N',
+      answer: 'U',
+      options: ['E', 'A', 'U'],
+      image: svgSun()
+    },
+    {
+      key: 'train',
+      zh: '图片提示：火车',
+      word: 'TRAIN',
+      mask: 'TRA__',
+      answer: 'IN',
+      options: ['AN', 'IN', 'EN'],
+      image: svgTrain()
+    },
+    {
+      key: 'bread',
+      zh: '图片提示：面包',
+      word: 'BREAD',
+      mask: 'BR__D',
+      answer: 'EA',
+      options: ['EA', 'OO', 'IE'],
+      image: svgBread()
     }
+  ];
 
-    // DOM elements
-    const road = document.getElementById('road');
-    const car = document.getElementById('car');
-    const questionOverlay = document.getElementById('question-overlay');
-    const questionImage = document.getElementById('question-image');
-    const wordDisplay = document.getElementById('word-display');
-    const messageEl = document.getElementById('message');
-    let optionsButtons = [document.getElementById('opt1'), document.getElementById('opt2'), document.getElementById('opt3')];
-    const roadPiece = document.getElementById('road-piece');
-    const gameOverScreen = document.getElementById('game-over');
-    const gameOverText = document.getElementById('game-over-text');
-    const restartBtn = document.getElementById('restart-btn');
-const livesEl = document.getElementById('lives');
-const scoreEl = document.getElementById('score');
-const progressEl = document.getElementById('progress');
+  const els = {
+    car: document.getElementById('car'),
+    bridgeZone: document.getElementById('bridgeZone'),
+    bridgePiece: document.getElementById('bridgePiece'),
+    quizPanel: document.getElementById('quizPanel'),
+    picBox: document.getElementById('picBox'),
+    cnHint: document.getElementById('cnHint'),
+    wordMask: document.getElementById('wordMask'),
+    options: document.getElementById('options'),
+    feedback: document.getElementById('feedback'),
+    stageInfo: document.getElementById('stageInfo'),
+    lifeInfo: document.getElementById('lifeInfo'),
+    instructionText: document.getElementById('instructionText'),
+    statusMini: document.getElementById('statusMini'),
+    startOverlay: document.getElementById('startOverlay'),
+    endOverlay: document.getElementById('endOverlay'),
+    endTitle: document.getElementById('endTitle'),
+    endDesc: document.getElementById('endDesc'),
+    startBtn: document.getElementById('startBtn'),
+    restartBtn: document.getElementById('restartBtn'),
+    closeBtn: document.getElementById('closeBtn')
+  };
 
-    /**
-     * Initialize the game by building the road and resetting state.
-     */
-    function initGame() {
-      // Reset state
-      currentSegmentIndex = 0;
-      wrongCount = 0;
-      currentQuestionIndex = 0;
-      currentMissingSegment = null;
-      // Reset score and lives
-      score = 0;
-      lives = maxWrong;
+  let state = {};
 
-      // Preprocess questions to generate missing parts and options
-      preprocessQuestions();
+  function initState() {
+    state = {
+      stage: 0,
+      wrong: 0,
+      solved: false,
+      draggingEnabled: false,
+      currentQuestion: null,
+      questionOrder: shuffle([...questions]),
+      activeMoveTimeout: null,
+      answeredThisStage: false
+    };
+    setCar(215, 730, 0);
+    resetBridge();
+    updateHUD();
+    els.feedback.textContent = '';
+    els.feedback.className = 'feedback';
+    els.statusMini.textContent = '等待作答';
+    els.instructionText.textContent = '先从下方选出正确字母，答对后才能拖拽道路。';
+  }
 
-      // Load high score from localStorage if available
-      const storedHigh = localStorage.getItem('cwGameHighScore');
-      highScore = storedHigh ? parseInt(storedHigh, 10) : 0;
-
-      // Clear road
-      road.innerHTML = '';
-
-      // Build road segments
-      for (let i = 0; i < totalSegments; i++) {
-        const seg = document.createElement('div');
-        seg.classList.add('segment');
-        if (i === 0 || i === totalSegments - 1) {
-          seg.classList.add('full');
-        } else {
-          seg.classList.add('missing');
-          seg.dataset.questionIndex = i - 1; // map segment to question
-        }
-        road.appendChild(seg);
-      }
-
-      // Update segmentWidth based on computed style of the first segment for responsive sizing
-      const firstSeg = road.querySelector('.segment');
-      if (firstSeg) {
-        segmentWidth = firstSeg.getBoundingClientRect().width;
-      }
-
-      // Position the car at the start
-      car.style.transform = 'translateX(0px)';
-
-      // Hide overlays
-      questionOverlay.classList.remove('active');
-      gameOverScreen.classList.remove('active');
-      roadPiece.style.display = 'none';
-      // Update HUD
-      updateHUD();
-
-      // Start movement after short delay
-      setTimeout(() => {
-        nextMove();
-      }, 500);
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
+    return arr;
+  }
 
-    /**
-     * Move the car to the next segment. If the next segment is a missing one,
-     * trigger the corresponding question.
-     */
-    function nextMove() {
-      if (currentSegmentIndex >= totalSegments - 1) {
-        // Reached end, show winning message
-        showGameOver(true);
-        return;
-      }
-      currentSegmentIndex++;
-      // Animate car movement
-      car.style.transition = 'transform 0.6s ease';
-      car.style.transform = 'translateX(' + (currentSegmentIndex * segmentWidth) + 'px)';
-      // Determine if this segment triggers a question
-      const seg = road.children[currentSegmentIndex];
-      if (seg.classList.contains('missing')) {
-        // Wait for animation to complete before showing question
-        setTimeout(() => {
-          currentMissingSegment = seg;
-          showQuestion(parseInt(seg.dataset.questionIndex));
-        }, 650);
-      } else {
-        // Continue moving after a short pause
-        setTimeout(() => {
-          nextMove();
-        }, 500);
-      }
+  function setCar(x, y, angle) {
+    els.car.style.left = `${x}px`;
+    els.car.style.top = `${y}px`;
+    els.car.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`;
+  }
+
+  function updateHUD() {
+    els.stageInfo.textContent = `第 ${Math.min(state.stage + 1, stagePathMap.length)} / ${stagePathMap.length} 关`;
+    els.lifeInfo.textContent = `答错 ${state.wrong} / 3`;
+  }
+
+  function resetBridge() {
+    els.bridgeZone.classList.remove('active');
+    els.bridgePiece.style.left = '110px';
+    els.bridgePiece.style.top = '60px';
+  }
+
+  function loadStage() {
+    if (state.wrong >= 3) {
+      return endGame(false);
     }
-
-    /**
-     * Display the question overlay for the given question index.
-     * @param {number} qIndex
-     */
-    function showQuestion(qIndex) {
-      currentQuestionIndex = qIndex;
-      const q = questions[qIndex];
-      // Populate overlay
-      questionImage.src = q.image;
-      wordDisplay.textContent = q.display;
-      // Shuffle options to randomize positions
-      const shuffledOptions = q.options.slice().sort(() => Math.random() - 0.5);
-      for (let i = 0; i < optionsButtons.length; i++) {
-        const btn = optionsButtons[i];
-        btn.disabled = false;
-        btn.textContent = shuffledOptions[i];
-        // Remove any previous listeners to avoid stacking
-        const newBtn = btn.cloneNode(true);
-        btn.parentNode.replaceChild(newBtn, btn);
-        optionsButtons[i] = newBtn;
-      }
-      // Re-attach listeners
-      optionsButtons.forEach(btn => {
-        btn.addEventListener('click', handleOptionClick);
-      });
-      messageEl.textContent = '';
-      // Show progress (e.g., 第1关/共5关)
-      progressEl.textContent = '第 ' + (currentQuestionIndex + 1) + ' 关/共 ' + questions.length + ' 关';
-      // Show overlay
-      questionOverlay.classList.add('active');
+    if (state.stage >= stagePathMap.length) {
+      return endGame(true);
     }
-
-    /**
-     * Handle click on an answer option.
-     * @param {Event} e
-     */
-    function handleOptionClick(e) {
-      const chosen = e.target.textContent;
-      const q = questions[currentQuestionIndex];
-      // Disable all buttons
-      optionsButtons.forEach(btn => btn.disabled = true);
-      if (chosen === q.missing) {
-        // Correct answer
-        handleCorrectAnswer();
-      } else {
-        // Wrong answer
-        handleWrongAnswer();
-      }
-    }
-
-    /**
-     * Called when the player selects the correct option.
-     */
-    function handleCorrectAnswer() {
-      const q = questions[currentQuestionIndex];
-      // Show full word
-      wordDisplay.textContent = q.word;
-      messageEl.textContent = '回答正确！请拖动路段填补空缺。';
-      // Increase score and update HUD
-      score += 10;
-      updateHUD();
-      // Create road piece and enable dragging
-      showRoadPiece();
-    }
-
-    /**
-     * Called when the player selects the wrong option.
-     */
-    function handleWrongAnswer() {
-      const q = questions[currentQuestionIndex];
-      wrongCount++;
-      lives--;
-      // Show correct answer
-      wordDisplay.textContent = q.word;
-      messageEl.textContent = '答错了！正确答案是 "' + q.missing + '".';
-      // Fill missing segment automatically
-      currentMissingSegment.classList.remove('missing');
-      currentMissingSegment.classList.add('full');
-      // Hide options after a short delay and continue
-      setTimeout(() => {
-        questionOverlay.classList.remove('active');
-        if (lives <= 0) {
-          showGameOver(false);
-        } else {
-          nextMove();
-        }
-      }, 1500);
-      // Update HUD after losing a life
-      updateHUD();
-    }
-
-    /**
-     * Show the draggable road piece and set up pointer events.
-     */
-    function showRoadPiece() {
-      // Recompute segmentWidth for responsive sizing
-      segmentWidth = road.querySelector('.segment').getBoundingClientRect().width;
-      const roadRect = road.getBoundingClientRect();
-      const pieceStartX = (window.innerWidth - segmentWidth) / 2;
-      const pieceStartY = roadRect.top + roadRect.height + 20;
-      roadPiece.style.display = 'block';
-      // Adjust piece dimensions to match the segment and road
-      roadPiece.style.width = segmentWidth + 'px';
-      roadPiece.style.height = roadRect.height + 'px';
-      roadPiece.style.left = pieceStartX + 'px';
-      roadPiece.style.top = pieceStartY + 'px';
-      roadPiece.style.transition = 'none';
-
-      let dragging = false;
-      let offsetX = 0;
-      let offsetY = 0;
-
-      function pointerDownHandler(ev) {
-        ev.preventDefault();
-        dragging = true;
-        offsetX = ev.clientX - roadPiece.offsetLeft;
-        offsetY = ev.clientY - roadPiece.offsetTop;
-        roadPiece.setPointerCapture(ev.pointerId);
-      }
-
-      function pointerMoveHandler(ev) {
-        if (!dragging) return;
-        ev.preventDefault();
-        const x = ev.clientX - offsetX;
-        const y = ev.clientY - offsetY;
-        roadPiece.style.left = x + 'px';
-        roadPiece.style.top = y + 'px';
-      }
-
-      function pointerUpHandler(ev) {
-        if (!dragging) return;
-        dragging = false;
-        roadPiece.releasePointerCapture(ev.pointerId);
-        // Check overlap with target segment
-        const pieceRect = roadPiece.getBoundingClientRect();
-        const targetRect = currentMissingSegment.getBoundingClientRect();
-        const overlapX = pieceRect.right > targetRect.left && pieceRect.left < targetRect.right;
-        const overlapY = pieceRect.bottom > targetRect.top && pieceRect.top < targetRect.bottom;
-        if (overlapX && overlapY) {
-          // Snap to target position
-          roadPiece.style.left = targetRect.left + 'px';
-          roadPiece.style.top = targetRect.top + 'px';
-          // Mark segment as full
-          currentMissingSegment.classList.remove('missing');
-          currentMissingSegment.classList.add('full');
-          // Hide the piece after slight delay
-          setTimeout(() => {
-            roadPiece.style.display = 'none';
-            questionOverlay.classList.remove('active');
-            nextMove();
-          }, 500);
-          // Remove event listeners to prevent duplication
-          removePointerListeners();
-        } else {
-          // Reset to starting point
-          roadPiece.style.left = pieceStartX + 'px';
-          roadPiece.style.top = pieceStartY + 'px';
-        }
-      }
-
-      function removePointerListeners() {
-        roadPiece.removeEventListener('pointerdown', pointerDownHandler);
-        roadPiece.removeEventListener('pointermove', pointerMoveHandler);
-        roadPiece.removeEventListener('pointerup', pointerUpHandler);
-      }
-
-      // Attach event listeners
-      roadPiece.addEventListener('pointerdown', pointerDownHandler);
-      roadPiece.addEventListener('pointermove', pointerMoveHandler);
-      roadPiece.addEventListener('pointerup', pointerUpHandler);
-    }
-
-    /**
-     * Display the game over screen.
-     * @param {boolean} won - Indicates whether the player reached the end.
-     */
-    function showGameOver(won) {
-      questionOverlay.classList.remove('active');
-      roadPiece.style.display = 'none';
-      gameOverScreen.classList.add('active');
-      const title = won ? '恭喜通关！' : '游戏结束';
-      // Update high score if current score is greater
-      if (score > highScore) {
-        highScore = score;
-        localStorage.setItem('cwGameHighScore', String(score));
-      }
-      // Build message including current and high score
-      let text;
-      if (won) {
-        text = '你顺利通过了所有关卡！';
-      } else {
-        text = '你已经用完了所有机会。';
-      }
-      text += '\n本次得分：' + score + '\n最高得分：' + highScore;
-      document.getElementById('game-over-title').textContent = title;
-      gameOverText.textContent = text;
-    }
-
-    /**
-     * Update the HUD elements (lives and score).
-     */
-    function updateHUD() {
-      // Update lives display (hearts)
-      livesEl.innerHTML = '';
-      for (let i = 0; i < lives; i++) {
-        livesEl.innerHTML += '❤';
-      }
-      // Update score display
-      scoreEl.textContent = '分数: ' + score;
-    }
-
-    // Restart button handler
-    restartBtn.addEventListener('click', () => {
-      gameOverScreen.classList.remove('active');
-      initGame();
+    state.solved = false;
+    state.draggingEnabled = false;
+    state.answeredThisStage = false;
+    resetBridge();
+    const q = state.questionOrder[state.stage % state.questionOrder.length];
+    state.currentQuestion = q;
+    els.picBox.innerHTML = q.image;
+    els.cnHint.textContent = q.zh;
+    els.wordMask.textContent = q.mask;
+    els.options.innerHTML = '';
+    els.feedback.textContent = '';
+    els.feedback.className = 'feedback';
+    els.statusMini.textContent = '等待作答';
+    els.instructionText.textContent = '选对后，拖动前方路段到你想走的那条路上。';
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => checkAnswer(opt, btn));
+      els.options.appendChild(btn);
     });
+    updateHUD();
+  }
 
-    // Initialize on page load
-    window.addEventListener('load', initGame);
-  </script>
+  function checkAnswer(opt, btn) {
+    if (state.answeredThisStage || state.draggingEnabled) return;
+    state.answeredThisStage = true;
+    const q = state.currentQuestion;
+    const buttons = [...els.options.querySelectorAll('.option-btn')];
+    buttons.forEach(b => b.disabled = true);
+
+    if (opt === q.answer) {
+      btn.classList.add('correct');
+      state.solved = true;
+      state.draggingEnabled = true;
+      els.feedback.textContent = `答对了！完整单词：${q.word}`;
+      els.feedback.className = 'feedback ok';
+      els.statusMini.textContent = '可以修路';
+      els.bridgeZone.classList.add('active');
+    } else {
+      btn.classList.add('wrong');
+      const correctBtn = buttons.find(b => b.textContent === q.answer);
+      if (correctBtn) correctBtn.classList.add('correct');
+      state.wrong += 1;
+      updateHUD();
+      els.feedback.textContent = `答错了，正确答案是：${q.answer}（${q.word}）`;
+      els.feedback.className = 'feedback bad';
+      els.statusMini.textContent = '本题跳过';
+      if (state.wrong >= 3) {
+        setTimeout(() => endGame(false), 1200);
+      } else {
+        setTimeout(() => {
+          state.stage += 1;
+          loadStage();
+        }, 1200);
+      }
+    }
+  }
+
+  function snapBridge(targetName) {
+    const t = roadTargets[targetName];
+    els.bridgePiece.style.left = `${t.x}px`;
+    els.bridgePiece.style.top = `${t.y}px`;
+    els.bridgeZone.classList.remove('active');
+    els.statusMini.textContent = `已接到${targetName === 'left' ? '左路' : targetName === 'center' ? '中路' : '右路'}`;
+    animateCar(targetName);
+  }
+
+  function animateCar(targetName) {
+    const targetMap = {
+      left: { x: 58, y: 262, angle: -58 },
+      center: { x: 215, y: 244, angle: 0 },
+      right: { x: 372, y: 262, angle: 58 }
+    };
+    const target = targetMap[targetName];
+    setCar(215, 730, 0);
+    clearTimeout(state.activeMoveTimeout);
+    setTimeout(() => setCar(215, 515, 0), 60);
+    state.activeMoveTimeout = setTimeout(() => {
+      setCar(target.x, target.y, target.angle);
+    }, 900);
+    state.activeMoveTimeout = setTimeout(() => {
+      state.stage += 1;
+      setCar(215, 730, 0);
+      loadStage();
+    }, 1850);
+  }
+
+  function endGame(success) {
+    els.endOverlay.classList.remove('hidden');
+    if (success) {
+      els.endTitle.textContent = '闯关成功';
+      els.endDesc.textContent = `太棒了！你帮小车修完了所有道路，累计答错 ${state.wrong} 次。`;
+    } else {
+      els.endTitle.textContent = '游戏结束';
+      els.endDesc.textContent = `累计答错 3 次，小车没法继续前进了。可以重新开始。`;
+    }
+  }
+
+  function startGame() {
+    initState();
+    els.endOverlay.classList.add('hidden');
+    els.startOverlay.classList.add('hidden');
+    loadStage();
+  }
+
+  function setupDrag() {
+    const piece = els.bridgePiece;
+    const zone = els.bridgeZone;
+    let dragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    function getPoint(e) {
+      const p = e.touches ? e.touches[0] : e;
+      return { x: p.clientX, y: p.clientY };
+    }
+
+    function onDown(e) {
+      if (!state.draggingEnabled) return;
+      dragging = true;
+      const rect = piece.getBoundingClientRect();
+      const p = getPoint(e);
+      offsetX = p.x - rect.left;
+      offsetY = p.y - rect.top;
+      e.preventDefault();
+    }
+
+    function onMove(e) {
+      if (!dragging || !state.draggingEnabled) return;
+      const zoneRect = zone.getBoundingClientRect();
+      const p = getPoint(e);
+      let left = p.x - zoneRect.left - offsetX;
+      let top = p.y - zoneRect.top - offsetY;
+      left = Math.max(0, Math.min(zoneRect.width - piece.offsetWidth, left));
+      top = Math.max(0, Math.min(zoneRect.height - piece.offsetHeight, top));
+      piece.style.left = `${left}px`;
+      piece.style.top = `${top}px`;
+      e.preventDefault();
+    }
+
+    function onUp() {
+      if (!dragging) return;
+      dragging = false;
+      if (!state.draggingEnabled) return;
+      const pieceRect = piece.getBoundingClientRect();
+      const centerX = pieceRect.left + pieceRect.width / 2;
+      const centerY = pieceRect.top + pieceRect.height / 2;
+      const zoneRect = zone.getBoundingClientRect();
+      const candidates = Object.entries(roadTargets).map(([name, pos]) => {
+        const tx = zoneRect.left + pos.x + 9;
+        const ty = zoneRect.top + pos.y + 9;
+        const d = Math.hypot(centerX - tx, centerY - ty);
+        return { name, d };
+      }).sort((a,b) => a.d - b.d);
+
+      if (candidates[0].d < 95) {
+        state.draggingEnabled = false;
+        snapBridge(candidates[0].name);
+      } else {
+        piece.style.left = '110px';
+        piece.style.top = '60px';
+      }
+    }
+
+    piece.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove, { passive:false });
+    window.addEventListener('pointerup', onUp);
+  }
+
+  els.startBtn.addEventListener('click', startGame);
+  els.restartBtn.addEventListener('click', startGame);
+  els.closeBtn.addEventListener('click', () => els.endOverlay.classList.add('hidden'));
+  setupDrag();
+  initState();
+
+  function svgApple(){return `
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="20" fill="#fff9f1"/>
+    <ellipse cx="50" cy="57" rx="24" ry="24" fill="#ff5a5f"/>
+    <ellipse cx="40" cy="48" rx="7" ry="8" fill="#ff8085" opacity=".55"/>
+    <path d="M50 30 C52 22,58 18,63 16" stroke="#7a4b20" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M54 20 C63 10,76 14,78 24 C68 27,58 28,54 20Z" fill="#58b56a"/>
+  </svg>`}
+  function svgCat(){return `
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="20" fill="#f7fbff"/>
+    <circle cx="50" cy="54" r="24" fill="#f7b267"/>
+    <path d="M34 34 L41 20 L49 36Z" fill="#f7b267"/><path d="M66 34 L59 20 L51 36Z" fill="#f7b267"/>
+    <circle cx="42" cy="53" r="3" fill="#283618"/><circle cx="58" cy="53" r="3" fill="#283618"/>
+    <path d="M50 57 L46 61 H54Z" fill="#d95d39"/>
+    <path d="M29 58 H42 M58 58 H71 M29 64 H41 M59 64 H71" stroke="#8c5a2b" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`}
+  function svgBook(){return `
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="20" fill="#f5f8ff"/>
+    <path d="M22 28 H50 V76 H28 C24.7 76 22 73.3 22 70Z" fill="#5a8dee"/>
+    <path d="M78 28 H50 V76 H72 C75.3 76 78 73.3 78 70Z" fill="#6c9ff0"/>
+    <path d="M50 28 V76" stroke="#dce8ff" stroke-width="2"/>
+    <path d="M30 40 H43 M30 48 H43 M57 40 H70 M57 48 H70" stroke="#eaf1ff" stroke-width="3" stroke-linecap="round"/>
+  </svg>`}
+  function svgFish(){return `
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="20" fill="#eefbff"/>
+    <ellipse cx="48" cy="52" rx="24" ry="16" fill="#52b6ff"/>
+    <path d="M70 52 L88 40 V64Z" fill="#3da7f3"/>
+    <circle cx="40" cy="48" r="3" fill="#17324d"/>
+    <path d="M22 52 Q16 47 12 52 Q16 57 22 52Z" fill="#7fd3ff"/>
+    <path d="M49 40 L58 30 L62 44Z" fill="#8dd7ff"/>
+  </svg>`}
+  function svgSun(){return `
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="20" fill="#fffaf0"/>
+    <circle cx="50" cy="50" r="18" fill="#ffd34d"/>
+    <g stroke="#ffbe0b" stroke-width="4" stroke-linecap="round">
+      <path d="M50 12 V24"/><path d="M50 76 V88"/><path d="M12 50 H24"/><path d="M76 50 H88"/>
+      <path d="M24 24 L32 32"/><path d="M68 68 L76 76"/><path d="M24 76 L32 68"/><path d="M68 32 L76 24"/>
+    </g>
+  </svg>`}
+  function svgTrain(){return `
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="20" fill="#f5fbff"/>
+    <rect x="26" y="20" width="48" height="46" rx="10" fill="#ef476f"/>
+    <rect x="34" y="28" width="14" height="12" rx="3" fill="#d6f0ff"/>
+    <rect x="52" y="28" width="14" height="12" rx="3" fill="#d6f0ff"/>
+    <path d="M26 52 H74" stroke="#ffd166" stroke-width="4"/>
+    <circle cx="38" cy="70" r="6" fill="#344e5c"/><circle cx="62" cy="70" r="6" fill="#344e5c"/>
+    <path d="M40 76 H60" stroke="#59646f" stroke-width="4" stroke-linecap="round"/>
+  </svg>`}
+  function svgBread(){return `
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="20" fill="#fffaf3"/>
+    <path d="M26 62 C20 35,34 24,48 24 C60 18,78 26,76 50 C79 62,73 74,60 76 H38 C30 76,25 70,26 62Z" fill="#d99a4e"/>
+    <path d="M34 48 C36 44,40 42,44 44 M50 40 C54 37,59 38,62 42" stroke="#f4d8a8" stroke-width="4" stroke-linecap="round"/>
+  </svg>`}
+})();
+</script>
 </body>
 </html>
