@@ -1,470 +1,696 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EditorClaw — AI Editorial Decision System for Scientific Journals</title>
-  <meta name="description" content="EditorClaw is a local-first AI editorial decision system for scientific journals. Parse manuscripts, generate structured editorial assessments, recommend reviewers, and support safer editorial workflows." />
-  <meta name="theme-color" content="#0b1220" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Word Game</title>
   <style>
-    :root{
-      --bg:#0b1220;
-      --bg2:#0f172a;
-      --panel:rgba(255,255,255,.04);
-      --panel2:rgba(255,255,255,.03);
-      --line:rgba(255,255,255,.10);
-      --text:#e5eefc;
-      --muted:#96a4c0;
-      --brand:#4f7cff;
-      --brand2:#7a5cff;
-      --green:#18c37e;
-      --max:1180px;
-      --radius:22px;
-      --shadow:0 20px 60px rgba(0,0,0,.35);
+    /* Basic resets */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 700px at 10% -10%, rgba(79,124,255,.22), transparent 45%),
-        radial-gradient(1000px 600px at 100% 0%, rgba(122,92,255,.16), transparent 40%),
-        linear-gradient(180deg,#0a1020,#0b1220 28%,#0b1324 100%);
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f7;
+      color: #333;
+      overflow-x: hidden;
     }
-    a{text-decoration:none;color:inherit}
-    .wrap{width:min(var(--max), calc(100% - 32px));margin:0 auto}
-    .nav{
-      position:sticky;top:0;z-index:50;
-      background:rgba(7,11,22,.74);
-      backdrop-filter:blur(14px);
-      border-bottom:1px solid var(--line);
+
+    :root {
+      /* Responsive width for road segments: clamps between 80px and 120px based on viewport width */
+      --segment-width: clamp(80px, 18vw, 120px);
     }
-    .nav-inner{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:16px 0;
+
+    /* Game container */
+    #game {
+      position: relative;
+      width: 100%;
+      height: 60vh;
+      max-height: 480px;
+      margin-top: 20px;
+      overflow: hidden;
+      border-top: 4px solid #999;
+      border-bottom: 4px solid #999;
+      background: linear-gradient(#e0e5ec, #f5f7fa);
     }
-    .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.2px}
-    .logo{
-      width:38px;height:38px;border-radius:12px;
-      display:grid;place-items:center;
-      background:linear-gradient(135deg,var(--brand),var(--brand2));
-      box-shadow:var(--shadow);
-      font-weight:900;
+
+    /* HUD (score and lives display) */
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      align-items: center;
+      pointer-events: none;
+      z-index: 3;
     }
-    .nav-links{display:flex;gap:18px;align-items:center;color:var(--muted)}
-    .btn{
-      display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      padding:12px 18px;border-radius:999px;
-      font-weight:700;border:1px solid transparent;transition:.18s ease;
-      cursor:pointer;
+    #lives {
+      display: flex;
+      gap: 4px;
+      font-size: 22px;
+      color: #e63946;
     }
-    .btn.primary{
-      color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand2));
-      box-shadow:0 12px 30px rgba(79,124,255,.24);
+    #score {
+      font-size: 18px;
+      color: #333;
     }
-    .btn.ghost{
-      border-color:var(--line);
-      background:rgba(255,255,255,.02);
-      color:var(--text);
+
+    /* Road wrapper */
+    #road {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      display: flex;
+      flex-direction: row;
     }
-    .hero{padding:76px 0 54px}
-    .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:28px;align-items:center}
-    .eyebrow{
-      display:inline-flex;align-items:center;gap:10px;
-      padding:8px 12px;border:1px solid var(--line);
-      border-radius:999px;background:rgba(255,255,255,.04);
-      color:var(--muted);font-size:14px
+
+    /* Each road segment */
+    .segment {
+      width: var(--segment-width);
+      height: 100%;
+      border-right: 2px solid #ccc;
+      position: relative;
+      background: #7a7a7a;
     }
-    h1{
-      margin:18px 0 14px;
-      font-size:clamp(42px,7vw,68px);
-      line-height:.98;letter-spacing:-1.8px
+    .segment.full {
+      background: #7a7a7a;
     }
-    .lead{
-      font-size:clamp(17px,2.2vw,20px);
-      color:var(--muted);line-height:1.7;max-width:760px
+    .segment.missing {
+      background: none;
     }
-    .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
-    .meta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
-    .chip{
-      padding:10px 14px;border-radius:999px;
-      border:1px solid var(--line);background:rgba(255,255,255,.03);
-      color:var(--muted)
+
+    /* Placeholder for missing segment (dashed outline) */
+    .segment.missing::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 3px dashed #bbb;
+      border-radius: 4px;
     }
-    .card,.hero-card,.cta,.price{
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+
+    /* Car sprite */
+    #car {
+      position: absolute;
+      bottom: 88px;
+      left: 0;
+      width: 60px;
+      height: 40px;
+      background: #ff5555;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: transform 0.6s ease;
+      z-index: 2;
     }
-    .hero-card{padding:18px}
-    .mock{
-      overflow:hidden;border-radius:18px;
-      border:1px solid rgba(255,255,255,.06);
-      background:linear-gradient(180deg, rgba(10,14,26,.78), rgba(17,24,39,.94));
+    /* Wheels on the car */
+    #car::before,
+    #car::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      width: 18px;
+      height: 18px;
+      background: #222;
+      border-radius: 50%;
     }
-    .mock-top{
-      display:flex;align-items:center;gap:8px;
-      padding:12px 14px;border-bottom:1px solid var(--line);color:var(--muted)
+    #car::before {
+      left: 8px;
     }
-    .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.16)}
-    .mock-body{padding:16px;display:grid;gap:14px}
-    .tag{
-      display:inline-block;padding:6px 8px;font-size:12px;
-      border-radius:10px;margin-right:8px;margin-bottom:8px;
-      color:#cfe0ff;background:rgba(79,124,255,.14);
-      border:1px solid rgba(79,124,255,.25)
+    #car::after {
+      right: 8px;
     }
-    .row{display:grid;grid-template-columns:126px 1fr;gap:12px;align-items:start}
-    .bar{height:10px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
-    .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2))}
-    section{padding:34px 0}
-    .section-head{margin-bottom:20px}
-    .section-head h2{margin:0 0 10px;font-size:clamp(28px,4vw,42px);letter-spacing:-1px}
-    .section-head p{margin:0;color:var(--muted);line-height:1.75;max-width:760px}
-    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-    .card{padding:22px}
-    .card h3{margin:0 0 10px;font-size:20px}
-    .card p{margin:0;color:var(--muted);line-height:1.7}
-    .list{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:12px}
-    .list li{display:flex;gap:12px;align-items:flex-start;color:var(--muted);line-height:1.65}
-    .check{
-      width:22px;height:22px;border-radius:999px;flex:0 0 auto;
-      display:grid;place-items:center;font-size:13px;font-weight:800;
-      background:rgba(24,195,126,.12);border:1px solid rgba(24,195,126,.22);color:#6ee7b7;margin-top:2px
+
+    /* Question overlay */
+    #question-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      padding: 1rem;
     }
-    .steps{display:grid;gap:16px}
-    .step{
-      display:grid;grid-template-columns:54px 1fr;gap:16px;align-items:start;
-      padding:18px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.025)
+    #question-overlay.active {
+      display: flex;
     }
-    .num{
-      width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-weight:800;
-      background:linear-gradient(135deg,rgba(79,124,255,.18),rgba(122,92,255,.18));
-      border:1px solid rgba(79,124,255,.24)
+    .question-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 90%;
+      width: 360px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
-    .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .price{padding:24px}
-    .price.featured{outline:1px solid rgba(79,124,255,.38);box-shadow:0 18px 50px rgba(79,124,255,.12)}
-    .label{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.12em}
-    .price h3{margin:10px 0 6px;font-size:22px}
-    .amount{font-size:38px;font-weight:900;letter-spacing:-1px;margin:10px 0}
-    .desc{color:var(--muted);line-height:1.65}
-    .faq{display:grid;gap:14px}
-    details{
-      border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02);padding:16px 18px
+    .question-content img {
+      width: 100%;
+      max-height: 150px;
+      object-fit: contain;
+      margin-bottom: 10px;
     }
-    summary{cursor:pointer;font-weight:700}
-    details p{color:var(--muted);line-height:1.7;margin:12px 0 0}
-    .cta{
-      padding:28px;border-radius:28px;
-      background:
-        radial-gradient(600px 200px at 10% 0%, rgba(79,124,255,.22), transparent 40%),
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      display:grid;grid-template-columns:1.08fr .92fr;gap:18px;align-items:center
+    .word-display {
+      font-size: 24px;
+      margin: 10px 0;
+      letter-spacing: 3px;
+      font-weight: bold;
     }
-    footer{padding:34px 0 60px;color:var(--muted)}
-    .foot{
-      display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
-      border-top:1px solid var(--line);padding-top:22px
+    .options {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
     }
-    .small{font-size:14px;color:var(--muted)}
-    @media (max-width: 980px){
-      .hero-grid,.grid-3,.grid-2,.pricing,.cta{grid-template-columns:1fr}
-      .nav-links{display:none}
-      .row{grid-template-columns:1fr}
+    .option-button {
+      flex: 1;
+      margin: 0 5px;
+      padding: 10px;
+      font-size: 18px;
+      background: #f0f0f0;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .option-button:hover {
+      background: #e0e0e0;
+      transform: translateY(-2px);
+    }
+    .option-button:disabled {
+      background: #ddd;
+      cursor: default;
+    }
+    .message {
+      margin-top: 15px;
+      font-size: 16px;
+      min-height: 24px;
+      color: #333;
+    }
+
+    /* Progress indicator in question overlay */
+    .progress {
+      font-size: 14px;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    /* Road piece for drag-and-drop */
+    #road-piece {
+      position: absolute;
+      width: var(--segment-width);
+      height: 80px;
+      background: #7a7a7a;
+      border-radius: 2px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+      z-index: 9;
+      display: none;
+    }
+
+    /* Game over overlay */
+    #game-over {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      color: #fff;
+      flex-direction: column;
+      text-align: center;
+    }
+    #game-over.active {
+      display: flex;
+    }
+    #game-over button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #ff5555;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #game-over button:hover {
+      background: #e04444;
     }
   </style>
 </head>
 <body>
-  <nav class="nav">
-    <div class="wrap nav-inner">
-      <a href="#" class="brand">
-        <span class="logo">E</span>
-        <span>EditorClaw</span>
-      </a>
-      <div class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#workflow">Workflow</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#faq">FAQ</a>
-        <a href="#contact" class="btn ghost">Request Demo</a>
+  <div id="game">
+    <div id="road"></div>
+    <div id="car"></div>
+  </div>
+
+  <!-- Heads-up display showing remaining lives and score -->
+  <div id="hud">
+    <div id="lives"></div>
+    <div id="score"></div>
+  </div>
+
+  <!-- Road piece (hidden until needed) -->
+  <div id="road-piece"></div>
+
+  <!-- Question overlay -->
+  <div id="question-overlay">
+    <div class="question-content">
+      <div class="progress" id="progress"></div>
+      <img id="question-image" src="" alt="Question image">
+      <div class="word-display" id="word-display"></div>
+      <div class="options">
+        <button class="option-button" id="opt1"></button>
+        <button class="option-button" id="opt2"></button>
+        <button class="option-button" id="opt3"></button>
       </div>
+      <div class="message" id="message"></div>
     </div>
-  </nav>
+  </div>
 
-  <header class="hero">
-    <div class="wrap hero-grid">
-      <div>
-        <div class="eyebrow">Early access for scientific journals and editorial offices</div>
-        <h1>AI editorial support built for journal workflows.</h1>
-        <p class="lead">
-          EditorClaw helps scientific editors parse manuscripts, generate structured editorial assessments,
-          recommend reviewers with explainable scoring, and support faster decisions in privacy-sensitive environments.
-        </p>
-        <div class="hero-actions">
-          <a class="btn primary" href="#contact">Request early access</a>
-          <a class="btn ghost" href="#features">See features</a>
-        </div>
-        <div class="meta">
-          <span class="chip">PDF auto parsing</span>
-          <span class="chip">14-point editorial review</span>
-          <span class="chip">Reviewer recommendation</span>
-          <span class="chip">COI screening</span>
-          <span class="chip">Local-first deployment</span>
-        </div>
-      </div>
+  <!-- Game over overlay -->
+  <div id="game-over">
+    <h2 id="game-over-title">Game Over</h2>
+    <p id="game-over-text"></p>
+    <button id="restart-btn">Restart</button>
+  </div>
 
-      <div class="hero-card">
-        <div class="mock">
-          <div class="mock-top">
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span style="margin-left:8px">EditorClaw workflow preview</span>
-          </div>
-          <div class="mock-body">
-            <div>
-              <span class="tag">PDF parsed</span>
-              <span class="tag">Editorial review</span>
-              <span class="tag">Reviewer match</span>
-            </div>
+  <script>
+    // List of questions for the game.
+    const questions = [
+      {
+        image: 'images/apple.png',
+        word: 'apple'
+      },
+      {
+        image: 'images/ball.png',
+        word: 'ball'
+      },
+      {
+        image: 'images/tree.png',
+        word: 'tree'
+      },
+      {
+        image: 'images/house.png',
+        word: 'house'
+      },
+      {
+        image: 'images/cat.png',
+        word: 'cat'
+      }
+    ];
 
-            <div class="row">
-              <strong>Decision</strong>
-              <div>
-                <div style="margin-bottom:8px">Major Revision</div>
-                <div class="bar"><span style="width:74%"></span></div>
-              </div>
-            </div>
+    // Game state variables
+    let currentSegmentIndex = 0;
+    let wrongCount = 0;
+    const maxWrong = 3;
+    let currentQuestionIndex = 0;
+let segmentWidth = 120; // will be updated on init based on CSS variable
+let totalSegments = questions.length + 2; // starting and ending segments
+let currentMissingSegment = null;
+// Additional game state for score and lives
+let score = 0;
+let lives = maxWrong;
 
-            <div class="row">
-              <strong>Top reviewer</strong>
-              <div>
-                <div>Reviewer score 8.7 / 10</div>
-                <div class="small" style="margin-top:6px">High semantic match, strong methods overlap, no direct COI flags.</div>
-              </div>
-            </div>
+    // High score tracked across sessions
+    let highScore = 0;
 
-            <div class="row">
-              <strong>Key issues</strong>
-              <div class="small">Missing power rationale, incomplete mechanistic closure, and limited validation depth.</div>
-            </div>
+    /**
+     * Preprocess the questions to generate missing substrings, masked display strings,
+     * and distractor options automatically. This allows adding new words easily.
+     */
+    function preprocessQuestions() {
+      const letters = 'abcdefghijklmnopqrstuvwxyz';
+      questions.forEach(q => {
+        const word = q.word.toLowerCase();
+        // Decide whether to remove one or two characters based on word length
+        let removeLength = 1;
+        if (word.length >= 5 && Math.random() < 0.5) {
+          removeLength = 2;
+        }
+        // Choose a start index for removal
+        const maxStart = word.length - removeLength;
+        const startIdx = Math.floor(Math.random() * (maxStart + 1));
+        q.missing = word.substring(startIdx, startIdx + removeLength);
+        // Create the masked display with underscores
+        q.display = word.substring(0, startIdx) + '_'.repeat(removeLength) + word.substring(startIdx + removeLength);
+        // Generate two distractor options of the same length as the missing part
+        const distractors = [];
+        while (distractors.length < 2) {
+          let candidate = '';
+          if (removeLength === 1) {
+            candidate = letters[Math.floor(Math.random() * letters.length)];
+          } else {
+            // Two-letter candidate; choose two random letters
+            const c1 = letters[Math.floor(Math.random() * letters.length)];
+            const c2 = letters[Math.floor(Math.random() * letters.length)];
+            candidate = c1 + c2;
+          }
+          if (candidate !== q.missing && !distractors.includes(candidate)) {
+            distractors.push(candidate);
+          }
+        }
+        q.options = [q.missing, ...distractors];
+      });
+    }
 
-            <div class="row">
-              <strong>Deployment</strong>
-              <div class="small">Designed for local or institution-controlled use in privacy-sensitive editorial workflows.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
+    // DOM elements
+    const road = document.getElementById('road');
+    const car = document.getElementById('car');
+    const questionOverlay = document.getElementById('question-overlay');
+    const questionImage = document.getElementById('question-image');
+    const wordDisplay = document.getElementById('word-display');
+    const messageEl = document.getElementById('message');
+    let optionsButtons = [document.getElementById('opt1'), document.getElementById('opt2'), document.getElementById('opt3')];
+    const roadPiece = document.getElementById('road-piece');
+    const gameOverScreen = document.getElementById('game-over');
+    const gameOverText = document.getElementById('game-over-text');
+    const restartBtn = document.getElementById('restart-btn');
+const livesEl = document.getElementById('lives');
+const scoreEl = document.getElementById('score');
+const progressEl = document.getElementById('progress');
 
-  <section id="features">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Commercial-ready positioning for editorial teams</h2>
-        <p>
-          EditorClaw is designed for journals and publishers that want practical AI assistance without losing control over manuscript privacy, reviewer selection quality, or editorial consistency.
-        </p>
-      </div>
+    /**
+     * Initialize the game by building the road and resetting state.
+     */
+    function initGame() {
+      // Reset state
+      currentSegmentIndex = 0;
+      wrongCount = 0;
+      currentQuestionIndex = 0;
+      currentMissingSegment = null;
+      // Reset score and lives
+      score = 0;
+      lives = maxWrong;
 
-      <div class="grid-3">
-        <article class="card">
-          <h3>Structured editorial review</h3>
-          <p>Generate manuscript assessments across summary, rigor, methods, statistics, causality, ethics, novelty, and fit-to-journal.</p>
-        </article>
+      // Preprocess questions to generate missing parts and options
+      preprocessQuestions();
 
-        <article class="card">
-          <h3>PDF auto parsing</h3>
-          <p>Extract title, abstract, methods, results, discussion, affiliations, emails, and author metadata from manuscript PDFs.</p>
-        </article>
+      // Load high score from localStorage if available
+      const storedHigh = localStorage.getItem('cwGameHighScore');
+      highScore = storedHigh ? parseInt(storedHigh, 10) : 0;
 
-        <article class="card">
-          <h3>Reviewer recommendation</h3>
-          <p>Rank AE or reviewer candidates with semantic matching, keyword overlap, publication weighting, and explainable scoring.</p>
-        </article>
+      // Clear road
+      road.innerHTML = '';
 
-        <article class="card">
-          <h3>Conflict screening</h3>
-          <p>Flag basic reviewer conflicts using author names, author emails, and institutional overlap signals.</p>
-        </article>
+      // Build road segments
+      for (let i = 0; i < totalSegments; i++) {
+        const seg = document.createElement('div');
+        seg.classList.add('segment');
+        if (i === 0 || i === totalSegments - 1) {
+          seg.classList.add('full');
+        } else {
+          seg.classList.add('missing');
+          seg.dataset.questionIndex = i - 1; // map segment to question
+        }
+        road.appendChild(seg);
+      }
 
-        <article class="card">
-          <h3>Local-first architecture</h3>
-          <p>Support local or institution-controlled deployment to reduce unnecessary manuscript exposure.</p>
-        </article>
+      // Update segmentWidth based on computed style of the first segment for responsive sizing
+      const firstSeg = road.querySelector('.segment');
+      if (firstSeg) {
+        segmentWidth = firstSeg.getBoundingClientRect().width;
+      }
 
-        <article class="card">
-          <h3>Configurable workflows</h3>
-          <p>Adapt prompts, scoring rules, output formats, and decision language to a journal’s editorial policy.</p>
-        </article>
-      </div>
-    </div>
-  </section>
+      // Position the car at the start
+      car.style.transform = 'translateX(0px)';
 
-  <section id="workflow">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>A workflow that editors can actually use</h2>
-        <p>
-          EditorClaw is not a generic writing assistant. It is built around the real sequence of editorial work: review the manuscript, identify major issues, find better reviewers, and support consistent internal decisions.
-        </p>
-      </div>
+      // Hide overlays
+      questionOverlay.classList.remove('active');
+      gameOverScreen.classList.remove('active');
+      roadPiece.style.display = 'none';
+      // Update HUD
+      updateHUD();
 
-      <div class="steps">
-        <div class="step">
-          <div class="num">1</div>
-          <div>
-            <h3 style="margin:0 0 8px">Import manuscript content</h3>
-            <p class="small" style="margin:0">Upload a manuscript PDF or paste title and abstract from your editorial system.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="num">2</div>
-          <div>
-            <h3 style="margin:0 0 8px">Generate editorial assessment</h3>
-            <p class="small" style="margin:0">Produce a structured editorial review that covers rigor, design, methods, statistics, ethics, and journal fit.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="num">3</div>
-          <div>
-            <h3 style="margin:0 0 8px">Recommend AE or reviewers</h3>
-            <p class="small" style="margin:0">Search your expert database and return ranked candidates with semantic match signals and plain-language explanations.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="num">4</div>
-          <div>
-            <h3 style="margin:0 0 8px">Support final editorial decisions</h3>
-            <p class="small" style="margin:0">Use the output as a draft or internal memo while preserving human editorial judgment over every final decision.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+      // Start movement after short delay
+      setTimeout(() => {
+        nextMove();
+      }, 500);
+    }
 
-  <section>
-    <div class="wrap grid-2">
-      <article class="card">
-        <h3>Why editorial teams care</h3>
-        <ul class="list">
-          <li><span class="check">✓</span><span>Supports privacy-sensitive workflows involving unpublished manuscripts and reviewer data.</span></li>
-          <li><span class="check">✓</span><span>Helps standardize internal evaluation across editors or editorial offices.</span></li>
-          <li><span class="check">✓</span><span>Produces explainable reviewer recommendations instead of opaque black-box suggestions.</span></li>
-          <li><span class="check">✓</span><span>Can be adapted to journal-specific review rubrics and decision language.</span></li>
-        </ul>
-      </article>
+    /**
+     * Move the car to the next segment. If the next segment is a missing one,
+     * trigger the corresponding question.
+     */
+    function nextMove() {
+      if (currentSegmentIndex >= totalSegments - 1) {
+        // Reached end, show winning message
+        showGameOver(true);
+        return;
+      }
+      currentSegmentIndex++;
+      // Animate car movement
+      car.style.transition = 'transform 0.6s ease';
+      car.style.transform = 'translateX(' + (currentSegmentIndex * segmentWidth) + 'px)';
+      // Determine if this segment triggers a question
+      const seg = road.children[currentSegmentIndex];
+      if (seg.classList.contains('missing')) {
+        // Wait for animation to complete before showing question
+        setTimeout(() => {
+          currentMissingSegment = seg;
+          showQuestion(parseInt(seg.dataset.questionIndex));
+        }, 650);
+      } else {
+        // Continue moving after a short pause
+        setTimeout(() => {
+          nextMove();
+        }, 500);
+      }
+    }
 
-      <article class="card">
-        <h3>Best fit</h3>
-        <ul class="list">
-          <li><span class="check">✓</span><span>Scientific journals running editorial triage at scale</span></li>
-          <li><span class="check">✓</span><span>Editorial offices that want stronger reviewer recommendation workflows</span></li>
-          <li><span class="check">✓</span><span>Publishers exploring local or controlled AI adoption</span></li>
-          <li><span class="check">✓</span><span>Teams that need auditability and lower data exposure</span></li>
-        </ul>
-      </article>
-    </div>
-  </section>
+    /**
+     * Display the question overlay for the given question index.
+     * @param {number} qIndex
+     */
+    function showQuestion(qIndex) {
+      currentQuestionIndex = qIndex;
+      const q = questions[qIndex];
+      // Populate overlay
+      questionImage.src = q.image;
+      wordDisplay.textContent = q.display;
+      // Shuffle options to randomize positions
+      const shuffledOptions = q.options.slice().sort(() => Math.random() - 0.5);
+      for (let i = 0; i < optionsButtons.length; i++) {
+        const btn = optionsButtons[i];
+        btn.disabled = false;
+        btn.textContent = shuffledOptions[i];
+        // Remove any previous listeners to avoid stacking
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        optionsButtons[i] = newBtn;
+      }
+      // Re-attach listeners
+      optionsButtons.forEach(btn => {
+        btn.addEventListener('click', handleOptionClick);
+      });
+      messageEl.textContent = '';
+      // Show progress (e.g., 第1关/共5关)
+      progressEl.textContent = '第 ' + (currentQuestionIndex + 1) + ' 关/共 ' + questions.length + ' 关';
+      // Show overlay
+      questionOverlay.classList.add('active');
+    }
 
-  <section id="pricing">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Commercial framing for early customer conversations</h2>
-        <p>
-          
-        </p>
-      </div>
+    /**
+     * Handle click on an answer option.
+     * @param {Event} e
+     */
+    function handleOptionClick(e) {
+      const chosen = e.target.textContent;
+      const q = questions[currentQuestionIndex];
+      // Disable all buttons
+      optionsButtons.forEach(btn => btn.disabled = true);
+      if (chosen === q.missing) {
+        // Correct answer
+        handleCorrectAnswer();
+      } else {
+        // Wrong answer
+        handleWrongAnswer();
+      }
+    }
 
-      <div class="pricing">
-        <div class="price">
-          <div class="label">Pilot</div>
-          <h3>Single journal team</h3>
-          <div class="amount">Custom</div>
-          <p class="desc">Early-stage pilot with manuscript parsing, structured review, reviewer recommendation, and workflow feedback.</p>
-        </div>
+    /**
+     * Called when the player selects the correct option.
+     */
+    function handleCorrectAnswer() {
+      const q = questions[currentQuestionIndex];
+      // Show full word
+      wordDisplay.textContent = q.word;
+      messageEl.textContent = '回答正确！请拖动路段填补空缺。';
+      // Increase score and update HUD
+      score += 10;
+      updateHUD();
+      // Create road piece and enable dragging
+      showRoadPiece();
+    }
 
-        <div class="price featured">
-          <div class="label">Professional</div>
-          <h3>Editorial office</h3>
-          <div class="amount">Custom</div>
-          <p class="desc">Workflow customization, local database integration, deployment guidance, and support for operational editorial use.</p>
-        </div>
+    /**
+     * Called when the player selects the wrong option.
+     */
+    function handleWrongAnswer() {
+      const q = questions[currentQuestionIndex];
+      wrongCount++;
+      lives--;
+      // Show correct answer
+      wordDisplay.textContent = q.word;
+      messageEl.textContent = '答错了！正确答案是 "' + q.missing + '".';
+      // Fill missing segment automatically
+      currentMissingSegment.classList.remove('missing');
+      currentMissingSegment.classList.add('full');
+      // Hide options after a short delay and continue
+      setTimeout(() => {
+        questionOverlay.classList.remove('active');
+        if (lives <= 0) {
+          showGameOver(false);
+        } else {
+          nextMove();
+        }
+      }, 1500);
+      // Update HUD after losing a life
+      updateHUD();
+    }
 
-        <div class="price">
-          <div class="label">Enterprise</div>
-          <h3>Publisher group</h3>
-          <div class="amount">Custom</div>
-          <p class="desc">Multi-team rollout, governance support, security coordination, and product adaptation across journals.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+    /**
+     * Show the draggable road piece and set up pointer events.
+     */
+    function showRoadPiece() {
+      // Recompute segmentWidth for responsive sizing
+      segmentWidth = road.querySelector('.segment').getBoundingClientRect().width;
+      const roadRect = road.getBoundingClientRect();
+      const pieceStartX = (window.innerWidth - segmentWidth) / 2;
+      const pieceStartY = roadRect.top + roadRect.height + 20;
+      roadPiece.style.display = 'block';
+      // Adjust piece dimensions to match the segment and road
+      roadPiece.style.width = segmentWidth + 'px';
+      roadPiece.style.height = roadRect.height + 'px';
+      roadPiece.style.left = pieceStartX + 'px';
+      roadPiece.style.top = pieceStartY + 'px';
+      roadPiece.style.transition = 'none';
 
-  <section id="faq">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Frequently asked questions</h2>
-        <p></p>
-      </div>
+      let dragging = false;
+      let offsetX = 0;
+      let offsetY = 0;
 
-      <div class="faq">
-        <details>
-          <summary>Does EditorClaw replace editors or peer review?</summary>
-          <p>No. EditorClaw is a decision-support system. It helps editors review manuscripts and identify better reviewer options faster, but it does not replace human editorial judgment.</p>
-        </details>
+      function pointerDownHandler(ev) {
+        ev.preventDefault();
+        dragging = true;
+        offsetX = ev.clientX - roadPiece.offsetLeft;
+        offsetY = ev.clientY - roadPiece.offsetTop;
+        roadPiece.setPointerCapture(ev.pointerId);
+      }
 
-        <details>
-          <summary>Can it run locally instead of sending manuscripts to third-party cloud tools?</summary>
-          <p>Yes. EditorClaw is designed around local-first and institution-controlled deployment options, which can reduce unnecessary manuscript exposure.</p>
-        </details>
+      function pointerMoveHandler(ev) {
+        if (!dragging) return;
+        ev.preventDefault();
+        const x = ev.clientX - offsetX;
+        const y = ev.clientY - offsetY;
+        roadPiece.style.left = x + 'px';
+        roadPiece.style.top = y + 'px';
+      }
 
-        <details>
-          <summary>Can we use our own reviewer or AE database?</summary>
-          <p>Yes. The recommendation layer is designed to work with local Excel or structured expert databases and can be adapted to additional fields.</p>
-        </details>
+      function pointerUpHandler(ev) {
+        if (!dragging) return;
+        dragging = false;
+        roadPiece.releasePointerCapture(ev.pointerId);
+        // Check overlap with target segment
+        const pieceRect = roadPiece.getBoundingClientRect();
+        const targetRect = currentMissingSegment.getBoundingClientRect();
+        const overlapX = pieceRect.right > targetRect.left && pieceRect.left < targetRect.right;
+        const overlapY = pieceRect.bottom > targetRect.top && pieceRect.top < targetRect.bottom;
+        if (overlapX && overlapY) {
+          // Snap to target position
+          roadPiece.style.left = targetRect.left + 'px';
+          roadPiece.style.top = targetRect.top + 'px';
+          // Mark segment as full
+          currentMissingSegment.classList.remove('missing');
+          currentMissingSegment.classList.add('full');
+          // Hide the piece after slight delay
+          setTimeout(() => {
+            roadPiece.style.display = 'none';
+            questionOverlay.classList.remove('active');
+            nextMove();
+          }, 500);
+          // Remove event listeners to prevent duplication
+          removePointerListeners();
+        } else {
+          // Reset to starting point
+          roadPiece.style.left = pieceStartX + 'px';
+          roadPiece.style.top = pieceStartY + 'px';
+        }
+      }
 
-        <details>
-          <summary>Can the review template be customized for a specific journal?</summary>
-          <p>Yes. Review structure, prompts, decision language, and scoring logic can be aligned to a journal’s editorial standards.</p>
-        </details>
-      </div>
-    </div>
-  </section>
+      function removePointerListeners() {
+        roadPiece.removeEventListener('pointerdown', pointerDownHandler);
+        roadPiece.removeEventListener('pointermove', pointerMoveHandler);
+        roadPiece.removeEventListener('pointerup', pointerUpHandler);
+      }
 
-  <section id="contact">
-    <div class="wrap">
-      <div class="cta">
-        <div>
-          <h2 style="margin:0 0 12px;font-size:clamp(30px,4vw,44px);letter-spacing:-1px;">Looking for an early partner journal?</h2>
-          <p class="small" style="margin:0;line-height:1.8;">
-            
-          </p>
-        </div>
-        <div class="card" style="margin:0;background:rgba(8,12,24,.28)">
-          <h3 style="margin-top:0">Contact</h3>
-          <p class="small" style="margin:0 0 10px;line-height:1.8">
-            Email: hello@editorclaw.ai<br>
-            Website: editorclaw.ai<br>
-            Availability: Early access and pilot collaboration
-          </p>
-          <a class="btn primary" href="mailto:hello@editorclaw.ai">Request a demo</a>
-        </div>
-      </div>
-    </div>
-  </section>
+      // Attach event listeners
+      roadPiece.addEventListener('pointerdown', pointerDownHandler);
+      roadPiece.addEventListener('pointermove', pointerMoveHandler);
+      roadPiece.addEventListener('pointerup', pointerUpHandler);
+    }
 
-  <footer>
-    <div class="wrap foot">
-      <div class="brand">
-        <span class="logo">E</span>
-        <span>EditorClaw</span>
-      </div>
-      <div>© 2026 EditorClaw. All rights reserved.</div>
-    </div>
-  </footer>
+    /**
+     * Display the game over screen.
+     * @param {boolean} won - Indicates whether the player reached the end.
+     */
+    function showGameOver(won) {
+      questionOverlay.classList.remove('active');
+      roadPiece.style.display = 'none';
+      gameOverScreen.classList.add('active');
+      const title = won ? '恭喜通关！' : '游戏结束';
+      // Update high score if current score is greater
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('cwGameHighScore', String(score));
+      }
+      // Build message including current and high score
+      let text;
+      if (won) {
+        text = '你顺利通过了所有关卡！';
+      } else {
+        text = '你已经用完了所有机会。';
+      }
+      text += '\n本次得分：' + score + '\n最高得分：' + highScore;
+      document.getElementById('game-over-title').textContent = title;
+      gameOverText.textContent = text;
+    }
+
+    /**
+     * Update the HUD elements (lives and score).
+     */
+    function updateHUD() {
+      // Update lives display (hearts)
+      livesEl.innerHTML = '';
+      for (let i = 0; i < lives; i++) {
+        livesEl.innerHTML += '❤';
+      }
+      // Update score display
+      scoreEl.textContent = '分数: ' + score;
+    }
+
+    // Restart button handler
+    restartBtn.addEventListener('click', () => {
+      gameOverScreen.classList.remove('active');
+      initGame();
+    });
+
+    // Initialize on page load
+    window.addEventListener('load', initGame);
+  </script>
 </body>
 </html>
