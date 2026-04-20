@@ -36,12 +36,12 @@
     .pill{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);box-shadow:var(--shadow);border-radius:999px;padding:10px 14px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
     .scene{position:absolute;inset:0;z-index:1;}
     .scene svg{width:100%;height:100%;display:block;}
-    .bridge-zone{position:absolute;left:0;right:0;top:76px;height:200px;z-index:14;pointer-events:none;}
+    .bridge-zone{position:absolute;left:0;right:0;top:360px;height:250px;z-index:14;pointer-events:none;}
     .bridge-zone.active{pointer-events:auto;}
-    .lane-target{position:absolute;top:0;width:70px;height:150px;transform:translateX(-50%);display:flex;justify-content:center;align-items:flex-start;pointer-events:none;}
-    .lane-glow{position:absolute;top:8px;width:54px;height:128px;border-radius:28px;border:2px dashed rgba(75,139,255,.45);background:rgba(75,139,255,.06);}
-    .lane-name{position:absolute;top:138px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap;background:rgba(255,255,255,.75);padding:2px 6px;border-radius:999px;}
-    .bridge-piece{position:absolute;top:16px;left:191px;width:48px;height:132px;border-radius:28px;background:var(--road);border:2px solid rgba(255,255,255,.45);box-shadow:0 6px 16px rgba(0,0,0,.18);touch-action:none;display:flex;justify-content:center;pointer-events:auto;transition:box-shadow .2s ease, transform .2s ease;}
+    .lane-target{position:absolute;top:0;width:70px;height:170px;transform:translateX(-50%);display:flex;justify-content:center;align-items:flex-start;pointer-events:none;}
+    .lane-glow{position:absolute;top:10px;width:54px;height:150px;border-radius:28px;border:2px dashed rgba(75,139,255,.45);background:rgba(75,139,255,.06);}
+    .lane-name{position:absolute;top:168px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap;background:rgba(255,255,255,.75);padding:2px 6px;border-radius:999px;}
+    .bridge-piece{position:absolute;top:36px;left:191px;width:48px;height:156px;border-radius:28px;background:var(--road);border:2px solid rgba(255,255,255,.45);box-shadow:0 6px 16px rgba(0,0,0,.18);touch-action:none;display:flex;justify-content:center;pointer-events:auto;transition:box-shadow .2s ease, transform .2s ease;}
     .bridge-piece::before{content:"";position:absolute;top:12px;bottom:12px;left:50%;width:4px;transform:translateX(-50%);background:repeating-linear-gradient(180deg,var(--roadLine) 0 16px, transparent 16px 24px);border-radius:999px;opacity:.92;}
     .bridge-piece.active{box-shadow:0 12px 24px rgba(75,139,255,.28);transform:scale(1.02);}
     .bridge-piece.locked{pointer-events:none;}
@@ -56,15 +56,12 @@
     .quiz-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px;}
     .title{font-size:18px;font-weight:800;}
     .subtitle{font-size:13px;color:var(--sub);line-height:1.45;}
-    .mini{font-size:13px;color:var(--sub);text-align:right;}
+    .mini{font-size:13px;color:var(--sub);}
     .quiz-card{display:flex;gap:12px;align-items:center;background:#f7fbff;border-radius:20px;padding:12px;margin-bottom:12px;border:1px solid #e1edfb;}
     .pic{width:90px;height:90px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px #e9eef7;overflow:hidden;flex:0 0 auto;}
     .word-box{flex:1;min-width:0;}
     .word-cn{font-size:14px;color:var(--sub);margin-bottom:8px;}
-    .word-mask{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;min-height:48px;}
-    .mask-cell{min-width:24px;height:42px;display:inline-flex;align-items:flex-end;justify-content:center;font-size:32px;font-weight:900;line-height:1;border-bottom:4px solid #7ea6da;padding:0 2px 2px;}
-    .mask-cell.empty{color:transparent;}
-    .mask-cell.filled{color:var(--text);}
+    .word-mask{font-size:32px;font-weight:900;letter-spacing:2px;word-break:break-word;}
     .options{display:grid;grid-template-columns:1fr;gap:10px;}
     .option-btn{border:none;border-radius:16px;padding:13px 14px;font-size:17px;font-weight:800;background:#edf4ff;color:#1d3557;}
     .option-btn:active{transform:scale(.99);}
@@ -81,7 +78,7 @@
     .btn{border:none;border-radius:16px;padding:14px 18px;font-size:17px;font-weight:800;background:var(--accent);color:#fff;width:100%;}
     .btn.secondary{margin-top:10px;background:#eef4ff;color:#1b3355;}
     .small-note{font-size:12px;color:var(--sub);margin-top:10px;line-height:1.5;}
-    .hint-float{position:absolute;left:50%;top:56px;transform:translateX(-50%);z-index:15;background:rgba(255,255,255,.9);color:#18467f;border:1px solid rgba(75,139,255,.18);box-shadow:var(--shadow);padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;}
+    .hint-float{position:absolute;left:50%;top:336px;transform:translateX(-50%);z-index:15;background:rgba(255,255,255,.9);color:#18467f;border:1px solid rgba(75,139,255,.18);box-shadow:var(--shadow);padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;}
     .hint-float.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
   </style>
 </head>
@@ -91,7 +88,7 @@
   <div class="ground"></div>
 
   <div class="hud">
-    <div class="pill"><span>🚗</span><span id="stageInfo">第 1 / 7 词</span></div>
+    <div class="pill"><span>🚗</span><span id="stageInfo">第 1 / 21 关</span></div>
     <div class="pill"><span>❌</span><span id="lifeInfo">答错 0 / 3</span></div>
   </div>
 
@@ -101,31 +98,31 @@
         <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.18"/></filter>
       </defs>
       <g filter="url(#shadow)">
-        <path d="M215 980 L215 310" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
-        <path d="M215 980 L215 310" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+        <path d="M215 980 L215 650" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
+        <path d="M215 980 L215 650" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
 
-        <path d="M215 310 Q170 272 96 220" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
-        <path d="M215 310 Q170 272 96 220" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+        <path d="M215 650 Q170 610 96 560" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
+        <path d="M215 650 Q170 610 96 560" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
 
-        <path d="M215 310 L215 220" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
-        <path d="M215 310 L215 220" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+        <path d="M215 650 L215 560" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
+        <path d="M215 650 L215 560" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
 
-        <path d="M215 310 Q260 272 334 220" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
-        <path d="M215 310 Q260 272 334 220" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+        <path d="M215 650 Q260 610 334 560" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
+        <path d="M215 650 Q260 610 334 560" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
 
-        <path d="M96 88 Q96 -80 28 -200" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
-        <path d="M96 88 Q96 -80 28 -200" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+        <path d="M96 410 Q96 170 28 -90" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
+        <path d="M96 410 Q96 170 28 -90" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
 
-        <path d="M215 88 L215 -200" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
-        <path d="M215 88 L215 -200" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+        <path d="M215 410 L215 -90" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
+        <path d="M215 410 L215 -90" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
 
-        <path d="M334 88 Q334 -80 402 -200" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
-        <path d="M334 88 Q334 -80 402 -200" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+        <path d="M334 410 Q334 170 402 -90" stroke="#59646f" stroke-width="56" stroke-linecap="round" fill="none"/>
+        <path d="M334 410 Q334 170 402 -90" stroke="#f6d85f" stroke-width="6" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
       </g>
 
-      <rect x="68" y="86" width="56" height="136" rx="28" fill="#dce7f4"/>
-      <rect x="187" y="86" width="56" height="136" rx="28" fill="#dce7f4"/>
-      <rect x="306" y="86" width="56" height="136" rx="28" fill="#dce7f4"/>
+      <rect x="68" y="408" width="56" height="156" rx="28" fill="#dce7f4"/>
+      <rect x="187" y="408" width="56" height="156" rx="28" fill="#dce7f4"/>
+      <rect x="306" y="408" width="56" height="156" rx="28" fill="#dce7f4"/>
     </svg>
   </div>
 
@@ -156,9 +153,9 @@
     <div class="quiz-head">
       <div>
         <div class="title">补全单词，修好前方的路</div>
-        <div class="subtitle" id="instructionText">根据难度补 1～3 次字母，全部答对后才能拖拽竖直路段。</div>
+        <div class="subtitle" id="instructionText">先从下方选出正确字母，答对后才能拖拽竖直路段。</div>
       </div>
-      <div class="mini" id="statusMini">一级 · 第 1 / 1 次</div>
+      <div class="mini" id="statusMini">等待作答</div>
     </div>
     <div class="quiz-card">
       <div class="pic" id="picBox"></div>
@@ -174,9 +171,9 @@
   <div class="overlay" id="startOverlay">
     <div class="dialog">
       <h2>单词修路小车</h2>
-      <p>小车开到岔路口时，前方会有断开的竖直路段。你需要先补全单词，再把路段拖到左路、中路或右路之一。</p>
+      <p>小车开到岔路口时，前方会有断开的竖直路段。你需要先做对单词补全题，再把路段拖到左路、中路或右路之一。</p>
       <button class="btn" id="startBtn">开始游戏</button>
-      <div class="small-note">规则：共 7 个词，分三级难度。一级补 1 次字母，二级补 2 次，三级补 3 次。每个词只要有一次选错，就会显示正确答案并进入下一个词。累计答错 3 次游戏结束。</div>
+      <div class="small-note">规则：共 21 个单词关卡，累计答错 3 次游戏结束。答对后，拖动中间的竖直路段补到目标路径，小车会从道路正中间开走。上一辆开走后，下一辆会从下方开上来。</div>
     </div>
   </div>
 
@@ -193,72 +190,51 @@
 <script>
 (() => {
   const slots = {
-    left: { x: 96, y: 8 },
-    center: { x: 215, y: 8 },
-    right: { x: 334, y: 8 }
+    left: { x: 96, y: 48 },
+    center: { x: 215, y: 48 },
+    right: { x: 334, y: 48 }
   };
   const startPos = { x: 215, y: 820 };
   const hiddenPos = { x: 215, y: 1030 };
-  const fork = { x: 215, y: 310 };
+  const fork = { x: 215, y: 650 };
   const lowerGap = {
-    left: { x: 96, y: 220 },
-    center: { x: 215, y: 220 },
-    right: { x: 334, y: 220 }
+    left: { x: 96, y: 560 },
+    center: { x: 215, y: 560 },
+    right: { x: 334, y: 560 }
   };
   const upperGap = {
-    left: { x: 96, y: 88 },
-    center: { x: 215, y: 88 },
-    right: { x: 334, y: 88 }
+    left: { x: 96, y: 410 },
+    center: { x: 215, y: 410 },
+    right: { x: 334, y: 410 }
   };
   const exits = {
-    left: { x: 28, y: -200 },
-    center: { x: 215, y: -200 },
-    right: { x: 402, y: -200 }
+    left: { x: 28, y: -90 },
+    center: { x: 215, y: -90 },
+    right: { x: 402, y: -90 }
   };
 
   const questions = [
-    {
-      key: 'cat', difficulty: 1, levelName: '一级', zh: '图片提示：猫', word: 'CAT', image: svgCat(),
-      steps: [{ mask: 'C_T', answer: 'A', options: ['O', 'A', 'U'] }]
-    },
-    {
-      key: 'book', difficulty: 1, levelName: '一级', zh: '图片提示：书', word: 'BOOK', image: svgBook(),
-      steps: [{ mask: 'BO_K', answer: 'O', options: ['A', 'E', 'O'] }]
-    },
-    {
-      key: 'sun', difficulty: 1, levelName: '一级', zh: '图片提示：太阳', word: 'SUN', image: svgSun(),
-      steps: [{ mask: 'S_N', answer: 'U', options: ['E', 'A', 'U'] }]
-    },
-    {
-      key: 'apple', difficulty: 2, levelName: '二级', zh: '图片提示：苹果', word: 'APPLE', image: svgApple(),
-      steps: [
-        { mask: 'A_PLE', answer: 'P', options: ['P', 'R', 'T'] },
-        { mask: 'AP_LE', answer: 'P', options: ['P', 'L', 'M'] }
-      ]
-    },
-    {
-      key: 'bread', difficulty: 2, levelName: '二级', zh: '图片提示：面包', word: 'BREAD', image: svgBread(),
-      steps: [
-        { mask: 'B_EAD', answer: 'R', options: ['R', 'L', 'N'] },
-        { mask: 'BRE_D', answer: 'A', options: ['O', 'A', 'U'] }
-      ]
-    },
-    {
-      key: 'train', difficulty: 3, levelName: '三级', zh: '图片提示：火车', word: 'TRAIN', image: svgTrain(),
-      steps: [
-        { mask: '_RAIN', answer: 'T', options: ['T', 'B', 'D'] },
-        { mask: 'TR_IN', answer: 'A', options: ['A', 'O', 'E'] },
-        { mask: 'TRAI_', answer: 'N', options: ['M', 'N', 'R'] }
-      ]
-    },
-    {
-      key: 'plane', difficulty: 3, levelName: '三级', zh: '图片提示：飞机', word: 'PLANE', image: emojiCard('✈️', '#f4f9ff'),
-      steps: [
-        { mask: '_LANE', answer: 'P', options: ['P', 'B', 'T'] },
-        { mask: 'PL_NE', answer: 'A', options: ['A', 'O', 'U'] },
-        { mask: 'PLAN_', answer: 'E', options: ['I', 'E', 'A'] }
-      ]
-    }
+    { key: 'apple', zh: '图片提示：苹果', word: 'APPLE', mask: 'A__LE', answer: 'PP', options: ['PP', 'PL', 'AP'], image: svgApple() },
+    { key: 'cat', zh: '图片提示：猫', word: 'CAT', mask: 'C_T', answer: 'A', options: ['O', 'A', 'U'], image: svgCat() },
+    { key: 'book', zh: '图片提示：书', word: 'BOOK', mask: 'BO_K', answer: 'O', options: ['A', 'E', 'O'], image: svgBook() },
+    { key: 'fish', zh: '图片提示：鱼', word: 'FISH', mask: 'FI_H', answer: 'S', options: ['S', 'T', 'R'], image: svgFish() },
+    { key: 'sun', zh: '图片提示：太阳', word: 'SUN', mask: 'S_N', answer: 'U', options: ['E', 'A', 'U'], image: svgSun() },
+    { key: 'train', zh: '图片提示：火车', word: 'TRAIN', mask: 'TRA__', answer: 'IN', options: ['AN', 'IN', 'EN'], image: svgTrain() },
+    { key: 'bread', zh: '图片提示：面包', word: 'BREAD', mask: 'BR__D', answer: 'EA', options: ['EA', 'OO', 'IE'], image: svgBread() },
+    { key: 'dog', zh: '图片提示：狗', word: 'DOG', mask: 'D_G', answer: 'O', options: ['A', 'O', 'U'], image: emojiCard('🐶', '#fff8f3') },
+    { key: 'moon', zh: '图片提示：月亮', word: 'MOON', mask: 'MO_N', answer: 'O', options: ['A', 'E', 'O'], image: emojiCard('🌙', '#f4f6ff') },
+    { key: 'star', zh: '图片提示：星星', word: 'STAR', mask: 'ST_R', answer: 'A', options: ['A', 'O', 'E'], image: emojiCard('⭐', '#fffaf0') },
+    { key: 'cake', zh: '图片提示：蛋糕', word: 'CAKE', mask: 'CA_E', answer: 'K', options: ['T', 'P', 'K'], image: emojiCard('🍰', '#fff7fb') },
+    { key: 'milk', zh: '图片提示：牛奶', word: 'MILK', mask: 'MI_K', answer: 'L', options: ['R', 'L', 'N'], image: emojiCard('🥛', '#f6fbff') },
+    { key: 'bird', zh: '图片提示：小鸟', word: 'BIRD', mask: 'BI_D', answer: 'R', options: ['N', 'R', 'L'], image: emojiCard('🐦', '#f3fbff') },
+    { key: 'tree', zh: '图片提示：树', word: 'TREE', mask: 'TR_E', answer: 'E', options: ['A', 'E', 'I'], image: emojiCard('🌳', '#f4fff2') },
+    { key: 'duck', zh: '图片提示：鸭子', word: 'DUCK', mask: 'DU_K', answer: 'C', options: ['G', 'C', 'R'], image: emojiCard('🦆', '#f9fbff') },
+    { key: 'shoe', zh: '图片提示：鞋子', word: 'SHOE', mask: 'SH_E', answer: 'O', options: ['A', 'O', 'U'], image: emojiCard('👟', '#f7faff') },
+    { key: 'bus', zh: '图片提示：公交车', word: 'BUS', mask: 'B_S', answer: 'U', options: ['U', 'A', 'O'], image: emojiCard('🚌', '#f8fbff') },
+    { key: 'frog', zh: '图片提示：青蛙', word: 'FROG', mask: 'FR_G', answer: 'O', options: ['A', 'E', 'O'], image: emojiCard('🐸', '#f3fff4') },
+    { key: 'kite', zh: '图片提示：风筝', word: 'KITE', mask: 'KI_E', answer: 'T', options: ['T', 'D', 'P'], image: emojiCard('🪁', '#f6fbff') },
+    { key: 'pear', zh: '图片提示：梨', word: 'PEAR', mask: 'PE_R', answer: 'A', options: ['O', 'A', 'U'], image: emojiCard('🍐', '#f8fff2') },
+    { key: 'plane', zh: '图片提示：飞机', word: 'PLANE', mask: 'PL_NE', answer: 'A', options: ['A', 'O', 'U'], image: emojiCard('✈️', '#f4f9ff') }
   ];
 
   const els = {
@@ -297,13 +273,13 @@
       wrong: 0,
       solved: false,
       draggingEnabled: false,
-      answeredThisStep: false,
+      answeredThisStage: false,
       currentQuestion: null,
-      currentStepIndex: 0,
-      questionOrder: [...questions],
+      questionOrder: shuffle([...questions]),
       activeCarKey: 'A',
       isAnimating: false,
-      raf: null
+      raf: null,
+      transitionTimer: null
     };
     placeCar(els.carA, startPos.x, startPos.y, 0, true);
     placeCar(els.carB, hiddenPos.x, hiddenPos.y, 0, false);
@@ -313,7 +289,17 @@
     els.quizPanel.classList.remove('repair-mode');
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
+    els.statusMini.textContent = '等待作答';
+    els.instructionText.textContent = '先从下方选出正确字母，答对后才能拖拽竖直路段。';
     els.dragHint.classList.remove('show');
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
 
   function getActiveCar() { return state.activeCarKey === 'A' ? els.carA : els.carB; }
@@ -335,11 +321,11 @@
     els.bridgeZone.classList.remove('active');
     els.quizPanel.classList.remove('repair-mode');
     els.bridgePiece.classList.remove('active', 'locked');
-    setBridgePosition(215, 16);
+    setBridgePosition(215, 396);
   }
 
   function updateHUD() {
-    els.stageInfo.textContent = `第 ${Math.min(state.stage + 1, questions.length)} / ${questions.length} 词`;
+    els.stageInfo.textContent = `第 ${Math.min(state.stage + 1, questions.length)} / ${questions.length} 关`;
     els.lifeInfo.textContent = `答错 ${state.wrong} / 3`;
   }
 
@@ -348,24 +334,27 @@
     if (state.stage >= questions.length) return endGame(true);
     state.solved = false;
     state.draggingEnabled = false;
-    state.answeredThisStep = false;
+    state.answeredThisStage = false;
     state.isAnimating = false;
-    state.currentStepIndex = 0;
     resetBridge();
-
-    const q = state.questionOrder[state.stage];
+    const q = state.questionOrder[state.stage % state.questionOrder.length];
     state.currentQuestion = q;
     els.picBox.innerHTML = q.image;
     els.cnHint.textContent = q.zh;
+    els.wordMask.textContent = q.mask;
+    els.options.innerHTML = '';
     els.feedback.textContent = '';
     els.feedback.className = 'feedback';
-    els.statusMini.textContent = `${q.levelName} · 第 1 / ${q.steps.length} 次`;
-    els.instructionText.textContent = q.steps.length === 1
-      ? '选对 1 次字母后，就能拖动竖直路段。'
-      : `这个词需要连续补 ${q.steps.length} 次字母，全部答对后才能修路。`;
+    els.statusMini.textContent = '等待作答';
+    els.instructionText.textContent = '选对后，拖动竖直路段到左路 / 中路 / 右路。';
     els.dragHint.classList.remove('show');
-    renderCurrentStep();
-
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => checkAnswer(opt, btn));
+      els.options.appendChild(btn);
+    });
     const active = getActiveCar();
     placeCar(active, startPos.x, startPos.y, 0, true);
     const next = getNextCar();
@@ -373,88 +362,33 @@
     updateHUD();
   }
 
-  function renderCurrentStep() {
-    const q = state.currentQuestion;
-    const step = q.steps[state.currentStepIndex];
-    renderMask(step.mask);
-    els.options.innerHTML = '';
-    step.options.forEach(opt => {
-      const btn = document.createElement('button');
-      btn.className = 'option-btn';
-      btn.textContent = opt;
-      btn.addEventListener('click', () => checkAnswer(opt, btn));
-      els.options.appendChild(btn);
-    });
-  }
-
-  function renderMask(mask, fillAnswer = null) {
-    const chars = mask.split('');
-    let filledOnce = false;
-    const html = chars.map(ch => {
-      if (ch === '_') {
-        if (!filledOnce && fillAnswer) {
-          filledOnce = true;
-          return `<span class="mask-cell filled">${fillAnswer}</span>`;
-        }
-        return '<span class="mask-cell empty">&nbsp;</span>';
-      }
-      return `<span class="mask-cell filled">${ch}</span>`;
-    }).join('');
-    els.wordMask.innerHTML = html;
-  }
-
-  function renderSolvedWord(word) {
-    els.wordMask.innerHTML = word.split('').map(ch => `<span class="mask-cell filled">${ch}</span>`).join('');
-  }
-
   function checkAnswer(opt, btn) {
-    if (state.answeredThisStep || state.draggingEnabled || state.isAnimating) return;
-    state.answeredThisStep = true;
+    if (state.answeredThisStage || state.draggingEnabled || state.isAnimating) return;
+    state.answeredThisStage = true;
     const q = state.currentQuestion;
-    const step = q.steps[state.currentStepIndex];
     const buttons = [...els.options.querySelectorAll('.option-btn')];
     buttons.forEach(b => b.disabled = true);
 
-    if (opt === step.answer) {
+    if (opt === q.answer) {
       btn.classList.add('correct');
-      renderMask(step.mask, step.answer);
-      const isFinalStep = state.currentStepIndex === q.steps.length - 1;
-      if (!isFinalStep) {
-        state.currentStepIndex += 1;
-        els.feedback.textContent = `答对了，继续补下一个字母。`;
-        els.feedback.className = 'feedback ok';
-        els.statusMini.textContent = `${q.levelName} · 第 ${state.currentStepIndex + 1} / ${q.steps.length} 次`;
-        els.instructionText.textContent = `还差 ${q.steps.length - state.currentStepIndex} 次，继续补完整个单词。`;
-        setTimeout(() => {
-          state.answeredThisStep = false;
-          els.feedback.textContent = '';
-          els.feedback.className = 'feedback';
-          renderCurrentStep();
-        }, 700);
-        return;
-      }
-
       state.solved = true;
       state.draggingEnabled = true;
-      renderSolvedWord(q.word);
       els.feedback.textContent = `答对了！完整单词：${q.word}`;
       els.feedback.className = 'feedback ok';
-      els.statusMini.textContent = `${q.levelName} · 可以修路`;
+      els.statusMini.textContent = '可以修路';
       els.instructionText.textContent = '把中间的竖直路段拖到你想走的那条路上。';
       els.quizPanel.classList.add('repair-mode');
       els.bridgeZone.classList.add('active');
       els.dragHint.classList.add('show');
-      state.answeredThisStep = false;
     } else {
       btn.classList.add('wrong');
-      const correctBtn = buttons.find(b => b.textContent === step.answer);
+      const correctBtn = buttons.find(b => b.textContent === q.answer);
       if (correctBtn) correctBtn.classList.add('correct');
-      renderSolvedWord(q.word);
       state.wrong += 1;
       updateHUD();
-      els.feedback.textContent = `答错了，正确单词是：${q.word}`;
+      els.feedback.textContent = `答错了，正确答案是：${q.answer}（${q.word}）`;
       els.feedback.className = 'feedback bad';
-      els.statusMini.textContent = `${q.levelName} · 本题跳过`;
+      els.statusMini.textContent = '本题跳过';
       if (state.wrong >= 3) {
         setTimeout(() => endGame(false), 1200);
       } else {
@@ -474,7 +408,7 @@
     els.bridgeZone.classList.remove('active');
     els.quizPanel.classList.remove('repair-mode');
     els.dragHint.classList.remove('show');
-    els.statusMini.textContent = `${state.currentQuestion.levelName} · 已接到${targetName === 'left' ? '左路' : targetName === 'center' ? '中路' : '右路'}`;
+    els.statusMini.textContent = `已接到${targetName === 'left' ? '左路' : targetName === 'center' ? '中路' : '右路'}`;
     animateDrive(targetName);
   }
 
@@ -485,12 +419,13 @@
     placeCar(next, hiddenPos.x, hiddenPos.y, 0, false);
 
     const segs = buildPath(targetName);
-    const total = 2550;
-    const nextStart = 1450;
+    const total = 2650;
+    const nextStart = 1550;
     const nextDuration = 850;
     const start = performance.now();
 
     cancelAnimationFrame(state.raf);
+    clearTimeout(state.transitionTimer);
 
     function tick(now) {
       const t = Math.min(1, (now - start) / total);
@@ -521,19 +456,19 @@
     const ug = upperGap[targetName];
     const ex = exits[targetName];
     const segs = [];
-    segs.push({ type:'line', p0:startPos, p1:fork, weight:0.42 });
+    segs.push({ type:'line', p0:startPos, p1:fork, weight:0.28 });
     if (targetName === 'center') {
-      segs.push({ type:'line', p0:fork, p1:lg, weight:0.08 });
-      segs.push({ type:'line', p0:lg, p1:ug, weight:0.16 });
-      segs.push({ type:'line', p0:ug, p1:ex, weight:0.34 });
+      segs.push({ type:'line', p0:fork, p1:lg, weight:0.10 });
+      segs.push({ type:'line', p0:lg, p1:ug, weight:0.18 });
+      segs.push({ type:'line', p0:ug, p1:ex, weight:0.44 });
     } else if (targetName === 'left') {
-      segs.push({ type:'quad', p0:fork, c:{x:170,y:274}, p1:lg, weight:0.12 });
-      segs.push({ type:'line', p0:lg, p1:ug, weight:0.16 });
-      segs.push({ type:'quad', p0:ug, c:{x:96,y:-80}, p1:ex, weight:0.30 });
+      segs.push({ type:'quad', p0:fork, c:{x:170,y:612}, p1:lg, weight:0.14 });
+      segs.push({ type:'line', p0:lg, p1:ug, weight:0.18 });
+      segs.push({ type:'quad', p0:ug, c:{x:96,y:170}, p1:ex, weight:0.40 });
     } else {
-      segs.push({ type:'quad', p0:fork, c:{x:260,y:274}, p1:lg, weight:0.12 });
-      segs.push({ type:'line', p0:lg, p1:ug, weight:0.16 });
-      segs.push({ type:'quad', p0:ug, c:{x:334,y:-80}, p1:ex, weight:0.30 });
+      segs.push({ type:'quad', p0:fork, c:{x:260,y:612}, p1:lg, weight:0.14 });
+      segs.push({ type:'line', p0:lg, p1:ug, weight:0.18 });
+      segs.push({ type:'quad', p0:ug, c:{x:334,y:170}, p1:ex, weight:0.40 });
     }
     return segs;
   }
@@ -580,7 +515,7 @@
     els.dragHint.classList.remove('show');
     if (success) {
       els.endTitle.textContent = '闯关成功';
-      els.endDesc.textContent = `太棒了！你帮小车修完了 7 个词对应的道路，累计答错 ${state.wrong} 次。`;
+      els.endDesc.textContent = `太棒了！你帮小车修完了所有道路，累计答错 ${state.wrong} 次。`;
     } else {
       els.endTitle.textContent = '游戏结束';
       els.endDesc.textContent = '累计答错 3 次，小车没法继续前进了。可以重新开始。';
@@ -640,14 +575,14 @@
       const zoneRect = zone.getBoundingClientRect();
       const candidates = Object.entries(slots).map(([name, pos]) => {
         const tx = zoneRect.left + pos.x;
-        const ty = zoneRect.top + pos.y + 66;
+        const ty = zoneRect.top + pos.y + 78;
         return { name, d: Math.hypot(centerX - tx, centerY - ty) };
       }).sort((a,b) => a.d - b.d);
 
-      if (candidates[0].d < 72) {
+      if (candidates[0].d < 82) {
         snapBridge(candidates[0].name);
       } else {
-        setBridgePosition(215, 16);
+        setBridgePosition(215, 396);
       }
     }
 
@@ -705,6 +640,15 @@
       <path d="M78 28 H50 V76 H72 C75.3 76 78 73.3 78 70Z" fill="#6c9ff0"/>
       <path d="M50 28 V76" stroke="#dce8ff" stroke-width="2"/>
       <path d="M30 40 H43 M30 48 H43 M57 40 H70 M57 48 H70" stroke="#eaf1ff" stroke-width="3" stroke-linecap="round"/>
+    </svg>`}
+  function svgFish(){return `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" rx="20" fill="#eefbff"/>
+      <ellipse cx="48" cy="52" rx="24" ry="16" fill="#52b6ff"/>
+      <path d="M70 52 L88 40 V64Z" fill="#3da7f3"/>
+      <circle cx="40" cy="48" r="3" fill="#17324d"/>
+      <path d="M22 52 Q16 47 12 52 Q16 57 22 52Z" fill="#7fd3ff"/>
+      <path d="M49 40 L58 30 L62 44Z" fill="#8dd7ff"/>
     </svg>`}
   function svgSun(){return `
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
