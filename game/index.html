@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>单词修路小车</title>
+  <style>
+    :root{
+      --bg1:#d8efff;--bg2:#eef7ff;--panel:#ffffffee;--text:#1d2a3a;--sub:#5d6d83;--accent:#4b8bff;
+      --ok:#15a06b;--bad:#d84a4a;--road:#5b6570;--roadLine:#f6d85f;--gap:#dce7f4;--shadow:0 10px 24px rgba(19,40,72,.12);
+      --radius:18px;--route-h:60dvh;--panel-h:38dvh;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 45%,#f8fbff 100%);color:var(--text);}
+    body{display:flex;justify-content:center;overflow:hidden;}
+    .app{width:100%;max-width:430px;height:100dvh;position:relative;overflow:hidden;background:linear-gradient(180deg,#cfeaff 0%,#edf7ff 55%,#f8fbff 100%);}
+    .sky{position:absolute;inset:0;background:
+      radial-gradient(circle at 15% 12%, rgba(255,255,255,.9) 0 34px, transparent 35px),
+      radial-gradient(circle at 24% 10%, rgba(255,255,255,.9) 0 24px, transparent 25px),
+      radial-gradient(circle at 76% 18%, rgba(255,255,255,.85) 0 30px, transparent 31px),
+      radial-gradient(circle at 84% 16%, rgba(255,255,255,.83) 0 24px, transparent 25px),
+      linear-gradient(180deg,#bce6ff 0%, #edf8ff 58%, #f8fbff 100%);
+    }
+    .ground{position:absolute;left:-12%;right:-12%;bottom:-96px;height:34%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);border-radius:50% 50% 0 0/100% 100% 0 0;}
+    .hud{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:28;display:flex;justify-content:space-between;gap:10px;}
+    .pill{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);box-shadow:var(--shadow);border-radius:999px;padding:10px 14px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
+
+    .scene{position:absolute;left:0;right:0;top:0;height:var(--route-h);z-index:1;overflow:hidden;}
+    .scene svg{width:100%;height:100%;display:block;overflow:visible;}
+
+    .bridge-zone{position:absolute;left:0;right:0;top:0;height:var(--route-h);z-index:18;pointer-events:none;overflow:hidden;}
+    .bridge-zone.active{pointer-events:auto;}
+    .lane-target{position:absolute;transform:translateX(-50%);width:64px;height:136px;pointer-events:none;}
+    .lane-glow{position:absolute;inset:0;border-radius:30px;border:2px dashed rgba(75,139,255,.45);background:rgba(75,139,255,.06);}
+    .lane-name{position:absolute;top:-26px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap;background:rgba(255,255,255,.75);padding:2px 6px;border-radius:999px;}
+    .bridge-piece{position:absolute;width:56px;height:136px;border-radius:28px;background:var(--road);border:2px solid rgba(255,255,255,.45);box-shadow:0 6px 16px rgba(0,0,0,.18);touch-action:none;display:flex;justify-content:center;pointer-events:auto;transition:box-shadow .2s ease, transform .2s ease, left .25s ease, top .25s ease;}
+    .bridge-piece::before{content:"";position:absolute;top:12px;bottom:12px;left:50%;width:6px;transform:translateX(-50%);background:repeating-linear-gradient(180deg,var(--roadLine) 0 16px, transparent 16px 24px);border-radius:999px;opacity:.92;}
+    .bridge-piece.active{box-shadow:0 12px 24px rgba(75,139,255,.28);transform:scale(1.02);transition:left 0s, top 0s, box-shadow .2s ease, transform .2s ease;}
+    .bridge-piece.locked{pointer-events:none;}
+
+    .cars-layer{position:absolute;left:0;right:0;top:0;height:var(--route-h);z-index:26;pointer-events:none;overflow:hidden;}
+    .car{position:absolute;width:42px;height:74px;transform:translate(-50%,-50%) rotate(0deg);filter:drop-shadow(0 5px 6px rgba(0,0,0,.18));opacity:0;}
+    .car.visible{opacity:1;}
+    .car svg{width:100%;height:100%;display:block;overflow:visible;}
+
+    .panel{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);height:var(--panel-h);background:var(--panel);backdrop-filter:blur(10px);border-radius:24px;padding:14px 14px 16px;box-shadow:var(--shadow);z-index:16;overflow:hidden;display:flex;flex-direction:column;}
+    .panel.repair-mode .feedback{display:none;}
+    .quiz-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px;flex:0 0 auto;}
+    .title{font-size:18px;font-weight:800;}
+    .subtitle{font-size:13px;color:var(--sub);line-height:1.45;}
+    .mini{font-size:13px;color:var(--sub);text-align:right;line-height:1.4;}
+    .quiz-card{display:flex;gap:12px;align-items:center;background:#f7fbff;border-radius:20px;padding:12px;margin-bottom:10px;border:1px solid #e1edfb;flex:0 0 auto;}
+    .pic{width:88px;height:88px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px #e9eef7;overflow:hidden;flex:0 0 auto;}
+    .word-box{flex:1;min-width:0;}
+    .word-cn{font-size:14px;color:var(--sub);margin-bottom:8px;}
+    .word-mask{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;min-height:48px;}
+    .mask-cell{min-width:24px;height:42px;display:inline-flex;align-items:flex-end;justify-content:center;font-size:30px;font-weight:900;line-height:1;border-bottom:4px solid #7ea6da;padding:0 2px 2px;}
+    .mask-cell.empty{color:transparent;}
+    .mask-cell.filled{color:var(--text);}
+    .options{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:10px;flex:0 0 auto;}
+    .option-btn{border:none;border-radius:16px;padding:13px 8px;font-size:17px;font-weight:800;background:#edf4ff;color:#1d3557;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .option-btn:active{transform:scale(.99);}
+    .option-btn.correct{background:#ddf7ec;color:#145c42;}
+    .option-btn.wrong{background:#ffe4e4;color:#8c1f1f;}
+    .feedback{min-height:22px;margin-top:8px;font-size:14px;font-weight:700;flex:0 0 auto;}
+    .feedback.ok{color:var(--ok);} .feedback.bad{color:var(--bad);}    
+
+    .overlay{position:absolute;inset:0;background:rgba(17,28,43,.42);z-index:30;display:flex;align-items:center;justify-content:center;padding:18px;}
+    .overlay.hidden{display:none;}
+    .dialog{background:#fff;width:100%;border-radius:24px;padding:22px 18px;box-shadow:var(--shadow);text-align:center;}
+    .dialog h2{margin:0 0 10px;font-size:26px;}
+    .dialog p{margin:0 0 14px;color:var(--sub);line-height:1.6;}
+    .btn{border:none;border-radius:16px;padding:14px 18px;font-size:17px;font-weight:800;background:var(--accent);color:#fff;width:100%;}
+    .btn.secondary{margin-top:10px;background:#eef4ff;color:#1b3355;}
+    .small-note{font-size:12px;color:var(--sub);margin-top:10px;line-height:1.5;}
+    .picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left;margin:14px 0 10px;}
+    .pick{background:#f7fbff;border:1px solid #dfeafb;border-radius:16px;padding:10px;}
+    .pick label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px;font-weight:700;}
+    .pick select{width:100%;border:none;background:#fff;border-radius:12px;padding:12px 10px;font-size:16px;box-shadow:inset 0 0 0 1px #d9e8fb;color:var(--text);}
+    .unit-note{margin:0 0 12px;background:#f7fbff;border:1px solid #dfeafb;border-radius:14px;padding:10px 12px;font-size:13px;color:var(--sub);text-align:left;line-height:1.5;}
+
+    .hint-float{position:absolute;left:50%;top:58px;transform:translateX(-50%);z-index:20;background:rgba(255,255,255,.92);color:#18467f;border:1px solid rgba(75,139,255,.18);box-shadow:var(--shadow);padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;}
+    .hint-float.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+    .panel.repair-mode .feedback{display:block;}
+    .pic-card{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;background:linear-gradient(180deg,#ffffff 0%,#eef6ff 100%);}
+    .pic-emoji{font-size:34px;line-height:1.05;margin-bottom:6px;}
+    .pic-label{font-size:11px;font-weight:800;color:#21456d;text-align:center;line-height:1.15;word-break:break-word;}
+    .pic-sub{font-size:10px;color:#6a7f97;text-align:center;line-height:1.15;margin-top:4px;word-break:break-word;}
+    .word-mask.long{gap:6px;}
+    .word-mask.long .mask-cell{min-width:21px;height:38px;font-size:25px;border-bottom-width:3px;}
+    .word-mask.xlong{gap:4px;}
+    .word-mask.xlong .mask-cell{min-width:18px;height:34px;font-size:21px;border-bottom-width:3px;}
+    .mask-cell.current{border-bottom-color:#4b8bff;box-shadow:inset 0 -4px 0 rgba(75,139,255,.12);}
+    .mask-gap{display:inline-block;width:12px;height:38px;flex:0 0 12px;}
+
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="sky"></div>
+  <div class="ground"></div>
+
+  <div class="hud">
+    <div class="pill"><span>🚗</span><span id="stageInfo">第 1 / 1 题</span></div>
+    <div class="pill"><span>❌</span><span id="lifeInfo">答错 0 / 3</span></div>
+  </div>
+
+  <div class="scene" id="scene"></div>
+  <div class="hint-float" id="dragHint">答对了，拖动右侧竖直路段到想去的那条路上</div>
+
+  <div class="bridge-zone" id="bridgeZone">
+    <div class="lane-target" id="leftLane"><div class="lane-name">左路</div><div class="lane-glow"></div></div>
+    <div class="lane-target" id="centerLane"><div class="lane-name">中路</div><div class="lane-glow"></div></div>
+    <div class="lane-target" id="rightLane"><div class="lane-name">右路</div><div class="lane-glow"></div></div>
+    <div class="bridge-piece" id="bridgePiece"></div>
+  </div>
+
+  <div class="cars-layer" id="carsLayer">
+    <div class="car visible" id="carA" style="--carBody:#ff6b6b;--carBody2:#ff9696;--carGlass:#dff4ff;--carLine:#c43d3d"></div>
+    <div class="car" id="carB" style="--carBody:#4f8bff;--carBody2:#79a8ff;--carGlass:#dff4ff;--carLine:#2f5fd6"></div>
+  </div>
+
+  <div class="panel" id="quizPanel">
+    <div class="quiz-head">
+      <div>
+        <div class="title">根据中文和词性补全单词</div>
+        <div class="subtitle" id="instructionText">根据中文翻译和词性补全缺失字母，答对后才能拖动竖直路段。</div>
+      </div>
+      <div class="mini" id="statusMini">一级</div>
+    </div>
+    <div class="quiz-card">
+      <div class="pic" id="picBox"></div>
+      <div class="word-box">
+        <div class="word-cn" id="cnHint"></div>
+        <div class="word-mask" id="wordMask"></div>
+      </div>
+    </div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="overlay" id="startOverlay">
+    <div class="dialog">
+      <h2>单词修路小车</h2>
+      <p>先选 Module 和 Unit，再开始游戏。所选单元里的每个单词会在一级、二级、三级各出现一次。</p>
+      <div class="picker-grid">
+        <div class="pick">
+          <label for="moduleSelect">Module</label>
+          <select id="moduleSelect"></select>
+        </div>
+        <div class="pick">
+          <label for="unitSelect">Unit</label>
+          <select id="unitSelect"></select>
+        </div>
+      </div>
+      <div class="unit-note" id="unitSummary">请选择一个单元。</div>
+      <button class="btn" id="startBtn">开始游戏</button>
+      <div class="small-note">规则：一级缺 1 个字母；二级同时缺 2 个字母，但作答时一次补 1 个；三级同时缺 3 个字母，但作答时一次补 1 个。答题时请根据中文翻译和词性作答。选对后修路，选错会显示正确答案并跳到下一题。累计答错 3 次游戏结束。</div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="endOverlay">
+    <div class="dialog">
+      <h2 id="endTitle">游戏结束</h2>
+      <p id="endDesc"></p>
+      <button class="btn" id="restartBtn">再玩一次</button>
+      <button class="btn secondary" id="closeBtn">停留在结果页</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+(() => {
+  const els = {
+    app: document.getElementById('app'),
+    scene: document.getElementById('scene'),
+    stageInfo: document.getElementById('stageInfo'),
+    lifeInfo: document.getElementById('lifeInfo'),
+    bridgeZone: document.getElementById('bridgeZone'),
+    bridgePiece: document.getElementById('bridgePiece'),
+    dragHint: document.getElementById('dragHint'),
+    quizPanel: document.getElementById('quizPanel'),
+    picBox: document.getElementById('picBox'),
+    cnHint: document.getElementById('cnHint'),
+    wordMask: document.getElementById('wordMask'),
+    options: document.getElementById('options'),
+    feedback: document.getElementById('feedback'),
+    instructionText: document.getElementById('instructionText'),
+    statusMini: document.getElementById('statusMini'),
+    startOverlay: document.getElementById('startOverlay'),
+    endOverlay: document.getElementById('endOverlay'),
+    endTitle: document.getElementById('endTitle'),
+    endDesc: document.getElementById('endDesc'),
+    startBtn: document.getElementById('startBtn'),
+    restartBtn: document.getElementById('restartBtn'),
+    closeBtn: document.getElementById('closeBtn'),
+    carA: document.getElementById('carA'),
+    carB: document.getElementById('carB'),
+    leftLane: document.getElementById('leftLane'),
+    centerLane: document.getElementById('centerLane'),
+    rightLane: document.getElementById('rightLane'),
+    moduleSelect: document.getElementById('moduleSelect'),
+    unitSelect: document.getElementById('unitSelect'),
+    unitSummary: document.getElementById('unitSummary')
+  };
+
+  const ALPHABET_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const ALPHABET_LOWER = 'abcdefghijklmnopqrstuvwxyz';
+  const UNIT_DATA = {"M1": {"U1": {"label": "M1U1", "name": "M1U1", "words": [{"word": "Aeroplane", "display": "Aeroplane", "zh": "飞机", "pos": "n."}, {"word": "Bus", "display": "Bus", "zh": "公共汽车", "pos": "n."}, {"word": "By", "display": "By", "zh": "在……旁边", "pos": "prep."}, {"word": "Car", "display": "Car", "zh": "小汽车", "pos": "n."}, {"word": "Chair", "display": "Chair", "zh": "椅子", "pos": "n."}, {"word": "Children", "display": "Children", "zh": "（复数）儿童；小孩", "pos": "n."}, {"word": "Else", "display": "Else", "zh": "其他的；别的", "pos": "adv."}, {"word": "Hear", "display": "Hear", "zh": "听见", "pos": "v."}, {"word": "Listen", "display": "Listen", "zh": "听", "pos": "v."}, {"word": "Ship", "display": "Ship", "zh": "（大）船；舰", "pos": "n."}, {"word": "Them", "display": "Them", "zh": "他们；它们", "pos": "pron."}, {"word": "Window", "display": "Window", "zh": "窗；窗户", "pos": "n."}]}, "U2": {"label": "M1U2", "name": "M1U2", "words": [{"word": "Bag", "display": "Bag", "zh": "包", "pos": "n."}, {"word": "Bread", "display": "Bread", "zh": "面包", "pos": "n."}, {"word": "Do", "display": "Do", "zh": "（助动词）", "pos": "aux. v."}, {"word": "Does", "display": "Does", "zh": "（助动词）", "pos": "aux. v."}, {"word": "Food", "display": "Food", "zh": "食物", "pos": "n."}, {"word": "Glass", "display": "Glass", "zh": "玻璃杯", "pos": "n."}, {"word": "Hard", "display": "Hard", "zh": "硬的", "pos": "adj."}, {"word": "How", "display": "How", "zh": "怎样；如何；多么", "pos": "adv."}, {"word": "Hungry", "display": "Hungry", "zh": "饿的", "pos": "adj."}, {"word": "(the) Moon", "display": "(the) Moon", "zh": "月球；月亮", "pos": "n."}, {"word": "On", "display": "On", "zh": "在……上", "pos": "prep."}, {"word": "Pie", "display": "Pie", "zh": "果馅饼", "pos": "n."}, {"word": "Pineapple", "display": "Pineapple", "zh": "菠萝", "pos": "n."}, {"word": "Rough", "display": "Rough", "zh": "粗糙的", "pos": "adj."}, {"word": "Smooth", "display": "Smooth", "zh": "平滑的", "pos": "adj."}, {"word": "Soft", "display": "Soft", "zh": "柔软的", "pos": "adj."}, {"word": "Touch", "display": "Touch", "zh": "触摸；碰", "pos": "v."}, {"word": "Yuan", "display": "Yuan", "zh": "（人民币）元", "pos": "n."}]}, "U3": {"label": "M1U3", "name": "M1U3", "words": [{"word": "Bitter", "display": "Bitter", "zh": "苦的", "pos": "adj."}, {"word": "Coffee", "display": "Coffee", "zh": "咖啡", "pos": "n."}, {"word": "Fruit", "display": "Fruit", "zh": "水果", "pos": "n."}, {"word": "Help", "display": "Help", "zh": "帮助", "pos": "v."}, {"word": "Lemon", "display": "Lemon", "zh": "柠檬", "pos": "n."}, {"word": "Salt", "display": "Salt", "zh": "盐", "pos": "n."}, {"word": "Salty", "display": "Salty", "zh": "咸的", "pos": "adj."}, {"word": "Smell", "display": "Smell", "zh": "闻；有……气味", "pos": "v."}, {"word": "Sour", "display": "Sour", "zh": "酸的", "pos": "adj."}, {"word": "Sweet", "display": "Sweet", "zh": "糖果", "pos": "n."}, {"word": "Sweet", "display": "Sweet", "zh": "甜的", "pos": "adj."}, {"word": "Taste", "display": "Taste", "zh": "尝；有……味道", "pos": "v."}, {"word": "Whale", "display": "Whale", "zh": "鲸鱼", "pos": "n."}]}}, "M2": {"U1": {"label": "M2U1", "name": "M2U1", "words": [{"word": "Angry", "display": "Angry", "zh": "生气的", "pos": "adj."}, {"word": "Clever", "display": "Clever", "zh": "聪明的", "pos": "adj."}, {"word": "Clock", "display": "Clock", "zh": "钟", "pos": "n."}, {"word": "Cute", "display": "Cute", "zh": "可爱的", "pos": "adj."}, {"word": "Elephant", "display": "Elephant", "zh": "大象", "pos": "n."}, {"word": "Finally", "display": "Finally", "zh": "最后；终于", "pos": "adv."}, {"word": "Has", "display": "Has", "zh": "有；拥有（第三人称单数）", "pos": "v."}, {"word": "Hat", "display": "Hat", "zh": "帽子", "pos": "n."}, {"word": "Here", "display": "Here", "zh": "这里；在这里", "pos": "adv."}, {"word": "Into", "display": "Into", "zh": "到……里面", "pos": "prep."}, {"word": "Jump", "display": "Jump", "zh": "跳", "pos": "v."}, {"word": "Lion", "display": "Lion", "zh": "狮子", "pos": "n."}, {"word": "Monkey", "display": "Monkey", "zh": "猴子", "pos": "n."}, {"word": "Panda", "display": "Panda", "zh": "熊猫", "pos": "n."}, {"word": "Rock", "display": "Rock", "zh": "岩石", "pos": "n."}, {"word": "So", "display": "So", "zh": "那么；如此", "pos": "adv."}, {"word": "Strong", "display": "Strong", "zh": "强壮的", "pos": "adj."}, {"word": "Summer", "display": "Summer", "zh": "夏天", "pos": "n."}, {"word": "Take", "display": "Take", "zh": "拿；获得", "pos": "v."}, {"word": "Take a rest", "display": "Take a rest", "zh": "休息", "pos": ""}, {"word": "Tiger", "display": "Tiger", "zh": "老虎", "pos": "n."}, {"word": "Tree", "display": "Tree", "zh": "树", "pos": "n."}, {"word": "Uncle", "display": "Uncle", "zh": "叔，舅", "pos": "n."}]}, "U2": {"label": "M2U2", "name": "M2U2", "words": [{"word": "Doll", "display": "Doll", "zh": "玩具娃娃", "pos": "n."}, {"word": "Fun", "display": "Fun", "zh": "乐趣", "pos": "n."}, {"word": "Lovely", "display": "Lovely", "zh": "可爱的", "pos": "adj."}, {"word": "Play", "display": "Play", "zh": "玩", "pos": "v."}, {"word": "Robot", "display": "Robot", "zh": "机器人", "pos": "n."}, {"word": "Skateboard", "display": "Skateboard", "zh": "滑板", "pos": "n."}, {"word": "Super", "display": "Super", "zh": "超级的", "pos": "adj."}, {"word": "Together", "display": "Together", "zh": "一起", "pos": "adv."}, {"word": "Train", "display": "Train", "zh": "火车", "pos": "n."}, {"word": "Walk", "display": "Walk", "zh": "行走", "pos": "v."}, {"word": "Wall", "display": "Wall", "zh": "墙", "pos": "n."}]}, "U3": {"label": "M2U3", "name": "M2U3", "words": [{"word": "Clothes", "display": "Clothes", "zh": "衣服", "pos": "n."}, {"word": "English", "display": "English", "zh": "英语", "pos": "n."}, {"word": "Glass", "display": "Glass", "zh": "玻璃", "pos": "n."}, {"word": "Glove", "display": "Glove", "zh": "手套", "pos": "n."}, {"word": "Great", "display": "Great", "zh": "好极的", "pos": "adj."}, {"word": "His", "display": "His", "zh": "他的", "pos": "pron."}, {"word": "Horse", "display": "Horse", "zh": "马", "pos": "n."}, {"word": "Jacket", "display": "Jacket", "zh": "夹克衫", "pos": "n."}, {"word": "Make", "display": "Make", "zh": "做", "pos": "v."}, {"word": "Pair", "display": "Pair", "zh": "一双；一对", "pos": "n."}, {"word": "A pair of", "display": "A pair of", "zh": "一双；一对", "pos": ""}, {"word": "Scarf", "display": "Scarf", "zh": "围巾", "pos": "n."}, {"word": "Sock", "display": "Sock", "zh": "短袜", "pos": "n."}, {"word": "These", "display": "These", "zh": "这些", "pos": "pron."}, {"word": "Those", "display": "Those", "zh": "那些", "pos": "pron."}, {"word": "Trousers", "display": "Trousers", "zh": "裤子", "pos": "n."}, {"word": "Word", "display": "Word", "zh": "单词", "pos": "n."}, {"word": "Zebra", "display": "Zebra", "zh": "斑马", "pos": "n."}]}}, "M3": {"U1": {"label": "M3U1", "name": "M3U1", "words": [{"word": "Circle", "display": "Circle", "zh": "圆形", "pos": "n."}, {"word": "Home", "display": "Home", "zh": "到家；在家", "pos": "adv."}, {"word": "House", "display": "House", "zh": "房子", "pos": "n."}, {"word": "Rectangle", "display": "Rectangle", "zh": "长方形；矩形", "pos": "n."}, {"word": "Shape", "display": "Shape", "zh": "形状", "pos": "n."}, {"word": "Square", "display": "Square", "zh": "正方形", "pos": "n."}, {"word": "Star", "display": "Star", "zh": "（五角）星形", "pos": "n."}, {"word": "Take off", "display": "Take off", "zh": "脱下（衣服）", "pos": ""}, {"word": "Triangle", "display": "Triangle", "zh": "三角形", "pos": "n."}, {"word": "Turn off", "display": "Turn off", "zh": "关掉（开关等）", "pos": ""}]}, "U2": {"label": "M3U2", "name": "M3U2", "words": [{"word": "Autumn", "display": "Autumn", "zh": "秋天", "pos": "n."}, {"word": "Busy", "display": "Busy", "zh": "忙碌的", "pos": "adj."}, {"word": "Cold", "display": "Cold", "zh": "冷的", "pos": "adj."}, {"word": "Grass", "display": "Grass", "zh": "草", "pos": "n."}, {"word": "Grasshopper", "display": "Grasshopper", "zh": "蚱蜢", "pos": "n."}, {"word": "Home", "display": "Home", "zh": "家", "pos": "n."}, {"word": "Mountain", "display": "Mountain", "zh": "山", "pos": "n."}, {"word": "Outside", "display": "Outside", "zh": "在外面", "pos": "adv."}, {"word": "River", "display": "River", "zh": "河流", "pos": "n."}, {"word": "Sea", "display": "Sea", "zh": "海", "pos": "n."}, {"word": "Sky", "display": "Sky", "zh": "天空", "pos": "n."}, {"word": "Sleep", "display": "Sleep", "zh": "睡觉", "pos": "v."}, {"word": "Snow", "display": "Snow", "zh": "雪", "pos": "n."}, {"word": "Spring", "display": "Spring", "zh": "春天", "pos": "n."}, {"word": "Winter", "display": "Winter", "zh": "冬天", "pos": "n."}]}, "U3": {"label": "M3U3", "name": "M3U3", "words": [{"word": "Beach", "display": "Beach", "zh": "海滩", "pos": "n."}, {"word": "Ice-skate", "display": "Ice-skate", "zh": "滑冰", "pos": "v."}, {"word": "Park", "display": "Park", "zh": "公园", "pos": "n."}, {"word": "Picnic", "display": "Picnic", "zh": "野餐", "pos": "n."}, {"word": "Plant", "display": "Plant", "zh": "种植", "pos": "v."}, {"word": "Sandcastle", "display": "Sandcastle", "zh": "沙堡", "pos": "n."}, {"word": "Season", "display": "Season", "zh": "季节", "pos": "n."}, {"word": "Ski", "display": "Ski", "zh": "滑雪", "pos": "v."}, {"word": "Slowly", "display": "Slowly", "zh": "缓慢地", "pos": "adv."}]}}, "M4": {"U1": {"label": "M4U1", "name": "M4U1", "words": [{"word": "Arm", "display": "Arm", "zh": "手臂", "pos": "n."}, {"word": "Body", "display": "Body", "zh": "身体；躯干", "pos": "n."}, {"word": "Easy", "display": "Easy", "zh": "简单的；容易的", "pos": "adj."}, {"word": "Finger", "display": "Finger", "zh": "手指", "pos": "n."}, {"word": "Foot (feet)", "display": "Foot (feet)", "zh": "脚", "pos": "n."}, {"word": "Funny", "display": "Funny", "zh": "有趣的；滑稽的", "pos": "adj."}, {"word": "Head", "display": "Head", "zh": "头", "pos": "n."}, {"word": "Knee", "display": "Knee", "zh": "膝盖", "pos": "n."}, {"word": "Leg", "display": "Leg", "zh": "腿", "pos": "n."}, {"word": "Myself", "display": "Myself", "zh": "我自己", "pos": "pron."}, {"word": "Shoulder", "display": "Shoulder", "zh": "肩膀", "pos": "n."}, {"word": "Yourself", "display": "Yourself", "zh": "你自己", "pos": "pron."}]}, "U2": {"label": "M4U2", "name": "M4U2", "words": [{"word": "Children’s Day", "display": "Children’s Day", "zh": "儿童节", "pos": ""}, {"word": "China", "display": "China", "zh": "中国", "pos": ""}, {"word": "Cinema", "display": "Cinema", "zh": "电影院", "pos": "n."}, {"word": "Fifth", "display": "Fifth", "zh": "第五", "pos": "num."}, {"word": "First", "display": "First", "zh": "第一", "pos": "num."}, {"word": "For", "display": "For", "zh": "给；对；为", "pos": "prep."}, {"word": "January", "display": "January", "zh": "一月", "pos": "n."}, {"word": "Japan", "display": "Japan", "zh": "日本", "pos": ""}, {"word": "July", "display": "July", "zh": "七月", "pos": "n."}, {"word": "June", "display": "June", "zh": "六月", "pos": "n."}, {"word": "March", "display": "March", "zh": "三月", "pos": "n."}, {"word": "May", "display": "May", "zh": "五月", "pos": "n."}, {"word": "Middle", "display": "Middle", "zh": "中间；中部", "pos": "n."}, {"word": "October", "display": "October", "zh": "十月", "pos": "n."}, {"word": "Parent", "display": "Parent", "zh": "父亲（或母亲）", "pos": "n."}, {"word": "Photograph", "display": "Photograph", "zh": "照片", "pos": "n."}, {"word": "Saturday", "display": "Saturday", "zh": "星期六", "pos": "n."}, {"word": "Second", "display": "Second", "zh": "第二", "pos": "num."}, {"word": "Singapore", "display": "Singapore", "zh": "新加坡", "pos": ""}, {"word": "Song", "display": "Song", "zh": "歌曲", "pos": "n."}, {"word": "Take a photograph", "display": "Take a photograph", "zh": "拍照", "pos": ""}, {"word": "Thailand", "display": "Thailand", "zh": "泰国", "pos": ""}, {"word": "Third", "display": "Third", "zh": "第三", "pos": "num."}, {"word": "(the) UK", "display": "(the) UK", "zh": "英国", "pos": ""}, {"word": "With", "display": "With", "zh": "和……一起", "pos": "prep."}, {"word": "Zoo", "display": "Zoo", "zh": "动物园", "pos": "n."}]}, "U3": {"label": "M4U3", "name": "M4U3", "words": [{"word": "Afraid", "display": "Afraid", "zh": "害怕的", "pos": "adj."}, {"word": "Bad", "display": "Bad", "zh": "坏的", "pos": "adj."}, {"word": "Boil", "display": "Boil", "zh": "煮沸", "pos": "v."}, {"word": "Go away", "display": "Go away", "zh": "离开", "pos": ""}, {"word": "Go fishing", "display": "Go fishing", "zh": "去钓鱼", "pos": ""}, {"word": "Over there", "display": "Over there", "zh": "在那里", "pos": ""}, {"word": "Own", "display": "Own", "zh": "自己的", "pos": "adj."}, {"word": "Stop", "display": "Stop", "zh": "停止", "pos": "v."}, {"word": "Story", "display": "Story", "zh": "故事", "pos": "n."}, {"word": "Time", "display": "Time", "zh": "时间", "pos": "n."}, {"word": "Water", "display": "Water", "zh": "水", "pos": "n."}, {"word": "Wolf", "display": "Wolf", "zh": "狼", "pos": "n."}]}}};
+
+  els.carA.innerHTML = carSvg();
+  els.carB.innerHTML = carSvg();
+
+  const geometry = {
+    roadWidth: 56,
+    gapHeight: 136,
+    routeH: 0,
+    W: 430,
+    slots: {},
+    startPos: {x:0,y:0},
+    hiddenPos: {x:0,y:0},
+    fork: {x:0,y:0},
+    lowerGap: {},
+    upperGap: {},
+    exits: {},
+    controls: {},
+    bridgeHome: {xCenter:0, top:0}
+  };
+
+  let state = {};
+
+  function initState() {
+    const firstModule = Object.keys(UNIT_DATA)[0];
+    const firstUnit = Object.keys(UNIT_DATA[firstModule])[0];
+    state = {
+      stage: 0, wrong: 0, solved: false, draggingEnabled: false, answeredThisStep: false, currentQuestion: null,
+      questionOrder: [], activeCarKey: 'A', isAnimating: false, raf: null, selectedLane: null,
+      selectedModule: firstModule, selectedUnit: firstUnit
+    };
+    computeLayout();
+    placeCar(els.carA, geometry.startPos.x, geometry.startPos.y, 0, true);
+    placeCar(els.carB, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
+    resetBridge(); updateHUD();
+    els.endOverlay.classList.add('hidden');
+    els.quizPanel.classList.remove('repair-mode');
+    els.feedback.textContent = ''; els.feedback.className = 'feedback'; els.dragHint.classList.remove('show');
+    populateSelectors();
+  }
+
+  function computeLayout() {
+    const appRect = els.app.getBoundingClientRect();
+    const panelRect = els.quizPanel.getBoundingClientRect();
+    const W = els.app.clientWidth || 430;
+    const H = els.app.clientHeight || 932;
+    const routeH = Math.max(300, Math.floor(panelRect.top - appRect.top - 14));
+    els.app.style.setProperty('--route-h', `${routeH}px`);
+
+    const centerX = W / 2;
+    const spread = Math.min(119, W * 0.277);
+    const forkY = Math.min(Math.round(H * 0.33), routeH - 170);
+    const upperY = Math.max(50, forkY - 226);
+    const lowerY = upperY + geometry.gapHeight;
+    const exitY = -210;
+    const mainBottomY = routeH + 120;
+
+    geometry.W = W; geometry.routeH = routeH; geometry.fork = { x:centerX, y:forkY };
+    geometry.startPos = { x:centerX, y:routeH - 56 };
+    geometry.hiddenPos = { x:centerX, y:routeH + 92 };
+    geometry.slots = {
+      left: { x:centerX - spread, y:upperY },
+      center: { x:centerX, y:upperY },
+      right: { x:centerX + spread, y:upperY }
+    };
+    geometry.upperGap = JSON.parse(JSON.stringify(geometry.slots));
+    geometry.lowerGap = {
+      left: { x:centerX - spread, y:lowerY },
+      center: { x:centerX, y:lowerY },
+      right: { x:centerX + spread, y:lowerY }
+    };
+    geometry.exits = {
+      left: { x:centerX - spread - Math.min(68, W * 0.16), y:exitY },
+      center: { x:centerX, y:exitY },
+      right: { x:centerX + spread + Math.min(68, W * 0.16), y:exitY }
+    };
+    geometry.controls = {
+      leftLower: { x:centerX - spread * 0.38, y:forkY - 36 },
+      rightLower: { x:centerX + spread * 0.38, y:forkY - 36 },
+      leftUpper: { x:centerX - spread, y:upperY - 92 },
+      rightUpper: { x:centerX + spread, y:upperY - 92 }, mainBottomY, exitY
+    };
+    geometry.bridgeHome = { xCenter: W - 6 - geometry.roadWidth / 2, top: Math.round(routeH / 2 - geometry.gapHeight / 2) };
+
+    renderScene(); positionBridgeLayers();
+  }
+
+  function renderScene() {
+    const w = geometry.W, rw = geometry.roadWidth, dash = 6, f = geometry.fork, lg = geometry.lowerGap, ug = geometry.upperGap, ex = geometry.exits, c = geometry.controls;
+    const svg = `
+      <svg viewBox="0 0 ${w} ${geometry.routeH}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs><filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.18"/></filter></defs>
+        <g filter="url(#shadow)">
+          ${roadLine(`M ${f.x} ${c.mainBottomY} L ${f.x} ${f.y}`, rw, dash)}
+          ${roadCurve(`M ${f.x} ${f.y} Q ${c.leftLower.x} ${c.leftLower.y} ${lg.left.x} ${lg.left.y}`, rw, dash)}
+          ${roadLine(`M ${lg.left.x} ${lg.left.y} L ${ug.left.x} ${ug.left.y}`, rw, dash)}
+          ${roadCurve(`M ${ug.left.x} ${ug.left.y} Q ${c.leftUpper.x} ${c.leftUpper.y} ${ex.left.x} ${ex.left.y}`, rw, dash)}
+          ${roadLine(`M ${f.x} ${f.y} L ${lg.center.x} ${lg.center.y}`, rw, dash)}
+          ${roadLine(`M ${lg.center.x} ${lg.center.y} L ${ug.center.x} ${ug.center.y}`, rw, dash)}
+          ${roadLine(`M ${ug.center.x} ${ug.center.y} L ${ex.center.x} ${ex.center.y}`, rw, dash)}
+          ${roadCurve(`M ${f.x} ${f.y} Q ${c.rightLower.x} ${c.rightLower.y} ${lg.right.x} ${lg.right.y}`, rw, dash)}
+          ${roadLine(`M ${lg.right.x} ${lg.right.y} L ${ug.right.x} ${ug.right.y}`, rw, dash)}
+          ${roadCurve(`M ${ug.right.x} ${ug.right.y} Q ${c.rightUpper.x} ${c.rightUpper.y} ${ex.right.x} ${ex.right.y}`, rw, dash)}
+        </g>
+        ${gapRect(ug.left.x, ug.left.y, rw, geometry.gapHeight)}
+        ${gapRect(ug.center.x, ug.center.y, rw, geometry.gapHeight)}
+        ${gapRect(ug.right.x, ug.right.y, rw, geometry.gapHeight)}
+      </svg>`;
+    els.scene.innerHTML = svg;
+  }
+
+  function roadLine(d, rw, dash) { return `<path d="${d}" stroke="#59646f" stroke-width="${rw}" stroke-linecap="round" fill="none"/><path d="${d}" stroke="#f6d85f" stroke-width="${dash}" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>`; }
+  function roadCurve(d, rw, dash) { return roadLine(d, rw, dash); }
+  function gapRect(cx, top, width, height) { return `<rect x="${cx-width/2}" y="${top}" width="${width}" height="${height}" rx="${width/2}" fill="#dce7f4"/>`; }
+  function positionBridgeLayers() {
+    positionLaneTarget(els.leftLane, geometry.slots.left.x, geometry.slots.left.y);
+    positionLaneTarget(els.centerLane, geometry.slots.center.x, geometry.slots.center.y);
+    positionLaneTarget(els.rightLane, geometry.slots.right.x, geometry.slots.right.y);
+    if (state.selectedLane) { const s = geometry.slots[state.selectedLane]; setBridgePosition(s.x, s.y); }
+    else { setBridgePosition(geometry.bridgeHome.xCenter, geometry.bridgeHome.top); }
+  }
+  function positionLaneTarget(el, x, y) { el.style.left = `${x}px`; el.style.top = `${y}px`; }
+  function getActiveCar() { return state.activeCarKey === 'A' ? els.carA : els.carB; }
+  function getNextCar() { return state.activeCarKey === 'A' ? els.carB : els.carA; }
+  function placeCar(el, x, y, angle, visible = true) { el.style.left = `${x}px`; el.style.top = `${y}px`; el.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`; el.classList.toggle('visible', visible); }
+  function setBridgePosition(xCenter, top) { els.bridgePiece.style.left = `${xCenter - geometry.roadWidth / 2}px`; els.bridgePiece.style.top = `${top}px`; }
+
+  function resetBridge() {
+    state.selectedLane = null; els.bridgeZone.classList.remove('active'); els.quizPanel.classList.remove('repair-mode');
+    els.bridgePiece.classList.remove('active', 'locked'); setBridgePosition(geometry.bridgeHome.xCenter, geometry.bridgeHome.top);
+  }
+
+  function populateSelectors() {
+    const currentM = state.selectedModule || Object.keys(UNIT_DATA)[0];
+    els.moduleSelect.innerHTML = Object.keys(UNIT_DATA).map(k => `<option value="${k}">${k}</option>`).join('');
+    els.moduleSelect.value = currentM; populateUnitSelect();
+  }
+  function populateUnitSelect() {
+    const m = UNIT_DATA[els.moduleSelect.value];
+    const units = Object.keys(m);
+    const target = m[state.selectedUnit] ? state.selectedUnit : units[0];
+    els.unitSelect.innerHTML = units.map(k => `<option value="${k}">${m[k].label || `${els.moduleSelect.value}${k}`}</option>`).join('');
+    els.unitSelect.value = target; state.selectedModule = els.moduleSelect.value; state.selectedUnit = target; updateUnitSummary();
+  }
+  function updateUnitSummary() {
+    const unit = getSelectedUnitData(); const count = unit.words.length;
+    els.unitSummary.textContent = `${unit.label}：当前有 ${count} 个单词，将生成 ${count * 3} 题。每个单词在一级、二级、三级各出现一次。`;
+  }
+  function getSelectedUnitData() { return UNIT_DATA[state.selectedModule][state.selectedUnit]; }
+  function buildQuestionsForSelection() {
+    const unit = getSelectedUnitData(); const stages = [];
+    unit.words.forEach(raw => { const entry = normalizeWordEntry(raw); [1, 2, 3].forEach(level => stages.push(buildQuestion(entry, level))); });
+    return stages;
+  }
+  function normalizeWordEntry(entry) {
+    const display = String(entry.display || entry.word || '').replace(/\s+/g, ' ').trim();
+    const word = display.replace(/[^A-Za-z]/g, '');
+    return { word, display, zh: entry.zh || '', pos: entry.pos || '', image: buildPictureCard({ ...entry, display, word }) };
+  }
+
+  function buildQuestion(entry, level) {
+    const levelName = level === 1 ? '一级' : level === 2 ? '二级' : '三级';
+    const blankCount = Math.min(level, entry.word.length);
+    const blankPositions = chooseBlankPositions(entry.word.length, blankCount, level);
+    const displayLetterPositions = [];
+    entry.display.split('').forEach((ch, idx) => { if (/[A-Za-z]/.test(ch)) displayLetterPositions.push(idx); });
+    const blankDisplayPositions = blankPositions.map(i => displayLetterPositions[i]);
+    return { difficulty: level, levelName, word: entry.word, display: entry.display, zh: entry.zh || '', pos: entry.pos || '', image: entry.image, blankPositions, blankDisplayPositions, filledLetters: {}, currentStep: 0 };
+  }
+  function chooseBlankPositions(len, blankCount, level) {
+    if (blankCount >= len) return Array.from({ length: len }, (_, i) => i);
+    if (blankCount === 1) return [Math.min(len - 2, Math.max(1, Math.floor(len / 2)))];
+    if (blankCount === 2) return len <= 4 ? [0, len - 1] : [1, len - 2];
+    const pos = new Set([0, Math.floor((len - 1) / 2), len - 1]);
+    while (pos.size > blankCount) pos.delete([...pos][1]);
+    while (pos.size < blankCount) pos.add(pos.size);
+    return [...pos].sort((a, b) => a - b);
+  }
+  function buildPictureCard(entry) {
+    const emoji = guessEmoji(entry);
+    return `<div class="pic-card pure-pic" aria-hidden="true"><div class="pic-emoji">${emoji}</div></div>`;
+  }
+  function guessEmoji(entry) {
+    const key = `${entry.word || ''} ${entry.display || ''} ${entry.zh || ''}`.toLowerCase();
+    if (/aeroplane|plane/.test(key)) return '✈️'; if (/bus/.test(key)) return '🚌'; if (/car/.test(key)) return '🚗'; if (/ship/.test(key)) return '🚢'; if (/train/.test(key)) return '🚆';
+    if (/window/.test(key)) return '🪟'; if (/chair/.test(key)) return '🪑'; if (/bag/.test(key)) return '👜'; if (/bread/.test(key)) return '🍞'; if (/food|fruit/.test(key)) return '🍎';
+    if (/glass/.test(key)) return '🥛'; if (/moon/.test(key)) return '🌙'; if (/pie/.test(key)) return '🥧'; if (/pineapple/.test(key)) return '🍍'; if (/coffee/.test(key)) return '☕';
+    if (/lemon/.test(key)) return '🍋'; if (/salt|salty/.test(key)) return '🧂'; if (/whale/.test(key)) return '🐋'; if (/angry/.test(key)) return '😠'; if (/clever/.test(key)) return '🧠';
+    if (/clock/.test(key)) return '🕒'; if (/cute|lovely/.test(key)) return '🥰'; if (/elephant/.test(key)) return '🐘'; if (/hat/.test(key)) return '👒'; if (/jump/.test(key)) return '🦘';
+    if (/lion/.test(key)) return '🦁'; if (/monkey/.test(key)) return '🐵'; if (/panda/.test(key)) return '🐼'; if (/rock/.test(key)) return '🪨'; if (/summer/.test(key)) return '☀️';
+    if (/tiger/.test(key)) return '🐯'; if (/tree/.test(key)) return '🌳'; if (/uncle/.test(key)) return '👨'; if (/doll/.test(key)) return '🪆'; if (/robot/.test(key)) return '🤖';
+    if (/skateboard/.test(key)) return '🛹'; if (/clothes/.test(key)) return '👕'; if (/english/.test(key)) return '🔤'; if (/glove/.test(key)) return '🧤'; if (/horse/.test(key)) return '🐴';
+    if (/jacket/.test(key)) return '🧥'; if (/scarf/.test(key)) return '🧣'; if (/sock/.test(key)) return '🧦'; if (/trousers/.test(key)) return '👖'; if (/zebra/.test(key)) return '🦓';
+    if (/circle/.test(key)) return '⚪'; if (/house|home/.test(key)) return '🏠'; if (/rectangle/.test(key)) return '▭'; if (/shape/.test(key)) return '🔷'; if (/square/.test(key)) return '🟦';
+    if (/star/.test(key)) return '⭐'; if (/triangle/.test(key)) return '🔺'; if (/autumn/.test(key)) return '🍂'; if (/cold|winter|snow/.test(key)) return '❄️'; if (/grasshopper/.test(key)) return '🦗';
+    if (/grass/.test(key)) return '🌱'; if (/mountain/.test(key)) return '⛰️'; if (/river/.test(key)) return '🏞️'; if (/sea/.test(key)) return '🌊'; if (/sky/.test(key)) return '☁️';
+    if (/sleep/.test(key)) return '😴'; if (/spring/.test(key)) return '🌸'; if (/beach/.test(key)) return '🏖️'; if (/ice skate/.test(key)) return '⛸️'; if (/park/.test(key)) return '🌳';
+    if (/picnic/.test(key)) return '🧺'; if (/plant/.test(key)) return '🪴'; if (/sandcastle/.test(key)) return '🏰'; if (/season/.test(key)) return '🗓️'; if (/ski/.test(key)) return '🎿';
+    if (/slowly/.test(key)) return '🐢'; if (/arm/.test(key)) return '💪'; if (/body/.test(key)) return '🧍'; if (/finger/.test(key)) return '☝️'; if (/foot|feet/.test(key)) return '🦶';
+    if (/funny/.test(key)) return '😂'; if (/head/.test(key)) return '🙂'; if (/knee/.test(key)) return '🦵'; if (/leg/.test(key)) return '🦵'; if (/shoulder/.test(key)) return '🙆';
+    if (/children s day/.test(key)) return '🎈'; if (/china/.test(key)) return '🇨🇳'; if (/cinema/.test(key)) return '🎬'; if (/january/.test(key)) return '1️⃣'; if (/july/.test(key)) return '7️⃣';
+    if (/june/.test(key)) return '6️⃣'; if (/march/.test(key)) return '3️⃣'; if (/may/.test(key)) return '5️⃣'; if (/october/.test(key)) return '🔟'; if (/parent/.test(key)) return '👪';
+    if (/photograph/.test(key)) return '📷'; if (/saturday/.test(key)) return '📅'; if (/singapore/.test(key)) return '🇸🇬'; if (/song/.test(key)) return '🎵'; if (/thailand/.test(key)) return '🇹🇭';
+    if (/uk/.test(key)) return '🇬🇧'; if (/zoo/.test(key)) return '🦒'; if (/afraid/.test(key)) return '😨'; if (/bad/.test(key)) return '☹️'; if (/boil/.test(key)) return '♨️';
+    if (/fish/.test(key)) return '🎣'; if (/stop/.test(key)) return '🛑'; if (/story/.test(key)) return '📖'; if (/time/.test(key)) return '⏰'; if (/water/.test(key)) return '💧';
+    if (/wolf/.test(key)) return '🐺'; if (/hear|listen|smell|touch|taste/.test(key)) return '👂'; if (/soft|rough|smooth|hard/.test(key)) return '✋'; if (/sweet/.test(key)) return '🍬';
+    if (/sour/.test(key)) return '🍋'; if (/bitter/.test(key)) return '☕'; if (/hungry/.test(key)) return '🍽️'; return '🖼️';
+  }
+  function escapeHtml(str) { return String(str).replace(/[&<>"]/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[ch]); }
+
+  function updateHUD() { const total = Math.max(1, state.questionOrder.length || 1); const current = Math.min(state.stage + 1, total); els.stageInfo.textContent = `第 ${current} / ${total} 题`; els.lifeInfo.textContent = `答错 ${state.wrong} / 3`; }
+  function loadStage() {
+    if (state.wrong >= 3) return endGame(false); if (state.stage >= state.questionOrder.length) return endGame(true);
+    state.solved = false; state.draggingEnabled = false; state.answeredThisStep = false; state.isAnimating = false; resetBridge();
+    const q = structuredClone(state.questionOrder[state.stage]); q.filledLetters = {}; q.currentStep = 0; state.currentQuestion = q;
+    els.picBox.innerHTML = q.image; els.cnHint.textContent = `${q.zh || '中文释义'}${q.pos ? ` · ${q.pos}` : ''}`; els.feedback.textContent = ''; els.feedback.className = 'feedback'; els.dragHint.classList.remove('show');
+    refreshQuestionText(); renderQuestion();
+    placeCar(getActiveCar(), geometry.startPos.x, geometry.startPos.y, 0, true); placeCar(getNextCar(), geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false); updateHUD();
+  }
+  function refreshQuestionText() {
+    const q = state.currentQuestion; const totalBlanks = q.blankPositions.length; const currentNo = Math.min(q.currentStep + 1, totalBlanks);
+    if (totalBlanks === 1) { els.statusMini.textContent = `${q.levelName} · 1 个字母`; els.instructionText.textContent = '请根据中文翻译和词性，从下方 3 个选项中选出缺失的字母。'; }
+    else { els.statusMini.textContent = `${q.levelName} · 第 ${currentNo} / ${totalBlanks} 个字母`; els.instructionText.textContent = `请根据中文翻译和词性，把这个单词缺失的 ${totalBlanks} 个字母按顺序一次补 1 个。`; }
+  }
+  function renderQuestion() {
+    const q = state.currentQuestion; renderMask(q); const correct = q.word[q.blankPositions[q.currentStep]]; const options = buildLetterOptions(correct, q.word);
+    els.options.innerHTML = ''; options.forEach(opt => { const btn = document.createElement('button'); btn.className = 'option-btn'; btn.textContent = opt; btn.addEventListener('click', () => checkAnswer(opt, btn)); els.options.appendChild(btn); });
+  }
+  function renderMask(q, revealAll = false) {
+    const blankMap = new Map(q.blankDisplayPositions.map((pos, idx) => [pos, idx])); const chars = q.display.split('');
+    els.wordMask.className = 'word-mask' + (q.word.length > 10 ? ' long' : '') + (q.word.length > 14 ? ' xlong' : '');
+    els.wordMask.innerHTML = chars.map((ch, idx) => {
+      if (!/[A-Za-z]/.test(ch)) return '<span class="mask-gap"></span>';
+      const blankIdx = blankMap.get(idx);
+      if (blankIdx !== undefined) {
+        if (revealAll || q.filledLetters[blankIdx]) return `<span class="mask-cell filled">${ch}</span>`;
+        const currentClass = blankIdx === q.currentStep ? ' current' : '';
+        return `<span class="mask-cell empty${currentClass}">&nbsp;</span>`;
+      }
+      return `<span class="mask-cell filled">${ch}</span>`;
+    }).join('');
+  }
+  function buildLetterOptions(correct, word) {
+    const options = [correct];
+    const pool = shuffle(word.split('').filter(ch => ch !== correct));
+    for (const ch of pool) {
+      if (!options.includes(ch)) options.push(ch);
+      if (options.length === 3) break;
+    }
+    const alphabet = correct === correct.toUpperCase() ? ALPHABET_UPPER : ALPHABET_LOWER;
+    while (options.length < 3) {
+      const ch = alphabet[Math.floor(Math.random() * alphabet.length)];
+      if (!options.includes(ch)) options.push(ch);
+    }
+    return shuffle(options);
+  }
+  function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  function checkAnswer(opt, btn) {
+    if (state.answeredThisStep || state.draggingEnabled || state.isAnimating) return;
+    state.answeredThisStep = true; const q = state.currentQuestion; const buttons = [...els.options.querySelectorAll('.option-btn')]; buttons.forEach(b => b.disabled = true);
+    const correct = q.word[q.blankPositions[q.currentStep]];
+    if (opt === correct) {
+      btn.classList.add('correct'); q.filledLetters[q.currentStep] = correct; renderMask(q);
+      const doneCount = Object.keys(q.filledLetters).length; const totalBlanks = q.blankPositions.length;
+      if (doneCount < totalBlanks) {
+        els.feedback.textContent = '答对了，继续补下一个字母。'; els.feedback.className = 'feedback ok';
+        setTimeout(() => { q.currentStep += 1; state.answeredThisStep = false; refreshQuestionText(); renderQuestion(); }, 420);
+      } else {
+        state.solved = true; state.draggingEnabled = true; els.feedback.textContent = `答对了！完整单词：${q.display}`; els.feedback.className = 'feedback ok';
+        els.statusMini.textContent = `${q.levelName} · 可以修路`; els.instructionText.textContent = '把右侧的竖直路段拖到左路、中路或右路之一。';
+        els.quizPanel.classList.add('repair-mode'); els.bridgeZone.classList.add('active'); els.dragHint.classList.add('show'); state.answeredThisStep = false;
+      }
+    } else {
+      btn.classList.add('wrong'); const correctBtn = buttons.find(b => b.textContent === correct); if (correctBtn) correctBtn.classList.add('correct');
+      renderMask(q, true); state.wrong += 1; updateHUD(); els.feedback.textContent = `答错了，正确答案是：${q.display}`; els.feedback.className = 'feedback bad'; els.statusMini.textContent = `${q.levelName} · 本题跳过`;
+      if (state.wrong >= 3) setTimeout(() => endGame(false), 1200); else setTimeout(() => { state.stage += 1; loadStage(); }, 1200);
+    }
+  }
+
+  function snapBridge(targetName) {
+    const slot = geometry.slots[targetName]; state.selectedLane = targetName; state.draggingEnabled = false; els.bridgePiece.classList.add('locked'); setBridgePosition(slot.x, slot.y);
+    els.bridgeZone.classList.remove('active'); els.dragHint.classList.remove('show'); els.statusMini.textContent = `${state.currentQuestion.levelName} · 已接到${targetName === 'left' ? '左路' : targetName === 'center' ? '中路' : '右路'}`; animateDrive(targetName);
+  }
+  function animateDrive(targetName) {
+    state.isAnimating = true; const active = getActiveCar(); const next = getNextCar(); placeCar(next, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
+    const segs = buildPath(targetName), total = 2550, nextStart = 1450, nextDuration = 850, start = performance.now();
+    cancelAnimationFrame(state.raf);
+    function tick(now) {
+      const t = Math.min(1, (now - start) / total); const pose = sampleSegments(segs, t); placeCar(active, pose.x, pose.y, pose.angle, true);
+      const t2 = Math.max(0, Math.min(1, (now - start - nextStart) / nextDuration));
+      if (t2 > 0) { const y = geometry.hiddenPos.y + (geometry.startPos.y - geometry.hiddenPos.y) * easeOutCubic(t2); placeCar(next, geometry.startPos.x, y, 0, true); }
+      if (t < 1) state.raf = requestAnimationFrame(tick);
+      else { placeCar(active, geometry.exits[targetName].x, geometry.exits[targetName].y, pose.angle, false); placeCar(next, geometry.startPos.x, geometry.startPos.y, 0, true); state.activeCarKey = state.activeCarKey === 'A' ? 'B' : 'A'; state.stage += 1; loadStage(); }
+    }
+    state.raf = requestAnimationFrame(tick);
+  }
+  function buildPath(targetName) {
+    const lg = geometry.lowerGap[targetName], ug = geometry.upperGap[targetName], ex = geometry.exits[targetName];
+    const segs = [{ type:'line', p0:geometry.startPos, p1:geometry.fork, weight:0.42 }];
+    if (targetName === 'center') segs.push({ type:'line', p0:geometry.fork, p1:lg, weight:0.08 }, { type:'line', p0:lg, p1:ug, weight:0.16 }, { type:'line', p0:ug, p1:ex, weight:0.34 });
+    else if (targetName === 'left') segs.push({ type:'quad', p0:geometry.fork, c:geometry.controls.leftLower, p1:lg, weight:0.12 }, { type:'line', p0:lg, p1:ug, weight:0.16 }, { type:'quad', p0:ug, c:geometry.controls.leftUpper, p1:ex, weight:0.30 });
+    else segs.push({ type:'quad', p0:geometry.fork, c:geometry.controls.rightLower, p1:lg, weight:0.12 }, { type:'line', p0:lg, p1:ug, weight:0.16 }, { type:'quad', p0:ug, c:geometry.controls.rightUpper, p1:ex, weight:0.30 });
+    return segs;
+  }
+  function sampleSegments(segs, t) { let acc = 0; for (const seg of segs) { const nextAcc = acc + seg.weight; if (t <= nextAcc || seg === segs[segs.length - 1]) { const localT = seg.weight === 0 ? 1 : Math.max(0, Math.min(1, (t - acc) / seg.weight)); return sampleSegment(seg, localT); } acc = nextAcc; } return sampleSegment(segs[segs.length - 1], 1); }
+  function sampleSegment(seg, t) { let x, y, dx, dy; if (seg.type === 'line') { x = lerp(seg.p0.x, seg.p1.x, t); y = lerp(seg.p0.y, seg.p1.y, t); dx = seg.p1.x - seg.p0.x; dy = seg.p1.y - seg.p0.y; } else { x = quadAt(seg.p0.x, seg.c.x, seg.p1.x, t); y = quadAt(seg.p0.y, seg.c.y, seg.p1.y, t); dx = 2 * (1 - t) * (seg.c.x - seg.p0.x) + 2 * t * (seg.p1.x - seg.c.x); dy = 2 * (1 - t) * (seg.c.y - seg.p0.y) + 2 * t * (seg.p1.y - seg.c.y); } const angle = Math.atan2(dy, dx) * 180 / Math.PI + 90; return { x, y, angle }; }
+  function lerp(a, b, t) { return a + (b - a) * t; } function quadAt(a, b, c, t) { return (1 - t) * (1 - t) * a + 2 * (1 - t) * t * b + t * t * c; } function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  function endGame(success) {
+    state.isAnimating = false; cancelAnimationFrame(state.raf); els.endOverlay.classList.remove('hidden'); els.bridgeZone.classList.remove('active'); els.dragHint.classList.remove('show');
+    if (success) { els.endTitle.textContent = '闯关成功'; els.endDesc.textContent = `太棒了！你完成了 ${state.questionOrder.length} 题，累计答错 ${state.wrong} 次。`; }
+    else { els.endTitle.textContent = '游戏结束'; els.endDesc.textContent = '累计答错 3 次，小车没法继续前进了。可以重新开始。'; }
+  }
+  function startGame() {
+    cancelAnimationFrame(state.raf); state.selectedModule = els.moduleSelect.value; state.selectedUnit = els.unitSelect.value; state.questionOrder = buildQuestionsForSelection(); state.stage = 0; state.wrong = 0;
+    state.currentQuestion = null; state.raf = null; state.activeCarKey = 'A'; state.isAnimating = false; state.selectedLane = null; state.draggingEnabled = false;
+    resetBridge(); placeCar(els.carA, geometry.startPos.x, geometry.startPos.y, 0, true); placeCar(els.carB, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false); updateHUD(); els.endOverlay.classList.add('hidden'); els.startOverlay.classList.add('hidden'); loadStage();
+  }
+  function setupDrag() {
+    const piece = els.bridgePiece, zone = els.bridgeZone; let dragging = false, offsetX = 0, offsetY = 0;
+    const getPoint = e => { const p = e.touches ? e.touches[0] : e; return {x:p.clientX, y:p.clientY}; };
+    function onDown(e) { if (!state.draggingEnabled || state.isAnimating) return; dragging = true; piece.classList.add('active'); const rect = piece.getBoundingClientRect(); const p = getPoint(e); offsetX = p.x - rect.left; offsetY = p.y - rect.top; e.preventDefault(); }
+    function onMove(e) { if (!dragging || !state.draggingEnabled) return; const zoneRect = zone.getBoundingClientRect(); const p = getPoint(e); let left = p.x - zoneRect.left - offsetX; let top = p.y - zoneRect.top - offsetY; left = Math.max(0, Math.min(zoneRect.width - piece.offsetWidth, left)); top = Math.max(0, Math.min(geometry.routeH - piece.offsetHeight, top)); piece.style.left = `${left}px`; piece.style.top = `${top}px`; e.preventDefault(); }
+    function onUp() { if (!dragging) return; dragging = false; piece.classList.remove('active'); if (!state.draggingEnabled) return; const rect = piece.getBoundingClientRect(); const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2; const zoneRect = zone.getBoundingClientRect(); const candidates = Object.entries(geometry.slots).map(([laneName, pos]) => ({ laneName, d: Math.hypot(centerX - (zoneRect.left + pos.x), centerY - (zoneRect.top + pos.y + geometry.gapHeight / 2)) })).sort((a, b) => a.d - b.d); if (candidates[0].d < 76) snapBridge(candidates[0].laneName); else setBridgePosition(geometry.bridgeHome.xCenter, geometry.bridgeHome.top); }
+    piece.addEventListener('touchstart', onDown, { passive:false }); piece.addEventListener('mousedown', onDown); window.addEventListener('touchmove', onMove, { passive:false }); window.addEventListener('mousemove', onMove); window.addEventListener('touchend', onUp); window.addEventListener('mouseup', onUp);
+  }
+  function carSvg() {
+    return `<svg viewBox="0 0 80 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="carBodyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--carBody2)"/><stop offset="1" stop-color="var(--carBody)"/></linearGradient></defs><g><rect x="22" y="8" width="36" height="124" rx="16" fill="url(#carBodyGrad)" stroke="var(--carLine)" stroke-width="3"/><rect x="28" y="20" width="24" height="30" rx="8" fill="var(--carGlass)" opacity=".96"/><rect x="28" y="90" width="24" height="24" rx="8" fill="var(--carGlass)" opacity=".96"/><rect x="18" y="34" width="8" height="20" rx="4" fill="#222b38"/><rect x="54" y="34" width="8" height="20" rx="4" fill="#222b38"/><rect x="18" y="88" width="8" height="20" rx="4" fill="#222b38"/><rect x="54" y="88" width="8" height="20" rx="4" fill="#222b38"/><rect x="32" y="58" width="16" height="18" rx="6" fill="#f7fafc" opacity=".9"/><circle cx="31" cy="15" r="4" fill="#ffe27a"/><circle cx="49" cy="15" r="4" fill="#ffe27a"/><circle cx="31" cy="125" r="4" fill="#ff9fa4"/><circle cx="49" cy="125" r="4" fill="#ff9fa4"/></g></svg>`;
+  }
+
+  els.moduleSelect.addEventListener('change', () => { state.selectedModule = els.moduleSelect.value; populateUnitSelect(); });
+  els.unitSelect.addEventListener('change', () => { state.selectedUnit = els.unitSelect.value; updateUnitSummary(); });
+  els.startBtn.addEventListener('click', startGame);
+  els.restartBtn.addEventListener('click', () => { els.endOverlay.classList.add('hidden'); els.startOverlay.classList.remove('hidden'); populateSelectors(); });
+  els.closeBtn.addEventListener('click', () => els.endOverlay.classList.add('hidden'));
+  window.addEventListener('resize', () => { computeLayout(); if (!state.isAnimating) { placeCar(getActiveCar(), geometry.startPos.x, geometry.startPos.y, 0, true); placeCar(getNextCar(), geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false); } });
+
+  initState(); setupDrag();
+})();
+
+</script>
+</body>
+</html>
