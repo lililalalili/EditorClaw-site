@@ -374,7 +374,7 @@
     const displayLetterPositions = [];
     entry.display.split('').forEach((ch, idx) => { if (/[A-Za-z]/.test(ch)) displayLetterPositions.push(idx); });
     const blankDisplayPositions = blankPositions.map(i => displayLetterPositions[i]);
-    return { difficulty: level, levelName, word: entry.word, display: entry.display, image: entry.image, blankPositions, blankDisplayPositions, filledLetters: {}, currentStep: 0 };
+    return { difficulty: level, levelName, word: entry.word, display: entry.display, zh: entry.zh || '', pos: entry.pos || '', image: entry.image, blankPositions, blankDisplayPositions, filledLetters: {}, currentStep: 0 };
   }
   function chooseBlankPositions(len, blankCount, level) {
     if (blankCount >= len) return Array.from({ length: len }, (_, i) => i);
