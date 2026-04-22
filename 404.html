@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="/game/" /> <!-- 注意这里根据情况调整 -->
+  <script>
+    // 简单的重定向逻辑
+    window.location.pathname.startsWith("/game")
+      ? (window.location.pathname = window.location.pathname.replace("/game", "/"))
+      : window.location.replace("/");
+  </script>
+</head>
+</html>
