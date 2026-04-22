@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>单词修路小车</title>
+  <title>肖悦瞳的单词修路游戏</title>
   <style>
     :root{
       --bg1:#d8efff;--bg2:#eef7ff;--panel:#ffffffee;--text:#1d2a3a;--sub:#5d6d83;--accent:#4b8bff;
@@ -93,6 +93,21 @@
     .mask-cell.current{border-bottom-color:#4b8bff;box-shadow:inset 0 -4px 0 rgba(75,139,255,.12);}
     .mask-gap{display:inline-block;width:12px;height:38px;flex:0 0 12px;}
 
+
+    .scramble-wrap{display:flex;flex-direction:column;gap:12px;flex:0 0 auto;margin-top:2px;}
+    .scramble-wrap.hidden{display:none;}
+    .scramble-bank{min-height:76px;background:#f4f8ff;border:1px solid #dce8f8;border-radius:18px;padding:10px;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;justify-content:center;}
+    .scramble-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .scramble-btn{border:none;border-radius:16px;padding:13px 10px;font-size:16px;font-weight:800;background:#4b8bff;color:#fff;}
+    .scramble-btn.secondary{background:#edf4ff;color:#1d3557;}
+    .letter-tile{min-width:44px;height:46px;padding:0 10px;border-radius:14px;background:#edf4ff;color:#1d3557;display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;box-shadow:0 3px 10px rgba(39,71,119,.08);touch-action:none;user-select:none;}
+    .letter-tile.placed{min-width:100%;height:100%;border-radius:12px;background:rgba(75,139,255,.12);box-shadow:none;}
+    .letter-tile.drag-source{opacity:.28;}
+    .drag-ghost{position:fixed;left:0;top:0;z-index:9999;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 8px 18px rgba(0,0,0,.18);}
+    .drop-slot{position:relative;}
+    .drop-slot.active-target{outline:2px dashed rgba(75,139,255,.5);outline-offset:4px;border-radius:12px;}
+    .drop-slot .letter-tile{font-size:28px;}
+
   </style>
 </head>
 <body>
@@ -136,13 +151,20 @@
       </div>
     </div>
     <div class="options" id="options"></div>
+    <div class="scramble-wrap hidden" id="scrambleWrap">
+      <div class="scramble-bank" id="scrambleBank"></div>
+      <div class="scramble-actions">
+        <button class="scramble-btn secondary" id="resetWordBtn" type="button">重置</button>
+        <button class="scramble-btn" id="confirmWordBtn" type="button">确认</button>
+      </div>
+    </div>
     <div class="feedback" id="feedback"></div>
   </div>
 
   <div class="overlay" id="startOverlay">
     <div class="dialog">
-      <h2>单词修路小车</h2>
-      <p>先选 Module 和 Unit，再开始游戏。所选单元里的每个单词会在一级、二级、三级各出现一次。</p>
+      <h2>肖悦瞳的单词修路游戏</h2>
+      <p>先选 Module 和 Unit，再开始游戏。所选单元里的每个单词会在一级、二级、三级、四级各出现一次。</p>
       <div class="picker-grid">
         <div class="pick">
           <label for="moduleSelect">Module</label>
@@ -155,7 +177,7 @@
       </div>
       <div class="unit-note" id="unitSummary">请选择一个单元。</div>
       <button class="btn" id="startBtn">开始游戏</button>
-      <div class="small-note">规则：一级缺 1 个字母；二级同时缺 2 个字母，但作答时一次补 1 个；三级同时缺 3 个字母，但作答时一次补 1 个。答题时请根据中文翻译和词性作答。选对后修路，选错会显示正确答案并跳到下一题。累计答错 3 次游戏结束。</div>
+      <div class="small-note">规则：一级缺 1 个字母；二级同时缺 2 个字母，但作答时一次补 1 个；三级同时缺 3 个字母，但作答时一次补 1 个；四级将该单词的全部字母打乱后拖到对应横线上，再点确认。答题时请根据中文翻译和词性作答。选对后修路，选错会显示正确答案并跳到下一题。累计答错 3 次游戏结束。</div>
     </div>
   </div>
 
@@ -168,6 +190,7 @@
     </div>
   </div>
 </div>
+
 
 <script>
 
@@ -185,6 +208,10 @@
     cnHint: document.getElementById('cnHint'),
     wordMask: document.getElementById('wordMask'),
     options: document.getElementById('options'),
+    scrambleWrap: document.getElementById('scrambleWrap'),
+    scrambleBank: document.getElementById('scrambleBank'),
+    resetWordBtn: document.getElementById('resetWordBtn'),
+    confirmWordBtn: document.getElementById('confirmWordBtn'),
     feedback: document.getElementById('feedback'),
     instructionText: document.getElementById('instructionText'),
     statusMini: document.getElementById('statusMini'),
@@ -207,10 +234,12 @@
 
   const ALPHABET_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const ALPHABET_LOWER = 'abcdefghijklmnopqrstuvwxyz';
-  const UNIT_DATA = {"M1": {"U1": {"label": "M1U1", "name": "M1U1", "words": [{"word": "Aeroplane", "display": "Aeroplane", "zh": "飞机", "pos": "n."}, {"word": "Bus", "display": "Bus", "zh": "公共汽车", "pos": "n."}, {"word": "By", "display": "By", "zh": "在……旁边", "pos": "prep."}, {"word": "Car", "display": "Car", "zh": "小汽车", "pos": "n."}, {"word": "Chair", "display": "Chair", "zh": "椅子", "pos": "n."}, {"word": "Children", "display": "Children", "zh": "（复数）儿童；小孩", "pos": "n."}, {"word": "Else", "display": "Else", "zh": "其他的；别的", "pos": "adv."}, {"word": "Hear", "display": "Hear", "zh": "听见", "pos": "v."}, {"word": "Listen", "display": "Listen", "zh": "听", "pos": "v."}, {"word": "Ship", "display": "Ship", "zh": "（大）船；舰", "pos": "n."}, {"word": "Them", "display": "Them", "zh": "他们；它们", "pos": "pron."}, {"word": "Window", "display": "Window", "zh": "窗；窗户", "pos": "n."}]}, "U2": {"label": "M1U2", "name": "M1U2", "words": [{"word": "Bag", "display": "Bag", "zh": "包", "pos": "n."}, {"word": "Bread", "display": "Bread", "zh": "面包", "pos": "n."}, {"word": "Do", "display": "Do", "zh": "（助动词）", "pos": "aux. v."}, {"word": "Does", "display": "Does", "zh": "（助动词）", "pos": "aux. v."}, {"word": "Food", "display": "Food", "zh": "食物", "pos": "n."}, {"word": "Glass", "display": "Glass", "zh": "玻璃杯", "pos": "n."}, {"word": "Hard", "display": "Hard", "zh": "硬的", "pos": "adj."}, {"word": "How", "display": "How", "zh": "怎样；如何；多么", "pos": "adv."}, {"word": "Hungry", "display": "Hungry", "zh": "饿的", "pos": "adj."}, {"word": "(the) Moon", "display": "(the) Moon", "zh": "月球；月亮", "pos": "n."}, {"word": "On", "display": "On", "zh": "在……上", "pos": "prep."}, {"word": "Pie", "display": "Pie", "zh": "果馅饼", "pos": "n."}, {"word": "Pineapple", "display": "Pineapple", "zh": "菠萝", "pos": "n."}, {"word": "Rough", "display": "Rough", "zh": "粗糙的", "pos": "adj."}, {"word": "Smooth", "display": "Smooth", "zh": "平滑的", "pos": "adj."}, {"word": "Soft", "display": "Soft", "zh": "柔软的", "pos": "adj."}, {"word": "Touch", "display": "Touch", "zh": "触摸；碰", "pos": "v."}, {"word": "Yuan", "display": "Yuan", "zh": "（人民币）元", "pos": "n."}]}, "U3": {"label": "M1U3", "name": "M1U3", "words": [{"word": "Bitter", "display": "Bitter", "zh": "苦的", "pos": "adj."}, {"word": "Coffee", "display": "Coffee", "zh": "咖啡", "pos": "n."}, {"word": "Fruit", "display": "Fruit", "zh": "水果", "pos": "n."}, {"word": "Help", "display": "Help", "zh": "帮助", "pos": "v."}, {"word": "Lemon", "display": "Lemon", "zh": "柠檬", "pos": "n."}, {"word": "Salt", "display": "Salt", "zh": "盐", "pos": "n."}, {"word": "Salty", "display": "Salty", "zh": "咸的", "pos": "adj."}, {"word": "Smell", "display": "Smell", "zh": "闻；有……气味", "pos": "v."}, {"word": "Sour", "display": "Sour", "zh": "酸的", "pos": "adj."}, {"word": "Sweet", "display": "Sweet", "zh": "糖果", "pos": "n."}, {"word": "Sweet", "display": "Sweet", "zh": "甜的", "pos": "adj."}, {"word": "Taste", "display": "Taste", "zh": "尝；有……味道", "pos": "v."}, {"word": "Whale", "display": "Whale", "zh": "鲸鱼", "pos": "n."}]}}, "M2": {"U1": {"label": "M2U1", "name": "M2U1", "words": [{"word": "Angry", "display": "Angry", "zh": "生气的", "pos": "adj."}, {"word": "Clever", "display": "Clever", "zh": "聪明的", "pos": "adj."}, {"word": "Clock", "display": "Clock", "zh": "钟", "pos": "n."}, {"word": "Cute", "display": "Cute", "zh": "可爱的", "pos": "adj."}, {"word": "Elephant", "display": "Elephant", "zh": "大象", "pos": "n."}, {"word": "Finally", "display": "Finally", "zh": "最后；终于", "pos": "adv."}, {"word": "Has", "display": "Has", "zh": "有；拥有（第三人称单数）", "pos": "v."}, {"word": "Hat", "display": "Hat", "zh": "帽子", "pos": "n."}, {"word": "Here", "display": "Here", "zh": "这里；在这里", "pos": "adv."}, {"word": "Into", "display": "Into", "zh": "到……里面", "pos": "prep."}, {"word": "Jump", "display": "Jump", "zh": "跳", "pos": "v."}, {"word": "Lion", "display": "Lion", "zh": "狮子", "pos": "n."}, {"word": "Monkey", "display": "Monkey", "zh": "猴子", "pos": "n."}, {"word": "Panda", "display": "Panda", "zh": "熊猫", "pos": "n."}, {"word": "Rock", "display": "Rock", "zh": "岩石", "pos": "n."}, {"word": "So", "display": "So", "zh": "那么；如此", "pos": "adv."}, {"word": "Strong", "display": "Strong", "zh": "强壮的", "pos": "adj."}, {"word": "Summer", "display": "Summer", "zh": "夏天", "pos": "n."}, {"word": "Take", "display": "Take", "zh": "拿；获得", "pos": "v."}, {"word": "Take a rest", "display": "Take a rest", "zh": "休息", "pos": ""}, {"word": "Tiger", "display": "Tiger", "zh": "老虎", "pos": "n."}, {"word": "Tree", "display": "Tree", "zh": "树", "pos": "n."}, {"word": "Uncle", "display": "Uncle", "zh": "叔，舅", "pos": "n."}]}, "U2": {"label": "M2U2", "name": "M2U2", "words": [{"word": "Doll", "display": "Doll", "zh": "玩具娃娃", "pos": "n."}, {"word": "Fun", "display": "Fun", "zh": "乐趣", "pos": "n."}, {"word": "Lovely", "display": "Lovely", "zh": "可爱的", "pos": "adj."}, {"word": "Play", "display": "Play", "zh": "玩", "pos": "v."}, {"word": "Robot", "display": "Robot", "zh": "机器人", "pos": "n."}, {"word": "Skateboard", "display": "Skateboard", "zh": "滑板", "pos": "n."}, {"word": "Super", "display": "Super", "zh": "超级的", "pos": "adj."}, {"word": "Together", "display": "Together", "zh": "一起", "pos": "adv."}, {"word": "Train", "display": "Train", "zh": "火车", "pos": "n."}, {"word": "Walk", "display": "Walk", "zh": "行走", "pos": "v."}, {"word": "Wall", "display": "Wall", "zh": "墙", "pos": "n."}]}, "U3": {"label": "M2U3", "name": "M2U3", "words": [{"word": "Clothes", "display": "Clothes", "zh": "衣服", "pos": "n."}, {"word": "English", "display": "English", "zh": "英语", "pos": "n."}, {"word": "Glass", "display": "Glass", "zh": "玻璃", "pos": "n."}, {"word": "Glove", "display": "Glove", "zh": "手套", "pos": "n."}, {"word": "Great", "display": "Great", "zh": "好极的", "pos": "adj."}, {"word": "His", "display": "His", "zh": "他的", "pos": "pron."}, {"word": "Horse", "display": "Horse", "zh": "马", "pos": "n."}, {"word": "Jacket", "display": "Jacket", "zh": "夹克衫", "pos": "n."}, {"word": "Make", "display": "Make", "zh": "做", "pos": "v."}, {"word": "Pair", "display": "Pair", "zh": "一双；一对", "pos": "n."}, {"word": "A pair of", "display": "A pair of", "zh": "一双；一对", "pos": ""}, {"word": "Scarf", "display": "Scarf", "zh": "围巾", "pos": "n."}, {"word": "Sock", "display": "Sock", "zh": "短袜", "pos": "n."}, {"word": "These", "display": "These", "zh": "这些", "pos": "pron."}, {"word": "Those", "display": "Those", "zh": "那些", "pos": "pron."}, {"word": "Trousers", "display": "Trousers", "zh": "裤子", "pos": "n."}, {"word": "Word", "display": "Word", "zh": "单词", "pos": "n."}, {"word": "Zebra", "display": "Zebra", "zh": "斑马", "pos": "n."}]}}, "M3": {"U1": {"label": "M3U1", "name": "M3U1", "words": [{"word": "Circle", "display": "Circle", "zh": "圆形", "pos": "n."}, {"word": "Home", "display": "Home", "zh": "到家；在家", "pos": "adv."}, {"word": "House", "display": "House", "zh": "房子", "pos": "n."}, {"word": "Rectangle", "display": "Rectangle", "zh": "长方形；矩形", "pos": "n."}, {"word": "Shape", "display": "Shape", "zh": "形状", "pos": "n."}, {"word": "Square", "display": "Square", "zh": "正方形", "pos": "n."}, {"word": "Star", "display": "Star", "zh": "（五角）星形", "pos": "n."}, {"word": "Take off", "display": "Take off", "zh": "脱下（衣服）", "pos": ""}, {"word": "Triangle", "display": "Triangle", "zh": "三角形", "pos": "n."}, {"word": "Turn off", "display": "Turn off", "zh": "关掉（开关等）", "pos": ""}]}, "U2": {"label": "M3U2", "name": "M3U2", "words": [{"word": "Autumn", "display": "Autumn", "zh": "秋天", "pos": "n."}, {"word": "Busy", "display": "Busy", "zh": "忙碌的", "pos": "adj."}, {"word": "Cold", "display": "Cold", "zh": "冷的", "pos": "adj."}, {"word": "Grass", "display": "Grass", "zh": "草", "pos": "n."}, {"word": "Grasshopper", "display": "Grasshopper", "zh": "蚱蜢", "pos": "n."}, {"word": "Home", "display": "Home", "zh": "家", "pos": "n."}, {"word": "Mountain", "display": "Mountain", "zh": "山", "pos": "n."}, {"word": "Outside", "display": "Outside", "zh": "在外面", "pos": "adv."}, {"word": "River", "display": "River", "zh": "河流", "pos": "n."}, {"word": "Sea", "display": "Sea", "zh": "海", "pos": "n."}, {"word": "Sky", "display": "Sky", "zh": "天空", "pos": "n."}, {"word": "Sleep", "display": "Sleep", "zh": "睡觉", "pos": "v."}, {"word": "Snow", "display": "Snow", "zh": "雪", "pos": "n."}, {"word": "Spring", "display": "Spring", "zh": "春天", "pos": "n."}, {"word": "Winter", "display": "Winter", "zh": "冬天", "pos": "n."}]}, "U3": {"label": "M3U3", "name": "M3U3", "words": [{"word": "Beach", "display": "Beach", "zh": "海滩", "pos": "n."}, {"word": "Ice-skate", "display": "Ice-skate", "zh": "滑冰", "pos": "v."}, {"word": "Park", "display": "Park", "zh": "公园", "pos": "n."}, {"word": "Picnic", "display": "Picnic", "zh": "野餐", "pos": "n."}, {"word": "Plant", "display": "Plant", "zh": "种植", "pos": "v."}, {"word": "Sandcastle", "display": "Sandcastle", "zh": "沙堡", "pos": "n."}, {"word": "Season", "display": "Season", "zh": "季节", "pos": "n."}, {"word": "Ski", "display": "Ski", "zh": "滑雪", "pos": "v."}, {"word": "Slowly", "display": "Slowly", "zh": "缓慢地", "pos": "adv."}]}}, "M4": {"U1": {"label": "M4U1", "name": "M4U1", "words": [{"word": "Arm", "display": "Arm", "zh": "手臂", "pos": "n."}, {"word": "Body", "display": "Body", "zh": "身体；躯干", "pos": "n."}, {"word": "Easy", "display": "Easy", "zh": "简单的；容易的", "pos": "adj."}, {"word": "Finger", "display": "Finger", "zh": "手指", "pos": "n."}, {"word": "Foot (feet)", "display": "Foot (feet)", "zh": "脚", "pos": "n."}, {"word": "Funny", "display": "Funny", "zh": "有趣的；滑稽的", "pos": "adj."}, {"word": "Head", "display": "Head", "zh": "头", "pos": "n."}, {"word": "Knee", "display": "Knee", "zh": "膝盖", "pos": "n."}, {"word": "Leg", "display": "Leg", "zh": "腿", "pos": "n."}, {"word": "Myself", "display": "Myself", "zh": "我自己", "pos": "pron."}, {"word": "Shoulder", "display": "Shoulder", "zh": "肩膀", "pos": "n."}, {"word": "Yourself", "display": "Yourself", "zh": "你自己", "pos": "pron."}]}, "U2": {"label": "M4U2", "name": "M4U2", "words": [{"word": "Children’s Day", "display": "Children’s Day", "zh": "儿童节", "pos": ""}, {"word": "China", "display": "China", "zh": "中国", "pos": ""}, {"word": "Cinema", "display": "Cinema", "zh": "电影院", "pos": "n."}, {"word": "Fifth", "display": "Fifth", "zh": "第五", "pos": "num."}, {"word": "First", "display": "First", "zh": "第一", "pos": "num."}, {"word": "For", "display": "For", "zh": "给；对；为", "pos": "prep."}, {"word": "January", "display": "January", "zh": "一月", "pos": "n."}, {"word": "Japan", "display": "Japan", "zh": "日本", "pos": ""}, {"word": "July", "display": "July", "zh": "七月", "pos": "n."}, {"word": "June", "display": "June", "zh": "六月", "pos": "n."}, {"word": "March", "display": "March", "zh": "三月", "pos": "n."}, {"word": "May", "display": "May", "zh": "五月", "pos": "n."}, {"word": "Middle", "display": "Middle", "zh": "中间；中部", "pos": "n."}, {"word": "October", "display": "October", "zh": "十月", "pos": "n."}, {"word": "Parent", "display": "Parent", "zh": "父亲（或母亲）", "pos": "n."}, {"word": "Photograph", "display": "Photograph", "zh": "照片", "pos": "n."}, {"word": "Saturday", "display": "Saturday", "zh": "星期六", "pos": "n."}, {"word": "Second", "display": "Second", "zh": "第二", "pos": "num."}, {"word": "Singapore", "display": "Singapore", "zh": "新加坡", "pos": ""}, {"word": "Song", "display": "Song", "zh": "歌曲", "pos": "n."}, {"word": "Take a photograph", "display": "Take a photograph", "zh": "拍照", "pos": ""}, {"word": "Thailand", "display": "Thailand", "zh": "泰国", "pos": ""}, {"word": "Third", "display": "Third", "zh": "第三", "pos": "num."}, {"word": "(the) UK", "display": "(the) UK", "zh": "英国", "pos": ""}, {"word": "With", "display": "With", "zh": "和……一起", "pos": "prep."}, {"word": "Zoo", "display": "Zoo", "zh": "动物园", "pos": "n."}]}, "U3": {"label": "M4U3", "name": "M4U3", "words": [{"word": "Afraid", "display": "Afraid", "zh": "害怕的", "pos": "adj."}, {"word": "Bad", "display": "Bad", "zh": "坏的", "pos": "adj."}, {"word": "Boil", "display": "Boil", "zh": "煮沸", "pos": "v."}, {"word": "Go away", "display": "Go away", "zh": "离开", "pos": ""}, {"word": "Go fishing", "display": "Go fishing", "zh": "去钓鱼", "pos": ""}, {"word": "Over there", "display": "Over there", "zh": "在那里", "pos": ""}, {"word": "Own", "display": "Own", "zh": "自己的", "pos": "adj."}, {"word": "Stop", "display": "Stop", "zh": "停止", "pos": "v."}, {"word": "Story", "display": "Story", "zh": "故事", "pos": "n."}, {"word": "Time", "display": "Time", "zh": "时间", "pos": "n."}, {"word": "Water", "display": "Water", "zh": "水", "pos": "n."}, {"word": "Wolf", "display": "Wolf", "zh": "狼", "pos": "n."}]}}};
+  const RAW_UNIT_DATA = {"M1": {"U1": {"label": "M1U1", "name": "M1U1", "words": [{"word": "Aeroplane", "display": "Aeroplane", "zh": "飞机", "pos": "n."}, {"word": "Bus", "display": "Bus", "zh": "公共汽车", "pos": "n."}, {"word": "By", "display": "By", "zh": "在……旁边", "pos": "prep."}, {"word": "Car", "display": "Car", "zh": "小汽车", "pos": "n."}, {"word": "Chair", "display": "Chair", "zh": "椅子", "pos": "n."}, {"word": "Children", "display": "Children", "zh": "（复数）儿童；小孩", "pos": "n."}, {"word": "Else", "display": "Else", "zh": "其他的；别的", "pos": "adv."}, {"word": "Hear", "display": "Hear", "zh": "听见", "pos": "v."}, {"word": "Listen", "display": "Listen", "zh": "听", "pos": "v."}, {"word": "Ship", "display": "Ship", "zh": "（大）船；舰", "pos": "n."}, {"word": "Them", "display": "Them", "zh": "他们；它们", "pos": "pron."}, {"word": "Window", "display": "Window", "zh": "窗；窗户", "pos": "n."}]}, "U2": {"label": "M1U2", "name": "M1U2", "words": [{"word": "Bag", "display": "Bag", "zh": "包", "pos": "n."}, {"word": "Bread", "display": "Bread", "zh": "面包", "pos": "n."}, {"word": "Do", "display": "Do", "zh": "（助动词）", "pos": "aux. v."}, {"word": "Does", "display": "Does", "zh": "（助动词）", "pos": "aux. v."}, {"word": "Food", "display": "Food", "zh": "食物", "pos": "n."}, {"word": "Glass", "display": "Glass", "zh": "玻璃杯", "pos": "n."}, {"word": "Hard", "display": "Hard", "zh": "硬的", "pos": "adj."}, {"word": "How", "display": "How", "zh": "怎样；如何；多么", "pos": "adv."}, {"word": "Hungry", "display": "Hungry", "zh": "饿的", "pos": "adj."}, {"word": "(the) Moon", "display": "(the) Moon", "zh": "月球；月亮", "pos": "n."}, {"word": "On", "display": "On", "zh": "在……上", "pos": "prep."}, {"word": "Pie", "display": "Pie", "zh": "果馅饼", "pos": "n."}, {"word": "Pineapple", "display": "Pineapple", "zh": "菠萝", "pos": "n."}, {"word": "Rough", "display": "Rough", "zh": "粗糙的", "pos": "adj."}, {"word": "Smooth", "display": "Smooth", "zh": "平滑的", "pos": "adj."}, {"word": "Soft", "display": "Soft", "zh": "柔软的", "pos": "adj."}, {"word": "Touch", "display": "Touch", "zh": "触摸；碰", "pos": "v."}, {"word": "Yuan", "display": "Yuan", "zh": "（人民币）元", "pos": "n."}]}, "U3": {"label": "M1U3", "name": "M1U3", "words": [{"word": "Bitter", "display": "Bitter", "zh": "苦的", "pos": "adj."}, {"word": "Coffee", "display": "Coffee", "zh": "咖啡", "pos": "n."}, {"word": "Fruit", "display": "Fruit", "zh": "水果", "pos": "n."}, {"word": "Help", "display": "Help", "zh": "帮助", "pos": "v."}, {"word": "Lemon", "display": "Lemon", "zh": "柠檬", "pos": "n."}, {"word": "Salt", "display": "Salt", "zh": "盐", "pos": "n."}, {"word": "Salty", "display": "Salty", "zh": "咸的", "pos": "adj."}, {"word": "Smell", "display": "Smell", "zh": "闻；有……气味", "pos": "v."}, {"word": "Sour", "display": "Sour", "zh": "酸的", "pos": "adj."}, {"word": "Sweet", "display": "Sweet", "zh": "糖果", "pos": "n."}, {"word": "Sweet", "display": "Sweet", "zh": "甜的", "pos": "adj."}, {"word": "Taste", "display": "Taste", "zh": "尝；有……味道", "pos": "v."}, {"word": "Whale", "display": "Whale", "zh": "鲸鱼", "pos": "n."}]}}, "M2": {"U1": {"label": "M2U1", "name": "M2U1", "words": [{"word": "Angry", "display": "Angry", "zh": "生气的", "pos": "adj."}, {"word": "Clever", "display": "Clever", "zh": "聪明的", "pos": "adj."}, {"word": "Clock", "display": "Clock", "zh": "钟", "pos": "n."}, {"word": "Cute", "display": "Cute", "zh": "可爱的", "pos": "adj."}, {"word": "Elephant", "display": "Elephant", "zh": "大象", "pos": "n."}, {"word": "Finally", "display": "Finally", "zh": "最后；终于", "pos": "adv."}, {"word": "Has", "display": "Has", "zh": "有；拥有（第三人称单数）", "pos": "v."}, {"word": "Hat", "display": "Hat", "zh": "帽子", "pos": "n."}, {"word": "Here", "display": "Here", "zh": "这里；在这里", "pos": "adv."}, {"word": "Into", "display": "Into", "zh": "到……里面", "pos": "prep."}, {"word": "Jump", "display": "Jump", "zh": "跳", "pos": "v."}, {"word": "Lion", "display": "Lion", "zh": "狮子", "pos": "n."}, {"word": "Monkey", "display": "Monkey", "zh": "猴子", "pos": "n."}, {"word": "Panda", "display": "Panda", "zh": "熊猫", "pos": "n."}, {"word": "Rock", "display": "Rock", "zh": "岩石", "pos": "n."}, {"word": "So", "display": "So", "zh": "那么；如此", "pos": "adv."}, {"word": "Strong", "display": "Strong", "zh": "强壮的", "pos": "adj."}, {"word": "Summer", "display": "Summer", "zh": "夏天", "pos": "n."}, {"word": "Take", "display": "Take", "zh": "拿；获得", "pos": "v."}, {"word": "Take a rest", "display": "Take a rest", "zh": "休息", "pos": ""}, {"word": "Tiger", "display": "Tiger", "zh": "老虎", "pos": "n."}, {"word": "Tree", "display": "Tree", "zh": "树", "pos": "n."}, {"word": "Uncle", "display": "Uncle", "zh": "叔，舅", "pos": "n."}]}, "U2": {"label": "M2U2", "name": "M2U2", "words": [{"word": "Doll", "display": "Doll", "zh": "玩具娃娃", "pos": "n."}, {"word": "Fun", "display": "Fun", "zh": "乐趣", "pos": "n."}, {"word": "Lovely", "display": "Lovely", "zh": "可爱的", "pos": "adj."}, {"word": "Play", "display": "Play", "zh": "玩", "pos": "v."}, {"word": "Robot", "display": "Robot", "zh": "机器人", "pos": "n."}, {"word": "Skateboard", "display": "Skateboard", "zh": "滑板", "pos": "n."}, {"word": "Super", "display": "Super", "zh": "超级的", "pos": "adj."}, {"word": "Together", "display": "Together", "zh": "一起", "pos": "adv."}, {"word": "Train", "display": "Train", "zh": "火车", "pos": "n."}, {"word": "Walk", "display": "Walk", "zh": "行走", "pos": "v."}, {"word": "Wall", "display": "Wall", "zh": "墙", "pos": "n."}]}, "U3": {"label": "M2U3", "name": "M2U3", "words": [{"word": "Clothes", "display": "Clothes", "zh": "衣服", "pos": "n."}, {"word": "English", "display": "English", "zh": "英语", "pos": "n."}, {"word": "Glass", "display": "Glass", "zh": "玻璃", "pos": "n."}, {"word": "Glove", "display": "Glove", "zh": "手套", "pos": "n."}, {"word": "Great", "display": "Great", "zh": "好极的", "pos": "adj."}, {"word": "His", "display": "His", "zh": "他的", "pos": "pron."}, {"word": "Horse", "display": "Horse", "zh": "马", "pos": "n."}, {"word": "Jacket", "display": "Jacket", "zh": "夹克衫", "pos": "n."}, {"word": "Make", "display": "Make", "zh": "做", "pos": "v."}, {"word": "Pair", "display": "Pair", "zh": "一双；一对", "pos": "n."}, {"word": "A pair of", "display": "A pair of", "zh": "一双；一对", "pos": ""}, {"word": "Scarf", "display": "Scarf", "zh": "围巾", "pos": "n."}, {"word": "Sock", "display": "Sock", "zh": "短袜", "pos": "n."}, {"word": "These", "display": "These", "zh": "这些", "pos": "pron."}, {"word": "Those", "display": "Those", "zh": "那些", "pos": "pron."}, {"word": "Trousers", "display": "Trousers", "zh": "裤子", "pos": "n."}, {"word": "Word", "display": "Word", "zh": "单词", "pos": "n."}, {"word": "Zebra", "display": "Zebra", "zh": "斑马", "pos": "n."}]}}, "M3": {"U1": {"label": "M3U1", "name": "M3U1", "words": [{"word": "Circle", "display": "Circle", "zh": "圆形", "pos": "n."}, {"word": "Home", "display": "Home", "zh": "到家；在家", "pos": "adv."}, {"word": "House", "display": "House", "zh": "房子", "pos": "n."}, {"word": "Rectangle", "display": "Rectangle", "zh": "长方形；矩形", "pos": "n."}, {"word": "Shape", "display": "Shape", "zh": "形状", "pos": "n."}, {"word": "Square", "display": "Square", "zh": "正方形", "pos": "n."}, {"word": "Star", "display": "Star", "zh": "（五角）星形", "pos": "n."}, {"word": "Take off", "display": "Take off", "zh": "脱下（衣服）", "pos": ""}, {"word": "Triangle", "display": "Triangle", "zh": "三角形", "pos": "n."}, {"word": "Turn off", "display": "Turn off", "zh": "关掉（开关等）", "pos": ""}]}, "U2": {"label": "M3U2", "name": "M3U2", "words": [{"word": "Autumn", "display": "Autumn", "zh": "秋天", "pos": "n."}, {"word": "Busy", "display": "Busy", "zh": "忙碌的", "pos": "adj."}, {"word": "Cold", "display": "Cold", "zh": "冷的", "pos": "adj."}, {"word": "Grass", "display": "Grass", "zh": "草", "pos": "n."}, {"word": "Grasshopper", "display": "Grasshopper", "zh": "蚱蜢", "pos": "n."}, {"word": "Home", "display": "Home", "zh": "家", "pos": "n."}, {"word": "Mountain", "display": "Mountain", "zh": "山", "pos": "n."}, {"word": "Outside", "display": "Outside", "zh": "在外面", "pos": "adv."}, {"word": "River", "display": "River", "zh": "河流", "pos": "n."}, {"word": "Sea", "display": "Sea", "zh": "海", "pos": "n."}, {"word": "Sky", "display": "Sky", "zh": "天空", "pos": "n."}, {"word": "Sleep", "display": "Sleep", "zh": "睡觉", "pos": "v."}, {"word": "Snow", "display": "Snow", "zh": "雪", "pos": "n."}, {"word": "Spring", "display": "Spring", "zh": "春天", "pos": "n."}, {"word": "Winter", "display": "Winter", "zh": "冬天", "pos": "n."}]}, "U3": {"label": "M3U3", "name": "M3U3", "words": [{"word": "Beach", "display": "Beach", "zh": "海滩", "pos": "n."}, {"word": "Ice-skate", "display": "Ice-skate", "zh": "滑冰", "pos": "v."}, {"word": "Park", "display": "Park", "zh": "公园", "pos": "n."}, {"word": "Picnic", "display": "Picnic", "zh": "野餐", "pos": "n."}, {"word": "Plant", "display": "Plant", "zh": "种植", "pos": "v."}, {"word": "Sandcastle", "display": "Sandcastle", "zh": "沙堡", "pos": "n."}, {"word": "Season", "display": "Season", "zh": "季节", "pos": "n."}, {"word": "Ski", "display": "Ski", "zh": "滑雪", "pos": "v."}, {"word": "Slowly", "display": "Slowly", "zh": "缓慢地", "pos": "adv."}]}}, "M4": {"U1": {"label": "M4U1", "name": "M4U1", "words": [{"word": "Arm", "display": "Arm", "zh": "手臂", "pos": "n."}, {"word": "Body", "display": "Body", "zh": "身体；躯干", "pos": "n."}, {"word": "Easy", "display": "Easy", "zh": "简单的；容易的", "pos": "adj."}, {"word": "Finger", "display": "Finger", "zh": "手指", "pos": "n."}, {"word": "Foot (feet)", "display": "Foot (feet)", "zh": "脚", "pos": "n."}, {"word": "Funny", "display": "Funny", "zh": "有趣的；滑稽的", "pos": "adj."}, {"word": "Head", "display": "Head", "zh": "头", "pos": "n."}, {"word": "Knee", "display": "Knee", "zh": "膝盖", "pos": "n."}, {"word": "Leg", "display": "Leg", "zh": "腿", "pos": "n."}, {"word": "Myself", "display": "Myself", "zh": "我自己", "pos": "pron."}, {"word": "Shoulder", "display": "Shoulder", "zh": "肩膀", "pos": "n."}, {"word": "Yourself", "display": "Yourself", "zh": "你自己", "pos": "pron."}]}, "U2": {"label": "M4U2", "name": "M4U2", "words": [{"word": "Children’s Day", "display": "Children’s Day", "zh": "儿童节", "pos": ""}, {"word": "China", "display": "China", "zh": "中国", "pos": ""}, {"word": "Cinema", "display": "Cinema", "zh": "电影院", "pos": "n."}, {"word": "Fifth", "display": "Fifth", "zh": "第五", "pos": "num."}, {"word": "First", "display": "First", "zh": "第一", "pos": "num."}, {"word": "For", "display": "For", "zh": "给；对；为", "pos": "prep."}, {"word": "January", "display": "January", "zh": "一月", "pos": "n."}, {"word": "Japan", "display": "Japan", "zh": "日本", "pos": ""}, {"word": "July", "display": "July", "zh": "七月", "pos": "n."}, {"word": "June", "display": "June", "zh": "六月", "pos": "n."}, {"word": "March", "display": "March", "zh": "三月", "pos": "n."}, {"word": "May", "display": "May", "zh": "五月", "pos": "n."}, {"word": "Middle", "display": "Middle", "zh": "中间；中部", "pos": "n."}, {"word": "October", "display": "October", "zh": "十月", "pos": "n."}, {"word": "Parent", "display": "Parent", "zh": "父亲（或母亲）", "pos": "n."}, {"word": "Photograph", "display": "Photograph", "zh": "照片", "pos": "n."}, {"word": "Saturday", "display": "Saturday", "zh": "星期六", "pos": "n."}, {"word": "Second", "display": "Second", "zh": "第二", "pos": "num."}, {"word": "Singapore", "display": "Singapore", "zh": "新加坡", "pos": ""}, {"word": "Song", "display": "Song", "zh": "歌曲", "pos": "n."}, {"word": "Take a photograph", "display": "Take a photograph", "zh": "拍照", "pos": ""}, {"word": "Thailand", "display": "Thailand", "zh": "泰国", "pos": ""}, {"word": "Third", "display": "Third", "zh": "第三", "pos": "num."}, {"word": "(the) UK", "display": "(the) UK", "zh": "英国", "pos": ""}, {"word": "With", "display": "With", "zh": "和……一起", "pos": "prep."}, {"word": "Zoo", "display": "Zoo", "zh": "动物园", "pos": "n."}]}, "U3": {"label": "M4U3", "name": "M4U3", "words": [{"word": "Afraid", "display": "Afraid", "zh": "害怕的", "pos": "adj."}, {"word": "Bad", "display": "Bad", "zh": "坏的", "pos": "adj."}, {"word": "Boil", "display": "Boil", "zh": "煮沸", "pos": "v."}, {"word": "Go away", "display": "Go away", "zh": "离开", "pos": ""}, {"word": "Go fishing", "display": "Go fishing", "zh": "去钓鱼", "pos": ""}, {"word": "Over there", "display": "Over there", "zh": "在那里", "pos": ""}, {"word": "Own", "display": "Own", "zh": "自己的", "pos": "adj."}, {"word": "Stop", "display": "Stop", "zh": "停止", "pos": "v."}, {"word": "Story", "display": "Story", "zh": "故事", "pos": "n."}, {"word": "Time", "display": "Time", "zh": "时间", "pos": "n."}, {"word": "Water", "display": "Water", "zh": "水", "pos": "n."}, {"word": "Wolf", "display": "Wolf", "zh": "狼", "pos": "n."}]}}};
+  const UNIT_DATA = splitUnitData(RAW_UNIT_DATA);
 
   els.carA.innerHTML = carSvg();
   els.carB.innerHTML = carSvg();
+  document.title = '肖悦瞳的单词修路游戏';
 
   const geometry = {
     roadWidth: 56,
@@ -229,6 +258,23 @@
   };
 
   let state = {};
+  let dragCtx = null;
+
+  function splitUnitData(raw) {
+    const result = {};
+    Object.entries(raw).forEach(([moduleKey, units]) => {
+      result[moduleKey] = {};
+      Object.entries(units).forEach(([unitKey, unit]) => {
+        const words = Array.isArray(unit.words) ? unit.words.slice() : [];
+        const mid = Math.ceil(words.length / 2);
+        const firstWords = words.slice(0, mid);
+        const secondWords = words.slice(mid);
+        result[moduleKey][`${unitKey}a`] = { label: `${moduleKey}${unitKey}a`, name: `${moduleKey}${unitKey}a`, words: firstWords };
+        result[moduleKey][`${unitKey}b`] = { label: `${moduleKey}${unitKey}b`, name: `${moduleKey}${unitKey}b`, words: secondWords };
+      });
+    });
+    return result;
+  }
 
   function initState() {
     const firstModule = Object.keys(UNIT_DATA)[0];
@@ -353,12 +399,16 @@
   }
   function updateUnitSummary() {
     const unit = getSelectedUnitData(); const count = unit.words.length;
-    els.unitSummary.textContent = `${unit.label}：当前有 ${count} 个单词，将生成 ${count * 3} 题。每个单词在一级、二级、三级各出现一次。`;
+    els.unitSummary.textContent = `${unit.label}：当前有 ${count} 个单词，将生成 ${count * 4} 题。每个单词在一级、二级、三级、四级各出现一次。`;
   }
   function getSelectedUnitData() { return UNIT_DATA[state.selectedModule][state.selectedUnit]; }
   function buildQuestionsForSelection() {
     const unit = getSelectedUnitData(); const stages = [];
-    unit.words.forEach(raw => { const entry = normalizeWordEntry(raw); [1, 2, 3].forEach(level => stages.push(buildQuestion(entry, level))); });
+    unit.words.forEach(raw => {
+      const entry = normalizeWordEntry(raw);
+      if (!entry.word) return;
+      [1, 2, 3, 4].forEach(level => stages.push(buildQuestion(entry, level)));
+    });
     return stages;
   }
   function normalizeWordEntry(entry) {
@@ -368,13 +418,32 @@
   }
 
   function buildQuestion(entry, level) {
-    const levelName = level === 1 ? '一级' : level === 2 ? '二级' : '三级';
-    const blankCount = Math.min(level, entry.word.length);
-    const blankPositions = chooseBlankPositions(entry.word.length, blankCount, level);
+    const levelName = ['一级','二级','三级','四级'][level - 1];
     const displayLetterPositions = [];
     entry.display.split('').forEach((ch, idx) => { if (/[A-Za-z]/.test(ch)) displayLetterPositions.push(idx); });
+    if (level === 4) {
+      const letters = entry.word.split('');
+      const tiles = {};
+      const initialBank = shuffle(letters.map((letter, index) => {
+        const id = `${entry.word}-${level}-${index}-${letter}-${Math.random().toString(36).slice(2,6)}`;
+        tiles[id] = { id, letter, originalIndex: index };
+        return id;
+      }));
+      return {
+        difficulty: level, levelName, type: 'drag', word: entry.word, display: entry.display, zh: entry.zh, pos: entry.pos, image: entry.image,
+        blankPositions: Array.from({ length: letters.length }, (_, i) => i),
+        blankDisplayPositions: displayLetterPositions.slice(),
+        filledLetters: {}, currentStep: 0,
+        dragState: { tiles, bank: initialBank.slice(), slots: Array(letters.length).fill(null), initialBank: initialBank.slice() }
+      };
+    }
+    const blankCount = Math.min(level, entry.word.length);
+    const blankPositions = chooseBlankPositions(entry.word.length, blankCount, level);
     const blankDisplayPositions = blankPositions.map(i => displayLetterPositions[i]);
-    return { difficulty: level, levelName, word: entry.word, display: entry.display, zh: entry.zh || '', pos: entry.pos || '', image: entry.image, blankPositions, blankDisplayPositions, filledLetters: {}, currentStep: 0 };
+    return {
+      difficulty: level, levelName, type: 'choice', word: entry.word, display: entry.display, zh: entry.zh, pos: entry.pos, image: entry.image,
+      blankPositions, blankDisplayPositions, filledLetters: {}, currentStep: 0
+    };
   }
   function chooseBlankPositions(len, blankCount, level) {
     if (blankCount >= len) return Array.from({ length: len }, (_, i) => i);
@@ -401,7 +470,7 @@
     if (/skateboard/.test(key)) return '🛹'; if (/clothes/.test(key)) return '👕'; if (/english/.test(key)) return '🔤'; if (/glove/.test(key)) return '🧤'; if (/horse/.test(key)) return '🐴';
     if (/jacket/.test(key)) return '🧥'; if (/scarf/.test(key)) return '🧣'; if (/sock/.test(key)) return '🧦'; if (/trousers/.test(key)) return '👖'; if (/zebra/.test(key)) return '🦓';
     if (/circle/.test(key)) return '⚪'; if (/house|home/.test(key)) return '🏠'; if (/rectangle/.test(key)) return '▭'; if (/shape/.test(key)) return '🔷'; if (/square/.test(key)) return '🟦';
-    if (/star/.test(key)) return '⭐'; if (/triangle/.test(key)) return '🔺'; if (/autumn/.test(key)) return '🍂'; if (/cold|winter|snow/.test(key)) return '❄️'; if (/grasshopper/.test(key)) return '🦗';
+    if (/triangle/.test(key)) return '🔺'; if (/autumn/.test(key)) return '🍂'; if (/cold|winter|snow/.test(key)) return '❄️'; if (/grasshopper/.test(key)) return '🦗';
     if (/grass/.test(key)) return '🌱'; if (/mountain/.test(key)) return '⛰️'; if (/river/.test(key)) return '🏞️'; if (/sea/.test(key)) return '🌊'; if (/sky/.test(key)) return '☁️';
     if (/sleep/.test(key)) return '😴'; if (/spring/.test(key)) return '🌸'; if (/beach/.test(key)) return '🏖️'; if (/ice skate/.test(key)) return '⛸️'; if (/park/.test(key)) return '🌳';
     if (/picnic/.test(key)) return '🧺'; if (/plant/.test(key)) return '🪴'; if (/sandcastle/.test(key)) return '🏰'; if (/season/.test(key)) return '🗓️'; if (/ski/.test(key)) return '🎿';
@@ -415,40 +484,107 @@
     if (/wolf/.test(key)) return '🐺'; if (/hear|listen|smell|touch|taste/.test(key)) return '👂'; if (/soft|rough|smooth|hard/.test(key)) return '✋'; if (/sweet/.test(key)) return '🍬';
     if (/sour/.test(key)) return '🍋'; if (/bitter/.test(key)) return '☕'; if (/hungry/.test(key)) return '🍽️'; return '🖼️';
   }
-  function escapeHtml(str) { return String(str).replace(/[&<>"]/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[ch]); }
 
-  function updateHUD() { const total = Math.max(1, state.questionOrder.length || 1); const current = Math.min(state.stage + 1, total); els.stageInfo.textContent = `第 ${current} / ${total} 题`; els.lifeInfo.textContent = `答错 ${state.wrong} / 3`; }
+  function updateHUD() {
+    const total = Math.max(1, state.questionOrder.length || 1);
+    const current = Math.min(state.stage + 1, total);
+    els.stageInfo.textContent = `第 ${current} / ${total} 题`;
+    els.lifeInfo.textContent = `答错 ${state.wrong} / 3`;
+  }
+
   function loadStage() {
-    if (state.wrong >= 3) return endGame(false); if (state.stage >= state.questionOrder.length) return endGame(true);
+    if (state.wrong >= 3) return endGame(false);
+    if (state.stage >= state.questionOrder.length) return endGame(true);
     state.solved = false; state.draggingEnabled = false; state.answeredThisStep = false; state.isAnimating = false; resetBridge();
-    const q = structuredClone(state.questionOrder[state.stage]); q.filledLetters = {}; q.currentStep = 0; state.currentQuestion = q;
-    els.picBox.innerHTML = q.image; els.cnHint.textContent = `${q.zh || '中文释义'}${q.pos ? ` · ${q.pos}` : ''}`; els.feedback.textContent = ''; els.feedback.className = 'feedback'; els.dragHint.classList.remove('show');
-    refreshQuestionText(); renderQuestion();
-    placeCar(getActiveCar(), geometry.startPos.x, geometry.startPos.y, 0, true); placeCar(getNextCar(), geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false); updateHUD();
+    const q = structuredClone(state.questionOrder[state.stage]);
+    if (q.type === 'choice') { q.filledLetters = {}; q.currentStep = 0; }
+    if (q.type === 'drag') { q.currentStep = 0; }
+    state.currentQuestion = q;
+    els.picBox.innerHTML = q.image;
+    els.cnHint.textContent = `${q.zh || '中文释义'}${q.pos ? ` · ${q.pos}` : ''}`;
+    els.feedback.textContent = '';
+    els.feedback.className = 'feedback';
+    els.dragHint.classList.remove('show');
+    refreshQuestionText();
+    renderQuestion();
+    placeCar(getActiveCar(), geometry.startPos.x, geometry.startPos.y, 0, true);
+    placeCar(getNextCar(), geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
+    updateHUD();
   }
+
   function refreshQuestionText() {
-    const q = state.currentQuestion; const totalBlanks = q.blankPositions.length; const currentNo = Math.min(q.currentStep + 1, totalBlanks);
-    if (totalBlanks === 1) { els.statusMini.textContent = `${q.levelName} · 1 个字母`; els.instructionText.textContent = '请根据中文翻译和词性，从下方 3 个选项中选出缺失的字母。'; }
-    else { els.statusMini.textContent = `${q.levelName} · 第 ${currentNo} / ${totalBlanks} 个字母`; els.instructionText.textContent = `请根据中文翻译和词性，把这个单词缺失的 ${totalBlanks} 个字母按顺序一次补 1 个。`; }
+    const q = state.currentQuestion;
+    if (q.type === 'drag') {
+      els.statusMini.textContent = `${q.levelName} · 拖拽拼词`;
+      els.instructionText.textContent = '请把下方打乱的全部字母拖到对应横线上。可以拖上去，也可以再拖下来；摆好后点击确认。';
+      return;
+    }
+    const totalBlanks = q.blankPositions.length;
+    const currentNo = Math.min(q.currentStep + 1, totalBlanks);
+    if (totalBlanks === 1) {
+      els.statusMini.textContent = `${q.levelName} · 1 个字母`;
+      els.instructionText.textContent = '请根据中文翻译和词性，从下方 3 个选项中选出缺失的字母。';
+    } else {
+      els.statusMini.textContent = `${q.levelName} · 第 ${currentNo} / ${totalBlanks} 个字母`;
+      els.instructionText.textContent = `请根据中文翻译和词性，把这个单词缺失的 ${totalBlanks} 个字母按顺序一次补 1 个。`;
+    }
   }
+
   function renderQuestion() {
-    const q = state.currentQuestion; renderMask(q); const correct = q.word[q.blankPositions[q.currentStep]]; const options = buildLetterOptions(correct, q.word);
-    els.options.innerHTML = ''; options.forEach(opt => { const btn = document.createElement('button'); btn.className = 'option-btn'; btn.textContent = opt; btn.addEventListener('click', () => checkAnswer(opt, btn)); els.options.appendChild(btn); });
+    const q = state.currentQuestion;
+    renderMask(q);
+    if (q.type === 'drag') {
+      els.options.style.display = 'none';
+      els.scrambleWrap.classList.remove('hidden');
+      renderScrambleBank();
+      return;
+    }
+    els.scrambleWrap.classList.add('hidden');
+    els.options.style.display = 'grid';
+    const correct = q.word[q.blankPositions[q.currentStep]];
+    const options = buildLetterOptions(correct, q.word);
+    els.options.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => checkAnswer(opt, btn));
+      els.options.appendChild(btn);
+    });
   }
+
   function renderMask(q, revealAll = false) {
-    const blankMap = new Map(q.blankDisplayPositions.map((pos, idx) => [pos, idx])); const chars = q.display.split('');
+    const blankMap = new Map(q.blankDisplayPositions.map((pos, idx) => [pos, idx]));
+    const chars = q.display.split('');
     els.wordMask.className = 'word-mask' + (q.word.length > 10 ? ' long' : '') + (q.word.length > 14 ? ' xlong' : '');
     els.wordMask.innerHTML = chars.map((ch, idx) => {
       if (!/[A-Za-z]/.test(ch)) return '<span class="mask-gap"></span>';
       const blankIdx = blankMap.get(idx);
-      if (blankIdx !== undefined) {
-        if (revealAll || q.filledLetters[blankIdx]) return `<span class="mask-cell filled">${ch}</span>`;
-        const currentClass = blankIdx === q.currentStep ? ' current' : '';
-        return `<span class="mask-cell empty${currentClass}">&nbsp;</span>`;
+      if (blankIdx === undefined) return `<span class="mask-cell filled">${escapeHtml(ch)}</span>`;
+      if (revealAll) return `<span class="mask-cell filled">${escapeHtml(ch)}</span>`;
+      if (q.type === 'drag') {
+        const tileId = q.dragState.slots[blankIdx];
+        if (tileId) {
+          const letter = q.dragState.tiles[tileId].letter;
+          return `<span class="mask-cell drop-slot filled" data-slot-index="${blankIdx}"><span class="letter-tile placed" data-tile-id="${tileId}">${escapeHtml(letter)}</span></span>`;
+        }
+        return `<span class="mask-cell empty drop-slot" data-slot-index="${blankIdx}">&nbsp;</span>`;
       }
-      return `<span class="mask-cell filled">${ch}</span>`;
+      if (q.filledLetters[blankIdx]) return `<span class="mask-cell filled">${escapeHtml(ch)}</span>`;
+      const currentClass = blankIdx === q.currentStep ? ' current' : '';
+      return `<span class="mask-cell empty${currentClass}">&nbsp;</span>`;
     }).join('');
   }
+
+  function renderScrambleBank() {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'drag') return;
+    els.scrambleBank.innerHTML = q.dragState.bank.map(tileId => {
+      const tile = q.dragState.tiles[tileId];
+      return `<span class="letter-tile" data-tile-id="${tile.id}">${escapeHtml(tile.letter)}</span>`;
+    }).join('');
+  }
+
   function buildLetterOptions(correct, word) {
     const options = [correct];
     const pool = shuffle(word.split('').filter(ch => ch !== correct));
@@ -463,11 +599,15 @@
     }
     return shuffle(options);
   }
+
   function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
   function checkAnswer(opt, btn) {
     if (state.answeredThisStep || state.draggingEnabled || state.isAnimating) return;
-    state.answeredThisStep = true; const q = state.currentQuestion; const buttons = [...els.options.querySelectorAll('.option-btn')]; buttons.forEach(b => b.disabled = true);
+    state.answeredThisStep = true;
+    const q = state.currentQuestion;
+    const buttons = [...els.options.querySelectorAll('.option-btn')];
+    buttons.forEach(b => b.disabled = true);
     const correct = q.word[q.blankPositions[q.currentStep]];
     if (opt === correct) {
       btn.classList.add('correct'); q.filledLetters[q.currentStep] = correct; renderMask(q);
@@ -476,16 +616,163 @@
         els.feedback.textContent = '答对了，继续补下一个字母。'; els.feedback.className = 'feedback ok';
         setTimeout(() => { q.currentStep += 1; state.answeredThisStep = false; refreshQuestionText(); renderQuestion(); }, 420);
       } else {
-        state.solved = true; state.draggingEnabled = true; els.feedback.textContent = `答对了！完整单词：${q.display}`; els.feedback.className = 'feedback ok';
-        els.statusMini.textContent = `${q.levelName} · 可以修路`; els.instructionText.textContent = '把右侧的竖直路段拖到左路、中路或右路之一。';
-        els.quizPanel.classList.add('repair-mode'); els.bridgeZone.classList.add('active'); els.dragHint.classList.add('show'); state.answeredThisStep = false;
+        enterRepairMode();
       }
     } else {
       btn.classList.add('wrong'); const correctBtn = buttons.find(b => b.textContent === correct); if (correctBtn) correctBtn.classList.add('correct');
-      renderMask(q, true); state.wrong += 1; updateHUD(); els.feedback.textContent = `答错了，正确答案是：${q.display}`; els.feedback.className = 'feedback bad'; els.statusMini.textContent = `${q.levelName} · 本题跳过`;
-      if (state.wrong >= 3) setTimeout(() => endGame(false), 1200); else setTimeout(() => { state.stage += 1; loadStage(); }, 1200);
+      renderMask(q, true); handleWrongAnswer(q.display);
     }
   }
+
+  function enterRepairMode() {
+    state.solved = true; state.draggingEnabled = true;
+    els.feedback.textContent = `答对了！完整单词：${state.currentQuestion.display}`;
+    els.feedback.className = 'feedback ok';
+    els.statusMini.textContent = `${state.currentQuestion.levelName} · 可以修路`;
+    els.instructionText.textContent = '把右侧的竖直路段拖到左路、中路或右路之一。';
+    els.quizPanel.classList.add('repair-mode');
+    els.bridgeZone.classList.add('active');
+    els.dragHint.classList.add('show');
+    state.answeredThisStep = false;
+  }
+
+  function handleWrongAnswer(answerText) {
+    const q = state.currentQuestion;
+    if (q.type === 'drag') {
+      renderMask(q, true);
+    }
+    state.wrong += 1; updateHUD();
+    els.feedback.textContent = `答错了，正确答案是：${answerText}`;
+    els.feedback.className = 'feedback bad';
+    els.statusMini.textContent = `${q.levelName} · 本题跳过`;
+    state.answeredThisStep = false;
+    if (state.wrong >= 3) setTimeout(() => endGame(false), 1200);
+    else setTimeout(() => { state.stage += 1; loadStage(); }, 1200);
+  }
+
+  function resetScramble() {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'drag' || state.isAnimating || state.draggingEnabled) return;
+    q.dragState.bank = q.dragState.initialBank.slice();
+    q.dragState.slots = Array(q.word.length).fill(null);
+    renderMask(q); renderScrambleBank();
+    els.feedback.textContent = '已重置，请重新拖拽。';
+    els.feedback.className = 'feedback';
+  }
+
+  function confirmScramble() {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'drag' || state.isAnimating || state.draggingEnabled) return;
+    const slots = q.dragState.slots;
+    if (slots.some(v => !v)) {
+      els.feedback.textContent = '请先把所有字母都拖到横线上。';
+      els.feedback.className = 'feedback bad';
+      return;
+    }
+    const attempt = slots.map(id => q.dragState.tiles[id].letter).join('');
+    if (attempt === q.word) {
+      enterRepairMode();
+    } else {
+      handleWrongAnswer(q.display);
+    }
+  }
+
+  function startTileDrag(e) {
+    const tileEl = e.target.closest('.letter-tile');
+    const q = state.currentQuestion;
+    if (!tileEl || !q || q.type !== 'drag' || state.isAnimating || state.draggingEnabled) return;
+    const tileId = tileEl.dataset.tileId;
+    if (!tileId) return;
+    const slotEl = tileEl.closest('.drop-slot');
+    const source = slotEl ? { type: 'slot', index: Number(slotEl.dataset.slotIndex) } : { type: 'bank' };
+    const point = getPoint(e);
+    const rect = tileEl.getBoundingClientRect();
+    const ghost = tileEl.cloneNode(true);
+    ghost.classList.add('drag-ghost');
+    tileEl.classList.add('drag-source');
+    document.body.appendChild(ghost);
+    positionGhost(ghost, point.x, point.y);
+    dragCtx = { tileId, source, tileEl, ghost };
+    e.preventDefault();
+  }
+
+  function moveTileDrag(e) {
+    if (!dragCtx) return;
+    const point = getPoint(e);
+    positionGhost(dragCtx.ghost, point.x, point.y);
+    highlightDropTarget(point.x, point.y);
+    e.preventDefault();
+  }
+
+  function endTileDrag(e) {
+    if (!dragCtx) return;
+    const point = getPoint(e);
+    clearDropHighlight();
+    const target = getDropTarget(point.x, point.y);
+    dragCtx.tileEl.classList.remove('drag-source');
+    dragCtx.ghost.remove();
+    const { tileId, source } = dragCtx;
+    dragCtx = null;
+    if (!target) return;
+    moveTile(tileId, source, target);
+  }
+
+  function moveTile(tileId, source, target) {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'drag') return;
+    const ds = q.dragState;
+    const originalBankOrder = ds.initialBank;
+
+    if (source.type === 'bank') ds.bank = ds.bank.filter(id => id !== tileId);
+    else if (source.type === 'slot' && ds.slots[source.index] === tileId) ds.slots[source.index] = null;
+
+    if (target.type === 'slot') {
+      const existing = ds.slots[target.index];
+      if (existing && existing !== tileId) {
+        if (source.type === 'slot') {
+          ds.slots[source.index] = existing;
+        } else {
+          ds.bank.push(existing);
+          ds.bank.sort((a,b) => originalBankOrder.indexOf(a) - originalBankOrder.indexOf(b));
+        }
+      }
+      ds.slots[target.index] = tileId;
+    } else if (target.type === 'bank') {
+      ds.bank.push(tileId);
+      ds.bank.sort((a,b) => originalBankOrder.indexOf(a) - originalBankOrder.indexOf(b));
+    }
+
+    renderMask(q);
+    renderScrambleBank();
+  }
+
+  function getDropTarget(x, y) {
+    const el = document.elementFromPoint(x, y);
+    if (!el) return null;
+    const slot = el.closest('.drop-slot');
+    if (slot) return { type: 'slot', index: Number(slot.dataset.slotIndex) };
+    const bank = el.closest('.scramble-bank');
+    if (bank) return { type: 'bank' };
+    return null;
+  }
+
+  function highlightDropTarget(x, y) {
+    clearDropHighlight();
+    const target = getDropTarget(x, y);
+    if (!target) return;
+    if (target.type === 'slot') {
+      const el = els.wordMask.querySelector(`.drop-slot[data-slot-index="${target.index}"]`);
+      if (el) el.classList.add('active-target');
+    } else {
+      els.scrambleBank.classList.add('active-target');
+    }
+  }
+  function clearDropHighlight() {
+    els.wordMask.querySelectorAll('.drop-slot.active-target').forEach(el => el.classList.remove('active-target'));
+    els.scrambleBank.classList.remove('active-target');
+  }
+  function getPoint(e) { const p = e.touches ? e.touches[0] : e; return { x: p.clientX, y: p.clientY }; }
+  function positionGhost(ghost, x, y) { ghost.style.left = `${x}px`; ghost.style.top = `${y}px`; }
 
   function snapBridge(targetName) {
     const slot = geometry.slots[targetName]; state.selectedLane = targetName; state.draggingEnabled = false; els.bridgePiece.classList.add('locked'); setBridgePosition(slot.x, slot.y);
@@ -514,7 +801,9 @@
   }
   function sampleSegments(segs, t) { let acc = 0; for (const seg of segs) { const nextAcc = acc + seg.weight; if (t <= nextAcc || seg === segs[segs.length - 1]) { const localT = seg.weight === 0 ? 1 : Math.max(0, Math.min(1, (t - acc) / seg.weight)); return sampleSegment(seg, localT); } acc = nextAcc; } return sampleSegment(segs[segs.length - 1], 1); }
   function sampleSegment(seg, t) { let x, y, dx, dy; if (seg.type === 'line') { x = lerp(seg.p0.x, seg.p1.x, t); y = lerp(seg.p0.y, seg.p1.y, t); dx = seg.p1.x - seg.p0.x; dy = seg.p1.y - seg.p0.y; } else { x = quadAt(seg.p0.x, seg.c.x, seg.p1.x, t); y = quadAt(seg.p0.y, seg.c.y, seg.p1.y, t); dx = 2 * (1 - t) * (seg.c.x - seg.p0.x) + 2 * t * (seg.p1.x - seg.c.x); dy = 2 * (1 - t) * (seg.c.y - seg.p0.y) + 2 * t * (seg.p1.y - seg.c.y); } const angle = Math.atan2(dy, dx) * 180 / Math.PI + 90; return { x, y, angle }; }
-  function lerp(a, b, t) { return a + (b - a) * t; } function quadAt(a, b, c, t) { return (1 - t) * (1 - t) * a + 2 * (1 - t) * t * b + t * t * c; } function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function quadAt(a, b, c, t) { return (1 - t) * (1 - t) * a + 2 * (1 - t) * t * b + t * t * c; }
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
   function endGame(success) {
     state.isAnimating = false; cancelAnimationFrame(state.raf); els.endOverlay.classList.remove('hidden'); els.bridgeZone.classList.remove('active'); els.dragHint.classList.remove('show');
     if (success) { els.endTitle.textContent = '闯关成功'; els.endDesc.textContent = `太棒了！你完成了 ${state.questionOrder.length} 题，累计答错 ${state.wrong} 次。`; }
@@ -525,14 +814,23 @@
     state.currentQuestion = null; state.raf = null; state.activeCarKey = 'A'; state.isAnimating = false; state.selectedLane = null; state.draggingEnabled = false;
     resetBridge(); placeCar(els.carA, geometry.startPos.x, geometry.startPos.y, 0, true); placeCar(els.carB, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false); updateHUD(); els.endOverlay.classList.add('hidden'); els.startOverlay.classList.add('hidden'); loadStage();
   }
-  function setupDrag() {
+  function setupBridgeDrag() {
     const piece = els.bridgePiece, zone = els.bridgeZone; let dragging = false, offsetX = 0, offsetY = 0;
-    const getPoint = e => { const p = e.touches ? e.touches[0] : e; return {x:p.clientX, y:p.clientY}; };
-    function onDown(e) { if (!state.draggingEnabled || state.isAnimating) return; dragging = true; piece.classList.add('active'); const rect = piece.getBoundingClientRect(); const p = getPoint(e); offsetX = p.x - rect.left; offsetY = p.y - rect.top; e.preventDefault(); }
-    function onMove(e) { if (!dragging || !state.draggingEnabled) return; const zoneRect = zone.getBoundingClientRect(); const p = getPoint(e); let left = p.x - zoneRect.left - offsetX; let top = p.y - zoneRect.top - offsetY; left = Math.max(0, Math.min(zoneRect.width - piece.offsetWidth, left)); top = Math.max(0, Math.min(geometry.routeH - piece.offsetHeight, top)); piece.style.left = `${left}px`; piece.style.top = `${top}px`; e.preventDefault(); }
+    const getPoint2 = e => { const p = e.touches ? e.touches[0] : e; return {x:p.clientX, y:p.clientY}; };
+    function onDown(e) { if (!state.draggingEnabled || state.isAnimating) return; dragging = true; piece.classList.add('active'); const rect = piece.getBoundingClientRect(); const p = getPoint2(e); offsetX = p.x - rect.left; offsetY = p.y - rect.top; e.preventDefault(); }
+    function onMove(e) { if (!dragging || !state.draggingEnabled) return; const zoneRect = zone.getBoundingClientRect(); const p = getPoint2(e); let left = p.x - zoneRect.left - offsetX; let top = p.y - zoneRect.top - offsetY; left = Math.max(0, Math.min(zoneRect.width - piece.offsetWidth, left)); top = Math.max(0, Math.min(geometry.routeH - piece.offsetHeight, top)); piece.style.left = `${left}px`; piece.style.top = `${top}px`; e.preventDefault(); }
     function onUp() { if (!dragging) return; dragging = false; piece.classList.remove('active'); if (!state.draggingEnabled) return; const rect = piece.getBoundingClientRect(); const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2; const zoneRect = zone.getBoundingClientRect(); const candidates = Object.entries(geometry.slots).map(([laneName, pos]) => ({ laneName, d: Math.hypot(centerX - (zoneRect.left + pos.x), centerY - (zoneRect.top + pos.y + geometry.gapHeight / 2)) })).sort((a, b) => a.d - b.d); if (candidates[0].d < 76) snapBridge(candidates[0].laneName); else setBridgePosition(geometry.bridgeHome.xCenter, geometry.bridgeHome.top); }
     piece.addEventListener('touchstart', onDown, { passive:false }); piece.addEventListener('mousedown', onDown); window.addEventListener('touchmove', onMove, { passive:false }); window.addEventListener('mousemove', onMove); window.addEventListener('touchend', onUp); window.addEventListener('mouseup', onUp);
   }
+  function setupScrambleDrag() {
+    document.addEventListener('touchstart', startTileDrag, { passive:false });
+    document.addEventListener('mousedown', startTileDrag);
+    window.addEventListener('touchmove', moveTileDrag, { passive:false });
+    window.addEventListener('mousemove', moveTileDrag);
+    window.addEventListener('touchend', endTileDrag);
+    window.addEventListener('mouseup', endTileDrag);
+  }
+  function escapeHtml(str) { return String(str).replace(/[&<>\"]/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[ch]); }
   function carSvg() {
     return `<svg viewBox="0 0 80 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="carBodyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--carBody2)"/><stop offset="1" stop-color="var(--carBody)"/></linearGradient></defs><g><rect x="22" y="8" width="36" height="124" rx="16" fill="url(#carBodyGrad)" stroke="var(--carLine)" stroke-width="3"/><rect x="28" y="20" width="24" height="30" rx="8" fill="var(--carGlass)" opacity=".96"/><rect x="28" y="90" width="24" height="24" rx="8" fill="var(--carGlass)" opacity=".96"/><rect x="18" y="34" width="8" height="20" rx="4" fill="#222b38"/><rect x="54" y="34" width="8" height="20" rx="4" fill="#222b38"/><rect x="18" y="88" width="8" height="20" rx="4" fill="#222b38"/><rect x="54" y="88" width="8" height="20" rx="4" fill="#222b38"/><rect x="32" y="58" width="16" height="18" rx="6" fill="#f7fafc" opacity=".9"/><circle cx="31" cy="15" r="4" fill="#ffe27a"/><circle cx="49" cy="15" r="4" fill="#ffe27a"/><circle cx="31" cy="125" r="4" fill="#ff9fa4"/><circle cx="49" cy="125" r="4" fill="#ff9fa4"/></g></svg>`;
   }
@@ -542,11 +840,16 @@
   els.startBtn.addEventListener('click', startGame);
   els.restartBtn.addEventListener('click', () => { els.endOverlay.classList.add('hidden'); els.startOverlay.classList.remove('hidden'); populateSelectors(); });
   els.closeBtn.addEventListener('click', () => els.endOverlay.classList.add('hidden'));
+  els.resetWordBtn.addEventListener('click', resetScramble);
+  els.confirmWordBtn.addEventListener('click', confirmScramble);
   window.addEventListener('resize', () => { computeLayout(); if (!state.isAnimating) { placeCar(getActiveCar(), geometry.startPos.x, geometry.startPos.y, 0, true); placeCar(getNextCar(), geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false); } });
 
-  initState(); setupDrag();
+  initState();
+  setupBridgeDrag();
+  setupScrambleDrag();
 })();
 
 </script>
+
 </body>
 </html>
