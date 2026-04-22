@@ -8,7 +8,7 @@
     :root{
       --bg1:#d8efff;--bg2:#eef7ff;--panel:#ffffffee;--text:#1d2a3a;--sub:#5d6d83;--accent:#4b8bff;
       --ok:#15a06b;--bad:#d84a4a;--road:#5b6570;--roadLine:#f6d85f;--gap:#dce7f4;--shadow:0 10px 24px rgba(19,40,72,.12);
-      --radius:18px;--route-h:60dvh;--panel-h:38dvh;
+      --radius:18px;--route-h:60dvh;--panel-h:42dvh;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
     html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 45%,#f8fbff 100%);color:var(--text);}
@@ -47,8 +47,8 @@
     .panel.repair-mode .feedback{display:none;}
     .quiz-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px;flex:0 0 auto;}
     .title{font-size:18px;font-weight:800;}
-    .subtitle{font-size:13px;color:var(--sub);line-height:1.45;}
-    .mini{font-size:13px;color:var(--sub);text-align:right;line-height:1.4;}
+    .subtitle{display:none;}
+    .mini{font-size:13px;color:var(--sub);text-align:right;line-height:1;white-space:nowrap;flex:0 0 auto;align-self:center;min-width:max-content;}
     .quiz-card{display:flex;gap:12px;align-items:center;background:#f7fbff;border-radius:20px;padding:12px;margin-bottom:10px;border:1px solid #e1edfb;flex:0 0 auto;}
     .pic{width:88px;height:88px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px #e9eef7;overflow:hidden;flex:0 0 auto;}
     .word-box{flex:1;min-width:0;}
@@ -164,7 +164,7 @@
   <div class="overlay" id="startOverlay">
     <div class="dialog">
       <h2>肖悦瞳的单词修路游戏</h2>
-      <p>先选 Module 和 Unit，再开始游戏。所选单元里的每个单词会在一级、二级、三级、四级各出现一次。</p>
+      <p>先选 Module 和 Unit，再开始游戏。不同长度的单词会解锁不同关数：1 个字母的单词只有 1 关，2 个字母的单词有 2 关，3 个字母的单词有 3 关，4 个字母及以上的单词有 4 关。</p>
       <div class="picker-grid">
         <div class="pick">
           <label for="moduleSelect">Module</label>
@@ -177,7 +177,7 @@
       </div>
       <div class="unit-note" id="unitSummary">请选择一个单元。</div>
       <button class="btn" id="startBtn">开始游戏</button>
-      <div class="small-note">规则：一级缺 1 个字母；二级同时缺 2 个字母，但作答时一次补 1 个；三级同时缺 3 个字母，但作答时一次补 1 个；四级将该单词的全部字母打乱后拖到对应横线上，再点确认。答题时请根据中文翻译和词性作答。选对后修路，选错会显示正确答案并跳到下一题。累计答错 3 次游戏结束。</div>
+      <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级缺 1 个字母；二级同时缺 2 个字母，但作答时一次补 1 个；三级同时缺 3 个字母，但作答时一次补 1 个；第四关把全部字母打乱后拖到横线上，再点确认。答对后修路，选错会显示正确答案并跳到下一题。累计答错 3 次游戏结束。</div>
     </div>
   </div>
 
@@ -399,15 +399,24 @@
   }
   function updateUnitSummary() {
     const unit = getSelectedUnitData(); const count = unit.words.length;
-    els.unitSummary.textContent = `${unit.label}：当前有 ${count} 个单词，将生成 ${count * 4} 题。每个单词在一级、二级、三级、四级各出现一次。`;
+    const totalQuestions = countQuestionsForUnit(unit);
+    els.unitSummary.textContent = `${unit.label}：当前有 ${count} 个单词，将生成 ${totalQuestions} 题。1 字母词只有 1 关，2 字母词有 2 关，3 字母词有 3 关，4 字母及以上的词有 4 关。`;
   }
   function getSelectedUnitData() { return UNIT_DATA[state.selectedModule][state.selectedUnit]; }
+  function countQuestionsForUnit(unit) {
+    return unit.words.reduce((sum, raw) => {
+      const display = String((raw && (raw.display || raw.word)) || '').replace(/\s+/g, ' ').trim();
+      const len = display.replace(/[^A-Za-z]/g, '').length;
+      return sum + Math.min(4, Math.max(0, len));
+    }, 0);
+  }
   function buildQuestionsForSelection() {
     const unit = getSelectedUnitData(); const stages = [];
     unit.words.forEach(raw => {
       const entry = normalizeWordEntry(raw);
       if (!entry.word) return;
-      [1, 2, 3, 4].forEach(level => stages.push(buildQuestion(entry, level)));
+      const maxLevel = Math.min(4, entry.word.length);
+      for (let level = 1; level <= maxLevel; level += 1) stages.push(buildQuestion(entry, level));
     });
     return stages;
   }
@@ -516,17 +525,17 @@
     const q = state.currentQuestion;
     if (q.type === 'drag') {
       els.statusMini.textContent = `${q.levelName} · 拖拽拼词`;
-      els.instructionText.textContent = '请把下方打乱的全部字母拖到对应横线上。可以拖上去，也可以再拖下来；摆好后点击确认。';
+      els.instructionText.textContent = '';
       return;
     }
     const totalBlanks = q.blankPositions.length;
     const currentNo = Math.min(q.currentStep + 1, totalBlanks);
     if (totalBlanks === 1) {
-      els.statusMini.textContent = `${q.levelName} · 1 个字母`;
-      els.instructionText.textContent = '请根据中文翻译和词性，从下方 3 个选项中选出缺失的字母。';
+      els.statusMini.textContent = `${q.levelName} · 1字母`;
+      els.instructionText.textContent = '';
     } else {
-      els.statusMini.textContent = `${q.levelName} · 第 ${currentNo} / ${totalBlanks} 个字母`;
-      els.instructionText.textContent = `请根据中文翻译和词性，把这个单词缺失的 ${totalBlanks} 个字母按顺序一次补 1 个。`;
+      els.statusMini.textContent = `${q.levelName} · ${currentNo}/${totalBlanks}字母`;
+      els.instructionText.textContent = '';
     }
   }
 
@@ -628,8 +637,8 @@
     state.solved = true; state.draggingEnabled = true;
     els.feedback.textContent = `答对了！完整单词：${state.currentQuestion.display}`;
     els.feedback.className = 'feedback ok';
-    els.statusMini.textContent = `${state.currentQuestion.levelName} · 可以修路`;
-    els.instructionText.textContent = '把右侧的竖直路段拖到左路、中路或右路之一。';
+    els.statusMini.textContent = `${state.currentQuestion.levelName} · 可修路`;
+    els.instructionText.textContent = '';
     els.quizPanel.classList.add('repair-mode');
     els.bridgeZone.classList.add('active');
     els.dragHint.classList.add('show');
@@ -644,7 +653,7 @@
     state.wrong += 1; updateHUD();
     els.feedback.textContent = `答错了，正确答案是：${answerText}`;
     els.feedback.className = 'feedback bad';
-    els.statusMini.textContent = `${q.levelName} · 本题跳过`;
+    els.statusMini.textContent = `${q.levelName} · 已跳过`;
     state.answeredThisStep = false;
     if (state.wrong >= 3) setTimeout(() => endGame(false), 1200);
     else setTimeout(() => { state.stage += 1; loadStage(); }, 1200);
@@ -776,7 +785,7 @@
 
   function snapBridge(targetName) {
     const slot = geometry.slots[targetName]; state.selectedLane = targetName; state.draggingEnabled = false; els.bridgePiece.classList.add('locked'); setBridgePosition(slot.x, slot.y);
-    els.bridgeZone.classList.remove('active'); els.dragHint.classList.remove('show'); els.statusMini.textContent = `${state.currentQuestion.levelName} · 已接到${targetName === 'left' ? '左路' : targetName === 'center' ? '中路' : '右路'}`; animateDrive(targetName);
+    els.bridgeZone.classList.remove('active'); els.dragHint.classList.remove('show'); els.statusMini.textContent = `${state.currentQuestion.levelName} · ${targetName === 'left' ? '左路' : targetName === 'center' ? '中路' : '右路'}已通`; animateDrive(targetName);
   }
   function animateDrive(targetName) {
     state.isAnimating = true; const active = getActiveCar(); const next = getNextCar(); placeCar(next, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
