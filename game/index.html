@@ -177,7 +177,7 @@
       </div>
       <div class="unit-note" id="unitSummary">请选择一个单元。</div>
       <button class="btn" id="startBtn">开始游戏</button>
-      <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级缺 1 个字母；二级同时缺 2 个字母，但作答时一次补 1 个；三级同时缺 3 个字母，但作答时一次补 1 个；第四关把全部字母打乱后拖到横线上，再点确认。答对后修路，选错会显示正确答案并跳到下一题。累计答错 3 次游戏结束。</div>
+      <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级缺 1 个字母；二级同时缺 2 个字母，但作答时一次补 1 个；三级同时缺 3 个字母，但作答时一次补 1 个；第四关把全部字母打乱后列在下方，逐个点击字母填入上方横线，再点确认。答对后修路，选错会显示正确答案并跳到下一题。累计答错 3 次游戏结束。</div>
     </div>
   </div>
 
@@ -524,7 +524,7 @@
   function refreshQuestionText() {
     const q = state.currentQuestion;
     if (q.type === 'drag') {
-      els.statusMini.textContent = `${q.levelName} · 拖拽拼词`;
+      els.statusMini.textContent = `${q.levelName} · 点击拼词`; 
       els.instructionText.textContent = '';
       return;
     }
@@ -664,8 +664,9 @@
     if (!q || q.type !== 'drag' || state.isAnimating || state.draggingEnabled) return;
     q.dragState.bank = q.dragState.initialBank.slice();
     q.dragState.slots = Array(q.word.length).fill(null);
-    renderMask(q); renderScrambleBank();
-    els.feedback.textContent = '已重置，请重新拖拽。';
+    renderMask(q);
+    renderScrambleBank();
+    els.feedback.textContent = '已重置，请重新点击字母。';
     els.feedback.className = 'feedback';
   }
 
@@ -674,7 +675,7 @@
     if (!q || q.type !== 'drag' || state.isAnimating || state.draggingEnabled) return;
     const slots = q.dragState.slots;
     if (slots.some(v => !v)) {
-      els.feedback.textContent = '请先把所有字母都拖到横线上。';
+      els.feedback.textContent = '请先把所有字母都点到横线上。';
       els.feedback.className = 'feedback bad';
       return;
     }
@@ -686,104 +687,58 @@
     }
   }
 
-  function startTileDrag(e) {
-    const tileEl = e.target.closest('.letter-tile');
-    const q = state.currentQuestion;
-    if (!tileEl || !q || q.type !== 'drag' || state.isAnimating || state.draggingEnabled) return;
-    const tileId = tileEl.dataset.tileId;
-    if (!tileId) return;
-    const slotEl = tileEl.closest('.drop-slot');
-    const source = slotEl ? { type: 'slot', index: Number(slotEl.dataset.slotIndex) } : { type: 'bank' };
-    const point = getPoint(e);
-    const rect = tileEl.getBoundingClientRect();
-    const ghost = tileEl.cloneNode(true);
-    ghost.classList.add('drag-ghost');
-    tileEl.classList.add('drag-source');
-    document.body.appendChild(ghost);
-    positionGhost(ghost, point.x, point.y);
-    dragCtx = { tileId, source, tileEl, ghost };
-    e.preventDefault();
-  }
-
-  function moveTileDrag(e) {
-    if (!dragCtx) return;
-    const point = getPoint(e);
-    positionGhost(dragCtx.ghost, point.x, point.y);
-    highlightDropTarget(point.x, point.y);
-    e.preventDefault();
-  }
-
-  function endTileDrag(e) {
-    if (!dragCtx) return;
-    const point = getPoint(e);
-    clearDropHighlight();
-    const target = getDropTarget(point.x, point.y);
-    dragCtx.tileEl.classList.remove('drag-source');
-    dragCtx.ghost.remove();
-    const { tileId, source } = dragCtx;
-    dragCtx = null;
-    if (!target) return;
-    moveTile(tileId, source, target);
-  }
-
-  function moveTile(tileId, source, target) {
+  function placeTileToNextSlot(tileId) {
     const q = state.currentQuestion;
     if (!q || q.type !== 'drag') return;
     const ds = q.dragState;
-    const originalBankOrder = ds.initialBank;
-
-    if (source.type === 'bank') ds.bank = ds.bank.filter(id => id !== tileId);
-    else if (source.type === 'slot' && ds.slots[source.index] === tileId) ds.slots[source.index] = null;
-
-    if (target.type === 'slot') {
-      const existing = ds.slots[target.index];
-      if (existing && existing !== tileId) {
-        if (source.type === 'slot') {
-          ds.slots[source.index] = existing;
-        } else {
-          ds.bank.push(existing);
-          ds.bank.sort((a,b) => originalBankOrder.indexOf(a) - originalBankOrder.indexOf(b));
-        }
-      }
-      ds.slots[target.index] = tileId;
-    } else if (target.type === 'bank') {
-      ds.bank.push(tileId);
-      ds.bank.sort((a,b) => originalBankOrder.indexOf(a) - originalBankOrder.indexOf(b));
+    const nextEmpty = ds.slots.findIndex(v => !v);
+    if (nextEmpty === -1) {
+      els.feedback.textContent = '横线已经填满了，点上方字母可取下后再调整。';
+      els.feedback.className = 'feedback bad';
+      return;
     }
-
+    ds.bank = ds.bank.filter(id => id !== tileId);
+    ds.slots[nextEmpty] = tileId;
     renderMask(q);
     renderScrambleBank();
+    els.feedback.textContent = '';
+    els.feedback.className = 'feedback';
   }
 
-  function getDropTarget(x, y) {
-    const el = document.elementFromPoint(x, y);
-    if (!el) return null;
-    const slot = el.closest('.drop-slot');
-    if (slot) return { type: 'slot', index: Number(slot.dataset.slotIndex) };
-    const bank = el.closest('.scramble-bank');
-    if (bank) return { type: 'bank' };
-    return null;
+  function removeTileFromSlot(slotIndex) {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'drag') return;
+    const ds = q.dragState;
+    const tileId = ds.slots[slotIndex];
+    if (!tileId) return;
+    ds.slots[slotIndex] = null;
+    if (!ds.bank.includes(tileId)) ds.bank.push(tileId);
+    ds.bank.sort((a, b) => ds.initialBank.indexOf(a) - ds.initialBank.indexOf(b));
+    renderMask(q);
+    renderScrambleBank();
+    els.feedback.textContent = '已取下字母，请继续点击选择。';
+    els.feedback.className = 'feedback';
   }
 
-  function highlightDropTarget(x, y) {
-    clearDropHighlight();
-    const target = getDropTarget(x, y);
-    if (!target) return;
-    if (target.type === 'slot') {
-      const el = els.wordMask.querySelector(`.drop-slot[data-slot-index="${target.index}"]`);
-      if (el) el.classList.add('active-target');
-    } else {
-      els.scrambleBank.classList.add('active-target');
+  function handleScrambleClick(e) {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'drag' || state.isAnimating || state.draggingEnabled) return;
+
+    const bankTile = e.target.closest('#scrambleBank .letter-tile');
+    if (bankTile) {
+      placeTileToNextSlot(bankTile.dataset.tileId);
+      return;
+    }
+
+    const slotTile = e.target.closest('#wordMask .drop-slot .letter-tile');
+    if (slotTile) {
+      const slotEl = slotTile.closest('.drop-slot');
+      if (slotEl) removeTileFromSlot(Number(slotEl.dataset.slotIndex));
     }
   }
-  function clearDropHighlight() {
-    els.wordMask.querySelectorAll('.drop-slot.active-target').forEach(el => el.classList.remove('active-target'));
-    els.scrambleBank.classList.remove('active-target');
-  }
-  function getPoint(e) { const p = e.touches ? e.touches[0] : e; return { x: p.clientX, y: p.clientY }; }
-  function positionGhost(ghost, x, y) { ghost.style.left = `${x}px`; ghost.style.top = `${y}px`; }
 
   function snapBridge(targetName) {
+
     const slot = geometry.slots[targetName]; state.selectedLane = targetName; state.draggingEnabled = false; els.bridgePiece.classList.add('locked'); setBridgePosition(slot.x, slot.y);
     els.bridgeZone.classList.remove('active'); els.dragHint.classList.remove('show'); els.statusMini.textContent = `${state.currentQuestion.levelName} · ${targetName === 'left' ? '左路' : targetName === 'center' ? '中路' : '右路'}已通`; animateDrive(targetName);
   }
@@ -831,13 +786,8 @@
     function onUp() { if (!dragging) return; dragging = false; piece.classList.remove('active'); if (!state.draggingEnabled) return; const rect = piece.getBoundingClientRect(); const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2; const zoneRect = zone.getBoundingClientRect(); const candidates = Object.entries(geometry.slots).map(([laneName, pos]) => ({ laneName, d: Math.hypot(centerX - (zoneRect.left + pos.x), centerY - (zoneRect.top + pos.y + geometry.gapHeight / 2)) })).sort((a, b) => a.d - b.d); if (candidates[0].d < 76) snapBridge(candidates[0].laneName); else setBridgePosition(geometry.bridgeHome.xCenter, geometry.bridgeHome.top); }
     piece.addEventListener('touchstart', onDown, { passive:false }); piece.addEventListener('mousedown', onDown); window.addEventListener('touchmove', onMove, { passive:false }); window.addEventListener('mousemove', onMove); window.addEventListener('touchend', onUp); window.addEventListener('mouseup', onUp);
   }
-  function setupScrambleDrag() {
-    document.addEventListener('touchstart', startTileDrag, { passive:false });
-    document.addEventListener('mousedown', startTileDrag);
-    window.addEventListener('touchmove', moveTileDrag, { passive:false });
-    window.addEventListener('mousemove', moveTileDrag);
-    window.addEventListener('touchend', endTileDrag);
-    window.addEventListener('mouseup', endTileDrag);
+  function setupScrambleClick() {
+    document.addEventListener('click', handleScrambleClick);
   }
   function escapeHtml(str) { return String(str).replace(/[&<>\"]/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[ch]); }
   function carSvg() {
@@ -855,7 +805,7 @@
 
   initState();
   setupBridgeDrag();
-  setupScrambleDrag();
+  setupScrambleClick();
 })();
 
 </script>
