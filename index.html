@@ -14,14 +14,19 @@
     html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 45%,#f8fbff 100%);color:var(--text);}
     body{display:flex;justify-content:center;overflow:hidden;}
     .app{width:100%;max-width:430px;height:100dvh;position:relative;overflow:hidden;background:linear-gradient(180deg,#cfeaff 0%,#edf7ff 55%,#f8fbff 100%);}
-    .sky{position:absolute;inset:0;background:
+    .sky{position:absolute;inset:0;z-index:0;background:
       radial-gradient(circle at 15% 12%, rgba(255,255,255,.9) 0 34px, transparent 35px),
       radial-gradient(circle at 24% 10%, rgba(255,255,255,.9) 0 24px, transparent 25px),
       radial-gradient(circle at 76% 18%, rgba(255,255,255,.85) 0 30px, transparent 31px),
       radial-gradient(circle at 84% 16%, rgba(255,255,255,.83) 0 24px, transparent 25px),
       linear-gradient(180deg,#bce6ff 0%, #edf8ff 58%, #f8fbff 100%);
     }
-    .ground{position:absolute;left:-12%;right:-12%;bottom:-8px;height:86%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);border-radius:50% 50% 0 0/100% 100% 0 0;}
+    .mountains{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .mountain{position:absolute;bottom:-8px;border-radius:50% 50% 0 0/100% 100% 0 0;}
+    .mountain-right{z-index:1;width:140%;height:94%;left:30%;background:linear-gradient(180deg,#d7e5ea 0%,#bfd2da 54%,#aebfc8 100%);opacity:.96;}
+    .mountain-left{z-index:2;width:120%;height:62%;left:-60%;background:linear-gradient(180deg,#8fcfc9 0%,#75bfbf 58%,#62abab 100%);opacity:.94;}
+    .mountain-middle{z-index:3;left:-12%;right:-12%;height:86%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);}
+
     .hud{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:30;display:flex;justify-content:space-between;gap:10px;}
     .pill{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);box-shadow:var(--shadow);border-radius:999px;padding:10px 14px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
 
@@ -85,6 +90,7 @@
     .btn{border:none;border-radius:16px;padding:14px 18px;font-size:17px;font-weight:800;background:var(--accent);color:#fff;width:100%;}
     .btn.secondary{margin-top:10px;background:#eef4ff;color:#1b3355;}
     .small-note{font-size:12px;color:var(--sub);margin-top:10px;line-height:1.5;}
+    .version-note{margin-top:10px;font-size:12px;color:#8aa0b8;text-align:center;font-weight:700;}
     .picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left;margin:14px 0 10px;}
     .pick{background:#f7fbff;border:1px solid #dfeafb;border-radius:16px;padding:10px;}.pick label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px;font-weight:700;}
     .pick select{width:100%;border:none;background:#fff;border-radius:12px;padding:12px 10px;font-size:16px;box-shadow:inset 0 0 0 1px #d9e8fb;color:var(--text);}
@@ -111,7 +117,7 @@
 <body>
 <div class="app" id="app">
   <div class="sky"></div>
-  <div class="ground"></div>
+  <div class="mountains"><div class="mountain mountain-right"></div><div class="mountain mountain-left"></div><div class="mountain mountain-middle"></div></div>
 
   <div class="hud">
     <div class="pill"><span>🚗</span><span id="stageInfo">第 1 / 1 题</span></div>
@@ -170,6 +176,7 @@
       </div>
       <div class="unit-note" id="unitSummary">请选择一个单元。</div>
       <button class="btn" id="startBtn">开始游戏</button>
+      <div class="version-note">版本：v31</div>
       <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级从 3 个字母中选 1 个；二级从固定的 4 个字母中依次选 2 个；三级从固定的 4 个字母中依次选 3 个；第四关把全部字母打乱后列在下方，逐个点击字母填入上方横线，再点确认。答对后在上方手绘路线，小车会沿你画出的路线开出画面。累计答错 3 次游戏结束。</div>
     </div>
   </div>
@@ -570,6 +577,10 @@
     return shuffle(options);
   }
 
+  function cloneQuestion(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
   function loadStage() {
     if (state.wrong >= 3) return endGame(false);
     if (state.stage >= state.questionOrder.length) return endGame(true);
@@ -578,7 +589,7 @@
     state.isAnimating = false;
     state.stepLocked = false;
     clearDrawPath();
-    const q = structuredClone(state.questionOrder[state.stage]);
+    const q = cloneQuestion(state.questionOrder[state.stage]);
     q.filledLetters = {};
     q.currentStep = 0;
     state.currentQuestion = q;
@@ -984,8 +995,8 @@
 
   function startGame() {
     cancelAnimationFrame(state.raf);
-    state.selectedModule = els.moduleSelect.value;
-    state.selectedUnit = els.unitSelect.value;
+    state.selectedModule = els.moduleSelect.value || Object.keys(UNIT_DATA)[0];
+    state.selectedUnit = els.unitSelect.value || Object.keys(UNIT_DATA[state.selectedModule])[0];
     state.questionOrder = buildQuestionsForSelection();
     state.stage = 0;
     state.wrong = 0;
@@ -1058,9 +1069,15 @@
     if (/sour/.test(key)) return '🍋'; if (/bitter/.test(key)) return '☕'; if (/hungry/.test(key)) return '🍽️'; return '🖼️';
   }
 
+  function handleStartPress(e) {
+    if (e) e.preventDefault();
+    startGame();
+  }
+
   els.moduleSelect.addEventListener('change', () => { state.selectedModule = els.moduleSelect.value; populateUnitSelect(); });
   els.unitSelect.addEventListener('change', () => { state.selectedUnit = els.unitSelect.value; updateUnitSummary(); });
-  els.startBtn.addEventListener('click', startGame);
+  els.startBtn.addEventListener('click', handleStartPress);
+  els.startBtn.addEventListener('touchend', handleStartPress, { passive:false });
   els.restartBtn.addEventListener('click', () => { els.endOverlay.classList.add('hidden'); els.startOverlay.classList.remove('hidden'); populateSelectors(); });
   els.closeBtn.addEventListener('click', () => els.endOverlay.classList.add('hidden'));
   els.resetWordBtn.addEventListener('click', resetScramble);
