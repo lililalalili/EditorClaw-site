@@ -23,9 +23,9 @@
     }
     .mountains{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
     .mountain{position:absolute;bottom:-8px;border-radius:50% 50% 0 0/100% 100% 0 0;}
-    .mountain-right{z-index:1;width:140%;height:94%;left:30%;background:linear-gradient(180deg,#d7e5ea 0%,#bfd2da 54%,#aebfc8 100%);opacity:.96;}
-    .mountain-left{z-index:2;width:120%;height:62%;left:-60%;background:linear-gradient(180deg,#8fcfc9 0%,#75bfbf 58%,#62abab 100%);opacity:.94;}
-    .mountain-middle{z-index:3;left:-12%;right:-12%;height:86%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);}
+    .mountain-right{z-index:1;width:140%;height:94%;left:30%;background:linear-gradient(180deg,#c5dbd7 0%,#abcac7 58%,#96b8b7 100%);opacity:.94;}
+    .mountain-middle{z-index:2;left:-12%;right:-12%;height:86%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);}
+    .mountain-left{z-index:3;width:120%;height:62%;left:-60%;background:linear-gradient(180deg,#8bd1a5 0%,#73c68c 58%,#61b978 100%);opacity:.96;}
 
     .hud{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:30;display:flex;justify-content:space-between;gap:10px;}
     .pill{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);box-shadow:var(--shadow);border-radius:999px;padding:10px 14px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
@@ -117,7 +117,7 @@
 <body>
 <div class="app" id="app">
   <div class="sky"></div>
-  <div class="mountains"><div class="mountain mountain-right"></div><div class="mountain mountain-left"></div><div class="mountain mountain-middle"></div></div>
+  <div class="mountains"><div class="mountain mountain-right"></div><div class="mountain mountain-middle"></div><div class="mountain mountain-left"></div></div>
 
   <div class="hud">
     <div class="pill"><span>🚗</span><span id="stageInfo">第 1 / 1 题</span></div>
@@ -175,8 +175,8 @@
         </div>
       </div>
       <div class="unit-note" id="unitSummary">请选择一个单元。</div>
-      <button class="btn" id="startBtn">开始游戏</button>
-      <div class="version-note">版本：v31</div>
+      <button class="btn" id="startBtn" type="button" onclick="window.__wordRoadStart && window.__wordRoadStart(event)">开始游戏</button>
+      <div class="version-note">版本：v32</div>
       <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级从 3 个字母中选 1 个；二级从固定的 4 个字母中依次选 2 个；三级从固定的 4 个字母中依次选 3 个；第四关把全部字母打乱后列在下方，逐个点击字母填入上方横线，再点确认。答对后在上方手绘路线，小车会沿你画出的路线开出画面。累计答错 3 次游戏结束。</div>
     </div>
   </div>
@@ -375,6 +375,15 @@
       <polyline points="${poly}" fill="none" stroke="#f6d85f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="18 18"></polyline>` : ''}
       ${state.drawMode ? `<circle class="draw-start" cx="${fork.x}" cy="${fork.y}" r="18"></circle><circle class="draw-pulse" cx="${fork.x}" cy="${fork.y}" r="26"></circle>` : ''}
     `;
+  }
+
+  function clearDrawPath() {
+    state.drawPoints = [];
+    state.drawMode = false;
+    state.isDrawing = false;
+    if (els.drawLayer) els.drawLayer.classList.remove('active');
+    if (els.dragHint) els.dragHint.classList.remove('show');
+    renderDrawPath();
   }
 
   function getActiveCar() { return state.activeCarKey === 'A' ? els.carA : els.carB; }
@@ -996,7 +1005,14 @@
   function startGame() {
     cancelAnimationFrame(state.raf);
     state.selectedModule = els.moduleSelect.value || Object.keys(UNIT_DATA)[0];
-    state.selectedUnit = els.unitSelect.value || Object.keys(UNIT_DATA[state.selectedModule])[0];
+    const availableUnits = Object.keys(UNIT_DATA[state.selectedModule] || {});
+    state.selectedUnit = (els.unitSelect.value && UNIT_DATA[state.selectedModule] && UNIT_DATA[state.selectedModule][els.unitSelect.value])
+      ? els.unitSelect.value
+      : availableUnits[0];
+    if (!state.selectedUnit) {
+      alert('当前单元没有可用单词，请重新选择。');
+      return;
+    }
     state.questionOrder = buildQuestionsForSelection();
     state.stage = 0;
     state.wrong = 0;
@@ -1070,8 +1086,14 @@
   }
 
   function handleStartPress(e) {
-    if (e) e.preventDefault();
-    startGame();
+    if (e && e.preventDefault) e.preventDefault();
+    if (state.isStarting) return;
+    state.isStarting = true;
+    try {
+      startGame();
+    } finally {
+      setTimeout(() => { state.isStarting = false; }, 350);
+    }
   }
 
   els.moduleSelect.addEventListener('change', () => { state.selectedModule = els.moduleSelect.value; populateUnitSelect(); });
@@ -1098,6 +1120,7 @@
     }
   });
 
+  window.__wordRoadStart = handleStartPress;
   initState();
 })();
 </script>
