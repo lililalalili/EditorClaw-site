@@ -8,7 +8,7 @@
     :root{
       --bg1:#d8efff;--bg2:#eef7ff;--panel:#ffffffee;--text:#1d2a3a;--sub:#5d6d83;--accent:#4b8bff;
       --ok:#15a06b;--bad:#d84a4a;--road:#5b6570;--roadLine:#f6d85f;--shadow:0 10px 24px rgba(19,40,72,.12);
-      --radius:18px;--route-h:56dvh;--panel-h:46dvh;
+      --radius:18px;--route-h:60dvh;--panel-h:40dvh;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
     html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 45%,#f8fbff 100%);color:var(--text);}
@@ -21,7 +21,7 @@
       radial-gradient(circle at 84% 16%, rgba(255,255,255,.83) 0 24px, transparent 25px),
       linear-gradient(180deg,#bce6ff 0%, #edf8ff 58%, #f8fbff 100%);
     }
-    .ground{position:absolute;left:-12%;right:-12%;bottom:-18px;height:44%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);border-radius:50% 50% 0 0/100% 100% 0 0;}
+    .ground{position:absolute;left:-12%;right:-12%;bottom:-8px;height:66%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);border-radius:50% 50% 0 0/100% 100% 0 0;}
     .hud{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:30;display:flex;justify-content:space-between;gap:10px;}
     .pill{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);box-shadow:var(--shadow);border-radius:999px;padding:10px 14px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
 
@@ -311,70 +311,16 @@
     const appRect = els.app.getBoundingClientRect();
     const panelRect = els.quizPanel.getBoundingClientRect();
     const W = els.app.clientWidth || 430;
-    const routeH = Math.max(280, Math.floor(panelRect.top - appRect.top - 14));
+    const routeH = Math.max(300, Math.floor(panelRect.top - appRect.top - 12));
     els.app.style.setProperty('--route-h', `${routeH}px`);
     geometry.W = W;
     geometry.routeH = routeH;
-    const startY = Math.max(110, routeH - 46);
-    const startX = 59;
+    const startY = Math.max(132, routeH - 34);
+    const startX = 56;
     geometry.startPos = { x: startX, y: startY };
-    geometry.hiddenPos = { x: -118, y: startY };
-    geometry.forkPos = { x: Math.min(W - 78, startX + 56), y: startY };
+    geometry.hiddenPos = { x: -96, y: startY };
+    geometry.forkPos = { x: Math.min(W - 78, startX + 88), y: startY };
     renderScene();
-    renderDrawPath();
-    positionSpeechBubble();
-  }
-
-  function renderScene() {
-    const w = geometry.W;
-    const routeH = geometry.routeH;
-    const sx = geometry.startPos.x;
-    const sy = geometry.startPos.y;
-    const fx = geometry.forkPos.x;
-    const fy = geometry.forkPos.y;
-    const roadW = 62;
-    const centerW = 6;
-    const roadStartX = -8;
-    const guideEndX = Math.min(w - 48, fx + 52);
-    els.scene.innerHTML = `
-      <svg viewBox="0 0 ${w} ${routeH}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs>
-          <filter id="roadShadow"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity="0.15"/></filter>
-          <filter id="forkGlow"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#72a6ff" flood-opacity=".38"/></filter>
-        </defs>
-        <g filter="url(#roadShadow)">
-          <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#59646f" stroke-width="${roadW}" stroke-linecap="round" fill="none"/>
-          <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#f6d85f" stroke-width="${centerW}" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
-          <ellipse cx="${sx - 8}" cy="${sy}" rx="58" ry="21" fill="rgba(89,100,111,.18)"/>
-        </g>
-        <path d="M ${fx} ${fy} Q ${fx+18} ${fy-18} ${guideEndX} ${fy-48}" class="draw-guide"/>
-        <g filter="url(#forkGlow)">
-          <circle cx="${fx}" cy="${fy}" r="18" fill="rgba(75,139,255,.10)"/>
-          <circle cx="${fx}" cy="${fy}" r="9" fill="rgba(75,139,255,.28)"/>
-          <path d="M ${fx+32} ${fy-32} L ${fx+52} ${fy-48} L ${fx+48} ${fy-30} Z" class="draw-arrow"/>
-        </g>
-      </svg>`;
-    els.drawSvg.setAttribute('viewBox', `0 0 ${w} ${routeH}`);
-  }
-
-  function renderDrawPath() {
-    const pts = state.drawPoints || [];
-    const poly = pts.map(p => `${p.x},${p.y}`).join(' ');
-    const fork = geometry.forkPos;
-    els.drawSvg.innerHTML = `
-      <polyline points="${poly}" fill="none" stroke="rgba(62,86,120,.12)" stroke-width="74" stroke-linecap="round" stroke-linejoin="round"></polyline>
-      <polyline points="${poly}" fill="none" stroke="#59646f" stroke-width="62" stroke-linecap="round" stroke-linejoin="round"></polyline>
-      <polyline points="${poly}" fill="none" stroke="#f6d85f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="18 18"></polyline>
-      ${state.drawMode ? `<circle class="draw-start" cx="${fork.x}" cy="${fork.y}" r="18"></circle><circle class="draw-pulse" cx="${fork.x}" cy="${fork.y}" r="26"></circle>` : ''}
-    `;
-  }
-
-  function clearDrawPath() {
-    state.drawPoints = [];
-    state.drawMode = false;
-    state.isDrawing = false;
-    els.drawLayer.classList.remove('active');
-    els.dragHint.classList.remove('show');
     renderDrawPath();
   }
 
