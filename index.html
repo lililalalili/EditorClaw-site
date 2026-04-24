@@ -459,7 +459,13 @@
     const unit = getSelectedUnitData();
     const count = unit.words.length;
     const qCount = getUnitQuestionCount(unit);
-    els.unitSummary.textContent = `${unit.label}：当前有 ${count} 个词条，将生成 ${qCount} 题。每个词条会根据字母长度解锁 1~4 关。`;
+    const words = unit.words
+      .map(w => String((w && (w.display || w.word)) || '').replace(/\s+/g, ' ').trim())
+      .filter(Boolean);
+    const wordHtml = words.length
+      ? `<div style="margin-top:8px;color:var(--text);font-weight:700;line-height:1.55;word-break:break-word;">${words.map(escapeHtml).join(' / ')}</div>`
+      : '';
+    els.unitSummary.innerHTML = `${unit.label}：当前有 ${count} 个词条，将生成 ${qCount} 题。每个词条会根据字母长度解锁 1~4 关。${wordHtml}`;
   }
 
   function buildQuestionsForSelection() {
