@@ -24,8 +24,8 @@
     .mountains{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
     .mountain{position:absolute;bottom:-8px;border-radius:50% 50% 0 0/100% 100% 0 0;}
     .mountain-right{z-index:1;width:140%;height:94%;left:30%;background:linear-gradient(180deg,#9eb9b7 0%,#86a8a8 58%,#719697 100%);opacity:.96;}
-    .cloud-right-front{position:absolute;z-index:2;right:14%;top:22%;width:132px;height:54px;pointer-events:none;}
-    .cloud-right-front::before{content:"";position:absolute;left:0;top:16px;width:54px;height:34px;border-radius:999px;background:rgba(255,255,255,.92);box-shadow:38px -14px 0 8px rgba(255,255,255,.92),78px 4px 0 2px rgba(255,255,255,.90);}
+    .cloud-right-front{position:absolute;z-index:5;right:12%;top:11%;width:132px;height:54px;pointer-events:none;}
+    .cloud-right-front::before{content:"";position:absolute;left:0;top:16px;width:58px;height:36px;border-radius:999px;background:rgba(255,255,255,.92);box-shadow:38px -14px 0 8px rgba(255,255,255,.92),78px 4px 0 2px rgba(255,255,255,.90);}
     .mountain-middle{z-index:3;left:-12%;right:-12%;height:78%;background:linear-gradient(180deg,#8bd1a5 0%,#73c68c 58%,#61b978 100%);}
     .mountain-left{z-index:4;width:120%;height:62%;left:-60%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);opacity:.98;}
 
@@ -178,7 +178,7 @@
       </div>
       <div class="unit-note" id="unitSummary">请选择一个单元。</div>
       <button class="btn" id="startBtn" type="button" onclick="window.__wordRoadStart && window.__wordRoadStart(event)">开始游戏</button>
-      <div class="version-note">版本：v33</div>
+      <div class="version-note">版本：v34</div>
       <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级从 3 个字母中选 1 个；二级从固定的 4 个字母中依次选 2 个；三级从固定的 4 个字母中依次选 3 个；第四关把全部字母打乱后列在下方，逐个点击字母填入上方横线，再点确认。答对后在上方手绘路线，小车会沿你画出的路线开出画面。累计答错 3 次游戏结束。</div>
     </div>
   </div>
