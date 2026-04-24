@@ -24,8 +24,11 @@
     .mountains{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
     .mountain{position:absolute;bottom:-8px;border-radius:50% 50% 0 0/100% 100% 0 0;}
     .mountain-right{z-index:1;width:140%;height:94%;left:30%;background:linear-gradient(180deg,#c5dbd7 0%,#abcac7 58%,#96b8b7 100%);opacity:.94;}
-    .mountain-middle{z-index:2;left:-12%;right:-12%;height:86%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);}
-    .mountain-left{z-index:3;width:120%;height:62%;left:-60%;background:linear-gradient(180deg,#8bd1a5 0%,#73c68c 58%,#61b978 100%);opacity:.96;}
+    .right-cloud-front{position:absolute;z-index:2;right:4%;top:12%;width:118px;height:48px;pointer-events:none;filter:drop-shadow(0 5px 7px rgba(90,120,150,.08));}
+    .right-cloud-front::before{content:"";position:absolute;left:0;top:18px;width:118px;height:30px;border-radius:999px;background:rgba(255,255,255,.86);}
+    .right-cloud-front::after{content:"";position:absolute;left:22px;top:0;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:35px 8px 0 4px rgba(255,255,255,.84),64px 17px 0 -2px rgba(255,255,255,.78);}
+    .mountain-middle{z-index:3;left:-12%;right:-12%;height:86%;background:linear-gradient(180deg,#8bd1a5 0%,#73c68c 58%,#61b978 100%);}
+    .mountain-left{z-index:4;width:120%;height:62%;left:-60%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);opacity:.96;}
 
     .hud{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:30;display:flex;justify-content:space-between;gap:10px;}
     .pill{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);box-shadow:var(--shadow);border-radius:999px;padding:10px 14px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
@@ -98,7 +101,7 @@
 
     .hint-float{position:absolute;left:50%;top:58px;transform:translateX(-50%);z-index:20;background:rgba(255,255,255,.92);color:#18467f;border:1px solid rgba(75,139,255,.18);box-shadow:var(--shadow);padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;white-space:nowrap;}
     .hint-float.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
-    .car-speech{position:absolute;z-index:29;max-width:220px;background:rgba(255,255,255,.96);color:#21456d;border:2px solid rgba(75,139,255,.22);border-radius:20px;padding:10px 14px;font-size:13px;font-weight:800;line-height:1.35;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .22s ease, transform .22s ease;}
+    .car-speech{position:absolute;z-index:29;max-width:220px;background:rgba(255,255,255,.96);color:#21456d;border:2px solid rgba(75,139,255,.22);border-radius:20px;padding:10px 13px;font-size:16px;font-weight:800;line-height:1.35;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .22s ease, transform .22s ease;}
     .car-speech.show{opacity:1;transform:translateY(0);}
     .car-speech::after{content:"";position:absolute;left:18px;bottom:-10px;width:18px;height:18px;background:rgba(255,255,255,.96);border-right:2px solid rgba(75,139,255,.22);border-bottom:2px solid rgba(75,139,255,.22);transform:rotate(45deg);border-bottom-right-radius:4px;}
 
@@ -117,7 +120,7 @@
 <body>
 <div class="app" id="app">
   <div class="sky"></div>
-  <div class="mountains"><div class="mountain mountain-right"></div><div class="mountain mountain-middle"></div><div class="mountain mountain-left"></div></div>
+  <div class="mountains"><div class="mountain mountain-right"></div><div class="right-cloud-front"></div><div class="mountain mountain-middle"></div><div class="mountain mountain-left"></div></div>
 
   <div class="hud">
     <div class="pill"><span>🚗</span><span id="stageInfo">第 1 / 1 题</span></div>
@@ -176,7 +179,7 @@
       </div>
       <div class="unit-note" id="unitSummary">请选择一个单元。</div>
       <button class="btn" id="startBtn" type="button" onclick="window.__wordRoadStart && window.__wordRoadStart(event)">开始游戏</button>
-      <div class="version-note">版本：v32</div>
+      <div class="version-note">版本：v34</div>
       <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级从 3 个字母中选 1 个；二级从固定的 4 个字母中依次选 2 个；三级从固定的 4 个字母中依次选 3 个；第四关把全部字母打乱后列在下方，逐个点击字母填入上方横线，再点确认。答对后在上方手绘路线，小车会沿你画出的路线开出画面。累计答错 3 次游戏结束。</div>
     </div>
   </div>
@@ -343,8 +346,10 @@
     const fy = geometry.forkPos.y;
     const roadW = 50;
     const centerW = 5;
-    const roadStartX = -8;
+    const roadStartX = -14;
     const guideEndX = Math.min(w - 48, fx + 52);
+    const naturalRoad = `M ${roadStartX} ${sy + 8} C ${sx - 32} ${sy - 8}, ${sx + 18} ${sy + 12}, ${sx + 42} ${sy + 2} S ${fx - 22} ${fy - 10}, ${fx} ${fy}`;
+    const roadBank = `M ${roadStartX - 12} ${sy + 17} C ${sx - 30} ${sy + 8}, ${sx + 20} ${sy + 24}, ${sx + 54} ${sy + 12} S ${fx - 8} ${fy + 7}, ${fx + 24} ${fy + 6}`;
     els.scene.innerHTML = `
       <svg viewBox="0 0 ${w} ${routeH}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <defs>
@@ -352,9 +357,10 @@
           <filter id="forkGlow"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#72a6ff" flood-opacity=".38"/></filter>
         </defs>
         <g filter="url(#roadShadow)">
-          <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#59646f" stroke-width="${roadW}" stroke-linecap="round" fill="none"/>
-          <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#f6d85f" stroke-width="${centerW}" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
-          <ellipse cx="${sx - 8}" cy="${sy}" rx="48" ry="17" fill="rgba(89,100,111,.18)"/>
+          <path d="${roadBank}" stroke="rgba(71,92,87,.18)" stroke-width="${roadW + 18}" stroke-linecap="round" fill="none"/>
+          <path d="${naturalRoad}" stroke="#59646f" stroke-width="${roadW}" stroke-linecap="round" fill="none"/>
+          <path d="${naturalRoad}" stroke="#f6d85f" stroke-width="${centerW}" stroke-dasharray="16 17" stroke-linecap="round" fill="none"/>
+          <ellipse cx="${sx - 8}" cy="${sy + 1}" rx="43" ry="14" fill="rgba(89,100,111,.14)"/>
         </g>
         <path d="M ${fx} ${fy} Q ${fx+18} ${fy-18} ${guideEndX} ${fy-48}" class="draw-guide"/>
         <g filter="url(#forkGlow)">
@@ -917,8 +923,15 @@
 
   function buildTravelPoints() {
     const draw = state.drawPoints.length ? state.drawPoints.slice() : [{...geometry.forkPos}];
-    const pts = [{...geometry.startPos}, {...geometry.forkPos}, ...draw.slice(1)];
-    return pts;
+    const s = geometry.startPos;
+    const f = geometry.forkPos;
+    const lead = [
+      { ...s },
+      { x: s.x + 28, y: s.y - 5 },
+      { x: s.x + 56, y: s.y + 4 },
+      { ...f }
+    ];
+    return [...lead, ...draw.slice(1)];
   }
 
   function animateDriveAlongDrawnPath() {
