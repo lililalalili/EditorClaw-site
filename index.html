@@ -21,7 +21,7 @@
       radial-gradient(circle at 84% 16%, rgba(255,255,255,.83) 0 24px, transparent 25px),
       linear-gradient(180deg,#bce6ff 0%, #edf8ff 58%, #f8fbff 100%);
     }
-    .ground{position:absolute;left:-12%;right:-12%;bottom:-96px;height:34%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);border-radius:50% 50% 0 0/100% 100% 0 0;}
+    .ground{position:absolute;left:-12%;right:-12%;bottom:-18px;height:44%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);border-radius:50% 50% 0 0/100% 100% 0 0;}
     .hud{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:30;display:flex;justify-content:space-between;gap:10px;}
     .pill{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);box-shadow:var(--shadow);border-radius:999px;padding:10px 14px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
 
@@ -92,6 +92,10 @@
 
     .hint-float{position:absolute;left:50%;top:58px;transform:translateX(-50%);z-index:20;background:rgba(255,255,255,.92);color:#18467f;border:1px solid rgba(75,139,255,.18);box-shadow:var(--shadow);padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;white-space:nowrap;}
     .hint-float.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+    .car-speech{position:absolute;z-index:29;max-width:220px;background:rgba(255,255,255,.96);color:#21456d;border:2px solid rgba(75,139,255,.22);border-radius:20px;padding:10px 14px;font-size:13px;font-weight:800;line-height:1.35;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .22s ease, transform .22s ease;}
+    .car-speech.show{opacity:1;transform:translateY(0);}
+    .car-speech::after{content:"";position:absolute;left:18px;bottom:-10px;width:18px;height:18px;background:rgba(255,255,255,.96);border-right:2px solid rgba(75,139,255,.22);border-bottom:2px solid rgba(75,139,255,.22);transform:rotate(45deg);border-bottom-right-radius:4px;}
+
     .pic-card{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;background:linear-gradient(180deg,#ffffff 0%,#eef6ff 100%);}
     .pic-emoji{font-size:56px;line-height:1;}
 
@@ -117,6 +121,7 @@
   <div class="scene" id="scene"></div>
   <div class="draw-layer" id="drawLayer"><svg id="drawSvg" viewBox="0 0 430 400" preserveAspectRatio="none"></svg></div>
   <div class="hint-float" id="dragHint">答对了，请在上方任意位置手绘路线</div>
+  <div class="car-speech" id="carSpeech">Oh, no! Spell the word to fix the road!</div>
 
   <div class="cars-layer" id="carsLayer">
     <div class="car visible" id="carA"></div>
@@ -189,6 +194,7 @@
     stageInfo: document.getElementById('stageInfo'),
     lifeInfo: document.getElementById('lifeInfo'),
     dragHint: document.getElementById('dragHint'),
+    carSpeech: document.getElementById('carSpeech'),
     quizPanel: document.getElementById('quizPanel'),
     picBox: document.getElementById('picBox'),
     cnHint: document.getElementById('cnHint'),
@@ -283,6 +289,7 @@
       isDrawing: false,
       drawPoints: [],
       flashTimer: null,
+      speechTimer: null,
       stepLocked: false
     };
     populateSelectors();
@@ -309,12 +316,13 @@
     geometry.W = W;
     geometry.routeH = routeH;
     const startY = Math.max(110, routeH - 46);
-    const startX = Math.min(Math.max(76, W * 0.20), 92);
+    const startX = 59;
     geometry.startPos = { x: startX, y: startY };
-    geometry.hiddenPos = { x: -96, y: startY };
-    geometry.forkPos = { x: Math.min(W - 72, startX + 78), y: startY };
+    geometry.hiddenPos = { x: -118, y: startY };
+    geometry.forkPos = { x: Math.min(W - 78, startX + 56), y: startY };
     renderScene();
     renderDrawPath();
+    positionSpeechBubble();
   }
 
   function renderScene() {
@@ -326,7 +334,7 @@
     const fy = geometry.forkPos.y;
     const roadW = 62;
     const centerW = 6;
-    const roadStartX = Math.max(0, sx - 92);
+    const roadStartX = -8;
     const guideEndX = Math.min(w - 48, fx + 52);
     els.scene.innerHTML = `
       <svg viewBox="0 0 ${w} ${routeH}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -337,7 +345,7 @@
         <g filter="url(#roadShadow)">
           <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#59646f" stroke-width="${roadW}" stroke-linecap="round" fill="none"/>
           <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#f6d85f" stroke-width="${centerW}" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
-          <ellipse cx="${sx - 6}" cy="${sy}" rx="54" ry="20" fill="rgba(89,100,111,.18)"/>
+          <ellipse cx="${sx - 8}" cy="${sy}" rx="58" ry="21" fill="rgba(89,100,111,.18)"/>
         </g>
         <path d="M ${fx} ${fy} Q ${fx+18} ${fy-18} ${guideEndX} ${fy-48}" class="draw-guide"/>
         <g filter="url(#forkGlow)">
@@ -385,6 +393,29 @@
 
   function setDriving(el, driving) {
     el.classList.toggle('driving', !!driving);
+  }
+
+  function positionSpeechBubble() {
+    if (!els.carSpeech) return;
+    els.carSpeech.style.left = `${geometry.startPos.x + 14}px`;
+    els.carSpeech.style.top = `${Math.max(52, geometry.startPos.y - 106)}px`;
+  }
+
+  function hideSpeechBubble() {
+    clearTimeout(state.speechTimer);
+    if (!els.carSpeech) return;
+    els.carSpeech.classList.remove('show');
+  }
+
+  function showSpeechBubble() {
+    if (!els.carSpeech) return;
+    clearTimeout(state.speechTimer);
+    positionSpeechBubble();
+    els.carSpeech.textContent = 'Oh, no! Spell the word to fix the road!';
+    els.carSpeech.classList.add('show');
+    state.speechTimer = setTimeout(() => {
+      els.carSpeech.classList.remove('show');
+    }, 3000);
   }
 
   function carSvg(style) {
@@ -551,6 +582,7 @@
     if (state.wrong >= 3) return endGame(false);
     if (state.stage >= state.questionOrder.length) return endGame(true);
     clearTimeout(state.flashTimer);
+    hideSpeechBubble();
     state.isAnimating = false;
     state.stepLocked = false;
     clearDrawPath();
@@ -572,6 +604,7 @@
     setDriving(active, true);
     setDriving(next, false);
     placeCar(next, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
+    showSpeechBubble();
     updateHUD();
   }
 
@@ -969,6 +1002,7 @@
     state.isAnimating = false;
     state.stepLocked = false;
     clearDrawPath();
+    hideSpeechBubble();
     applyRandomCarStyle(els.carA);
     applyRandomCarStyle(els.carB);
     setDriving(els.carA, false);
@@ -984,6 +1018,7 @@
     state.isAnimating = false;
     cancelAnimationFrame(state.raf);
     clearDrawPath();
+    hideSpeechBubble();
     els.endOverlay.classList.remove('hidden');
     if (success) {
       els.endTitle.textContent = '闯关成功';
@@ -1050,6 +1085,7 @@
     if (!state.isAnimating) {
       placeCar(getActiveCar(), geometry.startPos.x, geometry.startPos.y, 0, true);
       placeCar(getNextCar(), geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
+      positionSpeechBubble();
     }
   });
 
