@@ -43,7 +43,10 @@
     .car.visible{opacity:1;}
     .car svg{width:100%;height:100%;display:block;overflow:visible;}
 
-    .panel{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);height:var(--panel-h);background:var(--panel);backdrop-filter:blur(10px);border-radius:24px;padding:14px 14px 16px;box-shadow:var(--shadow);z-index:16;overflow:hidden;display:flex;flex-direction:column;}
+    .panel{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);height:var(--panel-h);background:var(--panel);backdrop-filter:blur(10px);border-radius:24px;padding:14px 14px 16px;box-shadow:var(--shadow);z-index:16;overflow-x:hidden;overflow-y:auto;display:flex;flex-direction:column;}
+    .panel::-webkit-scrollbar{width:6px;}
+    .panel::-webkit-scrollbar-thumb{background:#cddcf3;border-radius:999px;}
+    .panel::-webkit-scrollbar-track{background:transparent;}
     .panel.repair-mode .feedback{display:none;}
     .quiz-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px;flex:0 0 auto;}
     .title{font-size:18px;font-weight:800;}
@@ -92,7 +95,9 @@
     .word-mask.xlong .mask-cell{min-width:18px;height:34px;font-size:21px;border-bottom-width:3px;}
     .mask-cell.current{border-bottom-color:#4b8bff;box-shadow:inset 0 -4px 0 rgba(75,139,255,.12);}
     .mask-gap{display:inline-block;width:12px;height:38px;flex:0 0 12px;}
-
+    .mask-punc{display:inline-flex;align-items:flex-end;justify-content:center;min-width:auto;height:42px;padding:0 2px 3px;font-size:26px;font-weight:800;line-height:1;color:var(--text);}
+    .word-mask.long .mask-punc{height:38px;font-size:22px;}
+    .word-mask.xlong .mask-punc{height:34px;font-size:19px;}
 
     .scramble-wrap{display:flex;flex-direction:column;gap:12px;flex:0 0 auto;margin-top:2px;}
     .scramble-wrap.hidden{display:none;}
@@ -104,9 +109,9 @@
     .letter-tile.placed{min-width:100%;height:100%;border-radius:12px;background:rgba(75,139,255,.12);box-shadow:none;}
     .letter-tile.drag-source{opacity:.28;}
     .drag-ghost{position:fixed;left:0;top:0;z-index:9999;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 8px 18px rgba(0,0,0,.18);}
-    .drop-slot{position:relative;}
+    .drop-slot{position:relative;cursor:pointer;}
     .drop-slot.active-target{outline:2px dashed rgba(75,139,255,.5);outline-offset:4px;border-radius:12px;}
-    .drop-slot .letter-tile{font-size:28px;}
+    .drop-slot.has-tile{background:rgba(75,139,255,.08);border-bottom-color:#4b8bff;}
 
   </style>
 </head>
@@ -164,7 +169,7 @@
   <div class="overlay" id="startOverlay">
     <div class="dialog">
       <h2>肖悦瞳的单词修路游戏</h2>
-      <p>先选 Module 和 Unit，再开始游戏。不同长度的单词会解锁不同关数：1 个字母的单词只有 1 关，2 个字母的单词有 2 关，3 个字母的单词有 3 关，4 个字母及以上的单词有 4 关。</p>
+      <p>先选 Module 和 Unit，再开始游戏。每个原 Unit 会按顺序尽量平均拆成 a / b / c 三部分。不同长度的单词会解锁不同关数：1 个字母的单词只有 1 关，2 个字母的单词有 2 关，3 个字母的单词有 3 关，4 个字母及以上的单词有 4 关。</p>
       <div class="picker-grid">
         <div class="pick">
           <label for="moduleSelect">Module</label>
@@ -177,7 +182,7 @@
       </div>
       <div class="unit-note" id="unitSummary">请选择一个单元。</div>
       <button class="btn" id="startBtn">开始游戏</button>
-      <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级缺 1 个字母；二级同时缺 2 个字母，但作答时一次补 1 个；三级同时缺 3 个字母，但作答时一次补 1 个；第四关把全部字母打乱后列在下方，逐个点击字母填入上方横线，再点确认。答对后修路，选错会显示正确答案并跳到下一题。累计答错 3 次游戏结束。</div>
+      <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级从 3 个字母中选 1 个；二级从 4 个字母中依次选 2 个，选完第一个后下方选项不变；三级从 5 个字母中依次选 3 个，选完第一个后下方选项不变；第四关把全部字母打乱后列在下方，逐个点击字母填入上方横线，再点确认。答对后修路，选错会显示正确答案并跳到下一题。累计答错 3 次游戏结束。</div>
     </div>
   </div>
 
@@ -266,11 +271,21 @@
       result[moduleKey] = {};
       Object.entries(units).forEach(([unitKey, unit]) => {
         const words = Array.isArray(unit.words) ? unit.words.slice() : [];
-        const mid = Math.ceil(words.length / 2);
-        const firstWords = words.slice(0, mid);
-        const secondWords = words.slice(mid);
-        result[moduleKey][`${unitKey}a`] = { label: `${moduleKey}${unitKey}a`, name: `${moduleKey}${unitKey}a`, words: firstWords };
-        result[moduleKey][`${unitKey}b`] = { label: `${moduleKey}${unitKey}b`, name: `${moduleKey}${unitKey}b`, words: secondWords };
+        const total = words.length;
+        const base = Math.floor(total / 3);
+        const remainder = total % 3;
+        const sizes = [0, 1, 2].map(i => base + (i < remainder ? 1 : 0));
+        let cursor = 0;
+        ['a', 'b', 'c'].forEach((suffix, idx) => {
+          const count = sizes[idx];
+          const chunk = words.slice(cursor, cursor + count);
+          cursor += count;
+          result[moduleKey][`${unitKey}${suffix}`] = {
+            label: `${moduleKey}${unitKey}${suffix}`,
+            name: `${moduleKey}${unitKey}${suffix}`,
+            words: chunk
+          };
+        });
       });
     });
     return result;
@@ -386,21 +401,28 @@
   }
 
   function populateSelectors() {
-    const currentM = state.selectedModule || Object.keys(UNIT_DATA)[0];
-    els.moduleSelect.innerHTML = Object.keys(UNIT_DATA).map(k => `<option value="${k}">${k}</option>`).join('');
-    els.moduleSelect.value = currentM; populateUnitSelect();
+    const modules = Object.keys(UNIT_DATA);
+    const currentM = modules.includes(state.selectedModule) ? state.selectedModule : modules[0];
+    els.moduleSelect.innerHTML = modules.map(k => `<option value="${k}">${k}</option>`).join('');
+    els.moduleSelect.value = currentM;
+    state.selectedModule = currentM;
+    populateUnitSelect();
   }
   function populateUnitSelect() {
-    const m = UNIT_DATA[els.moduleSelect.value];
+    const moduleKey = els.moduleSelect.value;
+    const m = UNIT_DATA[moduleKey] || {};
     const units = Object.keys(m);
-    const target = m[state.selectedUnit] ? state.selectedUnit : units[0];
-    els.unitSelect.innerHTML = units.map(k => `<option value="${k}">${m[k].label || `${els.moduleSelect.value}${k}`}</option>`).join('');
-    els.unitSelect.value = target; state.selectedModule = els.moduleSelect.value; state.selectedUnit = target; updateUnitSummary();
+    const target = units.includes(state.selectedUnit) ? state.selectedUnit : units[0];
+    els.unitSelect.innerHTML = units.map(k => `<option value="${k}">${m[k].label || `${moduleKey}${k}`}</option>`).join('');
+    els.unitSelect.value = target || '';
+    state.selectedModule = moduleKey;
+    state.selectedUnit = target || '';
+    updateUnitSummary();
   }
   function updateUnitSummary() {
     const unit = getSelectedUnitData(); const count = unit.words.length;
     const totalQuestions = countQuestionsForUnit(unit);
-    els.unitSummary.textContent = `${unit.label}：当前有 ${count} 个单词，将生成 ${totalQuestions} 题。1 字母词只有 1 关，2 字母词有 2 关，3 字母词有 3 关，4 字母及以上的词有 4 关。`;
+    els.unitSummary.textContent = `${unit.label}：当前有 ${count} 个单词，将生成 ${totalQuestions} 题。每个原 Unit 已按顺序尽量平均拆成 a / b / c 三部分。1 字母词只有 1 关，2 字母词有 2 关，3 字母词有 3 关，4 字母及以上的词有 4 关。`;
   }
   function getSelectedUnitData() { return UNIT_DATA[state.selectedModule][state.selectedUnit]; }
   function countQuestionsForUnit(unit) {
@@ -534,7 +556,7 @@
       els.statusMini.textContent = `${q.levelName} · 1字母`;
       els.instructionText.textContent = '';
     } else {
-      els.statusMini.textContent = `${q.levelName} · ${currentNo}/${totalBlanks}字母`;
+      els.statusMini.textContent = `${q.levelName} · ${currentNo}/${totalBlanks}字母`; // 选项区保持不变
       els.instructionText.textContent = '';
     }
   }
@@ -550,8 +572,7 @@
     }
     els.scrambleWrap.classList.add('hidden');
     els.options.style.display = 'grid';
-    const correct = q.word[q.blankPositions[q.currentStep]];
-    const options = buildLetterOptions(correct, q.word);
+    const options = q.optionLetters || buildChoiceOptionSet(q.word, q.blankPositions, q.difficulty);
     els.options.innerHTML = '';
     options.forEach(opt => {
       const btn = document.createElement('button');
@@ -567,7 +588,10 @@
     const chars = q.display.split('');
     els.wordMask.className = 'word-mask' + (q.word.length > 10 ? ' long' : '') + (q.word.length > 14 ? ' xlong' : '');
     els.wordMask.innerHTML = chars.map((ch, idx) => {
-      if (!/[A-Za-z]/.test(ch)) return '<span class="mask-gap"></span>';
+      if (!/[A-Za-z]/.test(ch)) {
+        if (/\s/.test(ch)) return '<span class="mask-gap"></span>';
+        return `<span class="mask-punc">${escapeHtml(ch)}</span>`;
+      }
       const blankIdx = blankMap.get(idx);
       if (blankIdx === undefined) return `<span class="mask-cell filled">${escapeHtml(ch)}</span>`;
       if (revealAll) return `<span class="mask-cell filled">${escapeHtml(ch)}</span>`;
@@ -575,7 +599,7 @@
         const tileId = q.dragState.slots[blankIdx];
         if (tileId) {
           const letter = q.dragState.tiles[tileId].letter;
-          return `<span class="mask-cell drop-slot filled" data-slot-index="${blankIdx}"><span class="letter-tile placed" data-tile-id="${tileId}">${escapeHtml(letter)}</span></span>`;
+          return `<span class="mask-cell filled drop-slot has-tile" data-slot-index="${blankIdx}">${escapeHtml(letter)}</span>`;
         }
         return `<span class="mask-cell empty drop-slot" data-slot-index="${blankIdx}">&nbsp;</span>`;
       }
@@ -594,15 +618,21 @@
     }).join('');
   }
 
-  function buildLetterOptions(correct, word) {
-    const options = [correct];
-    const pool = shuffle(word.split('').filter(ch => ch !== correct));
-    for (const ch of pool) {
+  function buildChoiceOptionSet(word, blankPositions, level) {
+    const desiredCount = level === 1 ? 3 : level === 2 ? 4 : 5;
+    const correctLetters = blankPositions.map(i => word[i]);
+    const options = [];
+    correctLetters.forEach(ch => {
       if (!options.includes(ch)) options.push(ch);
-      if (options.length === 3) break;
+    });
+    const wordPool = shuffle(word.split('').filter(ch => !options.includes(ch)));
+    for (const ch of wordPool) {
+      if (!options.includes(ch)) options.push(ch);
+      if (options.length >= desiredCount) break;
     }
-    const alphabet = correct === correct.toUpperCase() ? ALPHABET_UPPER : ALPHABET_LOWER;
-    while (options.length < 3) {
+    const preferLower = correctLetters.some(ch => /[a-z]/.test(ch));
+    const alphabet = preferLower ? ALPHABET_LOWER : ALPHABET_UPPER;
+    while (options.length < desiredCount) {
       const ch = alphabet[Math.floor(Math.random() * alphabet.length)];
       if (!options.includes(ch)) options.push(ch);
     }
@@ -730,10 +760,9 @@
       return;
     }
 
-    const slotTile = e.target.closest('#wordMask .drop-slot .letter-tile');
-    if (slotTile) {
-      const slotEl = slotTile.closest('.drop-slot');
-      if (slotEl) removeTileFromSlot(Number(slotEl.dataset.slotIndex));
+    const slotEl = e.target.closest('#wordMask .drop-slot[data-slot-index]');
+    if (slotEl) {
+      removeTileFromSlot(Number(slotEl.dataset.slotIndex));
     }
   }
 
