@@ -7,8 +7,8 @@
   <style>
     :root{
       --bg1:#d8efff;--bg2:#eef7ff;--panel:#ffffffee;--text:#1d2a3a;--sub:#5d6d83;--accent:#4b8bff;
-      --ok:#15a06b;--bad:#d84a4a;--road:#5b6570;--roadLine:#f6d85f;--gap:#dce7f4;--shadow:0 10px 24px rgba(19,40,72,.12);
-      --radius:18px;--route-h:60dvh;--panel-h:42dvh;
+      --ok:#15a06b;--bad:#d84a4a;--road:#5b6570;--roadLine:#f6d85f;--shadow:0 10px 24px rgba(19,40,72,.12);
+      --radius:18px;--route-h:56dvh;--panel-h:46dvh;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
     html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 45%,#f8fbff 100%);color:var(--text);}
@@ -21,54 +21,63 @@
       radial-gradient(circle at 84% 16%, rgba(255,255,255,.83) 0 24px, transparent 25px),
       linear-gradient(180deg,#bce6ff 0%, #edf8ff 58%, #f8fbff 100%);
     }
-    .ground{position:absolute;left:-12%;right:-12%;bottom:-96px;height:34%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);border-radius:50% 50% 0 0/100% 100% 0 0;}
-    .hud{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:28;display:flex;justify-content:space-between;gap:10px;}
+    .ground{position:absolute;left:-12%;right:-12%;bottom:-8px;height:66%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);border-radius:50% 50% 0 0/100% 100% 0 0;}
+    .hud{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:30;display:flex;justify-content:space-between;gap:10px;}
     .pill{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);box-shadow:var(--shadow);border-radius:999px;padding:10px 14px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
 
     .scene{position:absolute;left:0;right:0;top:0;height:var(--route-h);z-index:1;overflow:hidden;}
-    .scene svg{width:100%;height:100%;display:block;overflow:visible;}
+    .scene svg,.draw-layer svg{width:100%;height:100%;display:block;overflow:visible;}
+    .draw-layer{position:absolute;left:0;right:0;top:0;height:var(--route-h);z-index:18;pointer-events:none;overflow:hidden;touch-action:none;}
+    .draw-layer.active{pointer-events:auto;}
+    .draw-start{fill:rgba(75,139,255,.16);stroke:rgba(75,139,255,.55);stroke-width:2;}
+    .draw-pulse{fill:none;stroke:rgba(75,139,255,.28);stroke-width:3;stroke-dasharray:6 8;}
+    .draw-guide{fill:none;stroke:rgba(75,139,255,.16);stroke-width:22;stroke-linecap:round;}
+    .draw-arrow{fill:rgba(75,139,255,.78);}
 
-    .bridge-zone{position:absolute;left:0;right:0;top:0;height:var(--route-h);z-index:18;pointer-events:none;overflow:hidden;}
-    .bridge-zone.active{pointer-events:auto;}
-    .lane-target{position:absolute;transform:translateX(-50%);width:64px;height:136px;pointer-events:none;}
-    .lane-glow{position:absolute;inset:0;border-radius:30px;border:2px dashed rgba(75,139,255,.45);background:rgba(75,139,255,.06);}
-    .lane-name{position:absolute;top:-26px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap;background:rgba(255,255,255,.75);padding:2px 6px;border-radius:999px;}
-    .bridge-piece{position:absolute;width:56px;height:136px;border-radius:28px;background:var(--road);border:2px solid rgba(255,255,255,.45);box-shadow:0 6px 16px rgba(0,0,0,.18);touch-action:none;display:flex;justify-content:center;pointer-events:auto;transition:box-shadow .2s ease, transform .2s ease, left .25s ease, top .25s ease;}
-    .bridge-piece::before{content:"";position:absolute;top:12px;bottom:12px;left:50%;width:6px;transform:translateX(-50%);background:repeating-linear-gradient(180deg,var(--roadLine) 0 16px, transparent 16px 24px);border-radius:999px;opacity:.92;}
-    .bridge-piece.active{box-shadow:0 12px 24px rgba(75,139,255,.28);transform:scale(1.02);transition:left 0s, top 0s, box-shadow .2s ease, transform .2s ease;}
-    .bridge-piece.locked{pointer-events:none;}
-
-    .cars-layer{position:absolute;left:0;right:0;top:0;height:var(--route-h);z-index:26;pointer-events:none;overflow:hidden;}
-    .car{position:absolute;width:42px;height:74px;transform:translate(-50%,-50%) rotate(0deg);filter:drop-shadow(0 5px 6px rgba(0,0,0,.18));opacity:0;}
+    .cars-layer{position:absolute;left:0;right:0;top:0;height:var(--route-h);z-index:28;pointer-events:none;overflow:hidden;}
+    .car{position:absolute;width:118px;height:74px;transform:translate(-50%,-50%) rotate(0deg);filter:drop-shadow(0 9px 10px rgba(0,0,0,.18));opacity:0;}
     .car.visible{opacity:1;}
     .car svg{width:100%;height:100%;display:block;overflow:visible;}
+    .car.driving svg{animation:carBob .34s ease-in-out infinite alternate;}
+    .car.driving .wheel-group{transform-origin:center center;}
+    @keyframes carBob{from{transform:translateY(-1px);}to{transform:translateY(2px);}}
 
     .panel{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);height:var(--panel-h);background:var(--panel);backdrop-filter:blur(10px);border-radius:24px;padding:14px 14px 16px;box-shadow:var(--shadow);z-index:16;overflow-x:hidden;overflow-y:auto;display:flex;flex-direction:column;}
-    .panel::-webkit-scrollbar{width:6px;}
-    .panel::-webkit-scrollbar-thumb{background:#cddcf3;border-radius:999px;}
-    .panel::-webkit-scrollbar-track{background:transparent;}
-    .panel.repair-mode .feedback{display:none;}
+    .panel::-webkit-scrollbar{width:6px;}.panel::-webkit-scrollbar-thumb{background:#cddcf3;border-radius:999px;}.panel::-webkit-scrollbar-track{background:transparent;}
+    .panel.draw-mode .feedback{display:block;}
     .quiz-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px;flex:0 0 auto;}
     .title{font-size:18px;font-weight:800;}
     .subtitle{display:none;}
     .mini{font-size:13px;color:var(--sub);text-align:right;line-height:1;white-space:nowrap;flex:0 0 auto;align-self:center;min-width:max-content;}
     .quiz-card{display:flex;gap:12px;align-items:center;background:#f7fbff;border-radius:20px;padding:12px;margin-bottom:10px;border:1px solid #e1edfb;flex:0 0 auto;}
-    .pic{width:88px;height:88px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px #e9eef7;overflow:hidden;flex:0 0 auto;}
+    .pic{width:108px;height:108px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px #e9eef7;overflow:hidden;flex:0 0 auto;}
     .word-box{flex:1;min-width:0;}
     .word-cn{font-size:14px;color:var(--sub);margin-bottom:8px;}
     .word-mask{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;min-height:48px;}
     .mask-cell{min-width:24px;height:42px;display:inline-flex;align-items:flex-end;justify-content:center;font-size:30px;font-weight:900;line-height:1;border-bottom:4px solid #7ea6da;padding:0 2px 2px;}
     .mask-cell.empty{color:transparent;}
     .mask-cell.filled{color:var(--text);}
-    .options{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:10px;flex:0 0 auto;}
-    .option-btn{border:none;border-radius:16px;padding:13px 8px;font-size:17px;font-weight:800;background:#edf4ff;color:#1d3557;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .option-btn:active{transform:scale(.99);}
-    .option-btn.correct{background:#ddf7ec;color:#145c42;}
-    .option-btn.wrong{background:#ffe4e4;color:#8c1f1f;}
+    .mask-cell.current{border-bottom-color:#4b8bff;box-shadow:inset 0 -4px 0 rgba(75,139,255,.12);}
+    .mask-gap{display:inline-block;width:12px;height:38px;flex:0 0 12px;}
+    .mask-punc{display:inline-flex;align-items:flex-end;justify-content:center;min-width:auto;height:42px;padding:0 2px 3px;font-size:26px;font-weight:800;line-height:1;color:var(--text);}
+    .word-mask.long{gap:6px;}.word-mask.long .mask-cell{min-width:21px;height:38px;font-size:25px;border-bottom-width:3px;}.word-mask.long .mask-punc{height:38px;font-size:22px;}
+    .word-mask.xlong{gap:4px;}.word-mask.xlong .mask-cell{min-width:18px;height:34px;font-size:21px;border-bottom-width:3px;}.word-mask.xlong .mask-punc{height:34px;font-size:19px;}
+
+    .options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;flex:0 0 auto;}
+    .option-btn{border:none;border-radius:16px;padding:13px 8px;font-size:17px;font-weight:800;background:#edf4ff;color:#1d3557;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:transform .12s ease, background .2s ease, color .2s ease;}
+    .option-btn:active{transform:scale(.98);} .option-btn.correct{background:#ddf7ec;color:#145c42;} .option-btn.wrong{background:#ffe4e4;color:#8c1f1f;}
     .feedback{min-height:22px;margin-top:8px;font-size:14px;font-weight:700;flex:0 0 auto;}
     .feedback.ok{color:var(--ok);} .feedback.bad{color:var(--bad);}    
 
-    .overlay{position:absolute;inset:0;background:rgba(17,28,43,.42);z-index:30;display:flex;align-items:center;justify-content:center;padding:18px;}
+    .scramble-wrap{display:flex;flex-direction:column;gap:12px;flex:0 0 auto;margin-top:2px;}
+    .scramble-wrap.hidden{display:none;}
+    .scramble-bank{min-height:76px;background:#f4f8ff;border:1px solid #dce8f8;border-radius:18px;padding:10px;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;justify-content:center;}
+    .letter-tile{min-width:42px;height:44px;border-radius:14px;background:#edf4ff;color:#1d3557;display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;padding:0 12px;box-shadow:inset 0 0 0 1px #d7e5fa;cursor:pointer;user-select:none;}
+    .scramble-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .scramble-btn{border:none;border-radius:16px;padding:13px 10px;font-size:16px;font-weight:800;background:#4b8bff;color:#fff;}
+    .scramble-btn.secondary{background:#eef4ff;color:#1b3355;}
+
+    .overlay{position:absolute;inset:0;background:rgba(17,28,43,.42);z-index:40;display:flex;align-items:center;justify-content:center;padding:18px;}
     .overlay.hidden{display:none;}
     .dialog{background:#fff;width:100%;border-radius:24px;padding:22px 18px;box-shadow:var(--shadow);text-align:center;}
     .dialog h2{margin:0 0 10px;font-size:26px;}
@@ -77,42 +86,26 @@
     .btn.secondary{margin-top:10px;background:#eef4ff;color:#1b3355;}
     .small-note{font-size:12px;color:var(--sub);margin-top:10px;line-height:1.5;}
     .picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left;margin:14px 0 10px;}
-    .pick{background:#f7fbff;border:1px solid #dfeafb;border-radius:16px;padding:10px;}
-    .pick label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px;font-weight:700;}
+    .pick{background:#f7fbff;border:1px solid #dfeafb;border-radius:16px;padding:10px;}.pick label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px;font-weight:700;}
     .pick select{width:100%;border:none;background:#fff;border-radius:12px;padding:12px 10px;font-size:16px;box-shadow:inset 0 0 0 1px #d9e8fb;color:var(--text);}
     .unit-note{margin:0 0 12px;background:#f7fbff;border:1px solid #dfeafb;border-radius:14px;padding:10px 12px;font-size:13px;color:var(--sub);text-align:left;line-height:1.5;}
 
-    .hint-float{position:absolute;left:50%;top:58px;transform:translateX(-50%);z-index:20;background:rgba(255,255,255,.92);color:#18467f;border:1px solid rgba(75,139,255,.18);box-shadow:var(--shadow);padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;}
+    .hint-float{position:absolute;left:50%;top:58px;transform:translateX(-50%);z-index:20;background:rgba(255,255,255,.92);color:#18467f;border:1px solid rgba(75,139,255,.18);box-shadow:var(--shadow);padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;white-space:nowrap;}
     .hint-float.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
-    .panel.repair-mode .feedback{display:block;}
-    .pic-card{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;background:linear-gradient(180deg,#ffffff 0%,#eef6ff 100%);}
-    .pic-emoji{font-size:34px;line-height:1.05;margin-bottom:6px;}
-    .pic-label{font-size:11px;font-weight:800;color:#21456d;text-align:center;line-height:1.15;word-break:break-word;}
-    .pic-sub{font-size:10px;color:#6a7f97;text-align:center;line-height:1.15;margin-top:4px;word-break:break-word;}
-    .word-mask.long{gap:6px;}
-    .word-mask.long .mask-cell{min-width:21px;height:38px;font-size:25px;border-bottom-width:3px;}
-    .word-mask.xlong{gap:4px;}
-    .word-mask.xlong .mask-cell{min-width:18px;height:34px;font-size:21px;border-bottom-width:3px;}
-    .mask-cell.current{border-bottom-color:#4b8bff;box-shadow:inset 0 -4px 0 rgba(75,139,255,.12);}
-    .mask-gap{display:inline-block;width:12px;height:38px;flex:0 0 12px;}
-    .mask-punc{display:inline-flex;align-items:flex-end;justify-content:center;min-width:auto;height:42px;padding:0 2px 3px;font-size:26px;font-weight:800;line-height:1;color:var(--text);}
-    .word-mask.long .mask-punc{height:38px;font-size:22px;}
-    .word-mask.xlong .mask-punc{height:34px;font-size:19px;}
+    .car-speech{position:absolute;z-index:29;max-width:220px;background:rgba(255,255,255,.96);color:#21456d;border:2px solid rgba(75,139,255,.22);border-radius:20px;padding:10px 14px;font-size:13px;font-weight:800;line-height:1.35;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .22s ease, transform .22s ease;}
+    .car-speech.show{opacity:1;transform:translateY(0);}
+    .car-speech::after{content:"";position:absolute;left:18px;bottom:-10px;width:18px;height:18px;background:rgba(255,255,255,.96);border-right:2px solid rgba(75,139,255,.22);border-bottom:2px solid rgba(75,139,255,.22);transform:rotate(45deg);border-bottom-right-radius:4px;}
 
-    .scramble-wrap{display:flex;flex-direction:column;gap:12px;flex:0 0 auto;margin-top:2px;}
-    .scramble-wrap.hidden{display:none;}
-    .scramble-bank{min-height:76px;background:#f4f8ff;border:1px solid #dce8f8;border-radius:18px;padding:10px;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;justify-content:center;}
-    .scramble-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    .scramble-btn{border:none;border-radius:16px;padding:13px 10px;font-size:16px;font-weight:800;background:#4b8bff;color:#fff;}
-    .scramble-btn.secondary{background:#edf4ff;color:#1d3557;}
-    .letter-tile{min-width:44px;height:46px;padding:0 10px;border-radius:14px;background:#edf4ff;color:#1d3557;display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;box-shadow:0 3px 10px rgba(39,71,119,.08);touch-action:none;user-select:none;}
-    .letter-tile.placed{min-width:100%;height:100%;border-radius:12px;background:rgba(75,139,255,.12);box-shadow:none;}
-    .letter-tile.drag-source{opacity:.28;}
-    .drag-ghost{position:fixed;left:0;top:0;z-index:9999;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 8px 18px rgba(0,0,0,.18);}
-    .drop-slot{position:relative;cursor:pointer;}
-    .drop-slot.active-target{outline:2px dashed rgba(75,139,255,.5);outline-offset:4px;border-radius:12px;}
-    .drop-slot.has-tile{background:rgba(75,139,255,.08);border-bottom-color:#4b8bff;}
+    .pic-card{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;background:linear-gradient(180deg,#ffffff 0%,#eef6ff 100%);}
+    .pic-emoji{font-size:56px;line-height:1;}
 
+    @media (max-width:380px){
+      .car{width:110px;height:69px;}
+      .pic{width:96px;height:96px;}
+      .pic-emoji{font-size:50px;}
+      .option-btn{font-size:16px;padding:12px 6px;}
+      .letter-tile{min-width:38px;height:42px;font-size:22px;}
+    }
   </style>
 </head>
 <body>
@@ -126,25 +119,20 @@
   </div>
 
   <div class="scene" id="scene"></div>
-  <div class="hint-float" id="dragHint">答对了，拖动右侧竖直路段到想去的那条路上</div>
-
-  <div class="bridge-zone" id="bridgeZone">
-    <div class="lane-target" id="leftLane"><div class="lane-name">左路</div><div class="lane-glow"></div></div>
-    <div class="lane-target" id="centerLane"><div class="lane-name">中路</div><div class="lane-glow"></div></div>
-    <div class="lane-target" id="rightLane"><div class="lane-name">右路</div><div class="lane-glow"></div></div>
-    <div class="bridge-piece" id="bridgePiece"></div>
-  </div>
+  <div class="draw-layer" id="drawLayer"><svg id="drawSvg" viewBox="0 0 430 400" preserveAspectRatio="none"></svg></div>
+  <div class="hint-float" id="dragHint">答对了，请在上方任意位置手绘路线</div>
+  <div class="car-speech" id="carSpeech">Oh, no! Spell the word to fix the road!</div>
 
   <div class="cars-layer" id="carsLayer">
-    <div class="car visible" id="carA" style="--carBody:#ff6b6b;--carBody2:#ff9696;--carGlass:#dff4ff;--carLine:#c43d3d"></div>
-    <div class="car" id="carB" style="--carBody:#4f8bff;--carBody2:#79a8ff;--carGlass:#dff4ff;--carLine:#2f5fd6"></div>
+    <div class="car visible" id="carA"></div>
+    <div class="car" id="carB"></div>
   </div>
 
   <div class="panel" id="quizPanel">
     <div class="quiz-head">
       <div>
         <div class="title">根据中文和词性补全单词</div>
-        <div class="subtitle" id="instructionText">根据中文翻译和词性补全缺失字母，答对后才能拖动竖直路段。</div>
+        <div class="subtitle" id="instructionText"></div>
       </div>
       <div class="mini" id="statusMini">一级</div>
     </div>
@@ -169,7 +157,7 @@
   <div class="overlay" id="startOverlay">
     <div class="dialog">
       <h2>肖悦瞳的单词修路游戏</h2>
-      <p>先选 Module 和 Unit，再开始游戏。每个原 Unit 会按顺序尽量平均拆成 a / b / c 三部分。不同长度的单词会解锁不同关数：1 个字母的单词只有 1 关，2 个字母的单词有 2 关，3 个字母的单词有 3 关，4 个字母及以上的单词有 4 关。</p>
+      <p>先选 Module 和 Unit，再开始游戏。每个原 Unit 会按顺序尽量平均拆成 a / b / c 三部分。</p>
       <div class="picker-grid">
         <div class="pick">
           <label for="moduleSelect">Module</label>
@@ -182,7 +170,7 @@
       </div>
       <div class="unit-note" id="unitSummary">请选择一个单元。</div>
       <button class="btn" id="startBtn">开始游戏</button>
-      <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级从 3 个字母中选 1 个；二级从 4 个字母中依次选 2 个，选完第一个后下方选项不变；三级从 5 个字母中依次选 3 个，选完第一个后下方选项不变；第四关把全部字母打乱后列在下方，逐个点击字母填入上方横线，再点确认。答对后修路，选错会显示正确答案并跳到下一题。累计答错 3 次游戏结束。</div>
+      <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级从 3 个字母中选 1 个；二级从固定的 4 个字母中依次选 2 个；三级从固定的 4 个字母中依次选 3 个；第四关把全部字母打乱后列在下方，逐个点击字母填入上方横线，再点确认。答对后在上方手绘路线，小车会沿你画出的路线开出画面。累计答错 3 次游戏结束。</div>
     </div>
   </div>
 
@@ -196,18 +184,17 @@
   </div>
 </div>
 
-
 <script>
-
 (() => {
   const els = {
     app: document.getElementById('app'),
     scene: document.getElementById('scene'),
+    drawLayer: document.getElementById('drawLayer'),
+    drawSvg: document.getElementById('drawSvg'),
     stageInfo: document.getElementById('stageInfo'),
     lifeInfo: document.getElementById('lifeInfo'),
-    bridgeZone: document.getElementById('bridgeZone'),
-    bridgePiece: document.getElementById('bridgePiece'),
     dragHint: document.getElementById('dragHint'),
+    carSpeech: document.getElementById('carSpeech'),
     quizPanel: document.getElementById('quizPanel'),
     picBox: document.getElementById('picBox'),
     cnHint: document.getElementById('cnHint'),
@@ -229,41 +216,34 @@
     closeBtn: document.getElementById('closeBtn'),
     carA: document.getElementById('carA'),
     carB: document.getElementById('carB'),
-    leftLane: document.getElementById('leftLane'),
-    centerLane: document.getElementById('centerLane'),
-    rightLane: document.getElementById('rightLane'),
     moduleSelect: document.getElementById('moduleSelect'),
     unitSelect: document.getElementById('unitSelect'),
     unitSummary: document.getElementById('unitSummary')
   };
 
-  const ALPHABET_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const ALPHABET_LOWER = 'abcdefghijklmnopqrstuvwxyz';
   const RAW_UNIT_DATA = {"M1": {"U1": {"label": "M1U1", "name": "M1U1", "words": [{"word": "Aeroplane", "display": "Aeroplane", "zh": "飞机", "pos": "n."}, {"word": "Bus", "display": "Bus", "zh": "公共汽车", "pos": "n."}, {"word": "By", "display": "By", "zh": "在……旁边", "pos": "prep."}, {"word": "Car", "display": "Car", "zh": "小汽车", "pos": "n."}, {"word": "Chair", "display": "Chair", "zh": "椅子", "pos": "n."}, {"word": "Children", "display": "Children", "zh": "（复数）儿童；小孩", "pos": "n."}, {"word": "Else", "display": "Else", "zh": "其他的；别的", "pos": "adv."}, {"word": "Hear", "display": "Hear", "zh": "听见", "pos": "v."}, {"word": "Listen", "display": "Listen", "zh": "听", "pos": "v."}, {"word": "Ship", "display": "Ship", "zh": "（大）船；舰", "pos": "n."}, {"word": "Them", "display": "Them", "zh": "他们；它们", "pos": "pron."}, {"word": "Window", "display": "Window", "zh": "窗；窗户", "pos": "n."}]}, "U2": {"label": "M1U2", "name": "M1U2", "words": [{"word": "Bag", "display": "Bag", "zh": "包", "pos": "n."}, {"word": "Bread", "display": "Bread", "zh": "面包", "pos": "n."}, {"word": "Do", "display": "Do", "zh": "（助动词）", "pos": "aux. v."}, {"word": "Does", "display": "Does", "zh": "（助动词）", "pos": "aux. v."}, {"word": "Food", "display": "Food", "zh": "食物", "pos": "n."}, {"word": "Glass", "display": "Glass", "zh": "玻璃杯", "pos": "n."}, {"word": "Hard", "display": "Hard", "zh": "硬的", "pos": "adj."}, {"word": "How", "display": "How", "zh": "怎样；如何；多么", "pos": "adv."}, {"word": "Hungry", "display": "Hungry", "zh": "饿的", "pos": "adj."}, {"word": "(the) Moon", "display": "(the) Moon", "zh": "月球；月亮", "pos": "n."}, {"word": "On", "display": "On", "zh": "在……上", "pos": "prep."}, {"word": "Pie", "display": "Pie", "zh": "果馅饼", "pos": "n."}, {"word": "Pineapple", "display": "Pineapple", "zh": "菠萝", "pos": "n."}, {"word": "Rough", "display": "Rough", "zh": "粗糙的", "pos": "adj."}, {"word": "Smooth", "display": "Smooth", "zh": "平滑的", "pos": "adj."}, {"word": "Soft", "display": "Soft", "zh": "柔软的", "pos": "adj."}, {"word": "Touch", "display": "Touch", "zh": "触摸；碰", "pos": "v."}, {"word": "Yuan", "display": "Yuan", "zh": "（人民币）元", "pos": "n."}]}, "U3": {"label": "M1U3", "name": "M1U3", "words": [{"word": "Bitter", "display": "Bitter", "zh": "苦的", "pos": "adj."}, {"word": "Coffee", "display": "Coffee", "zh": "咖啡", "pos": "n."}, {"word": "Fruit", "display": "Fruit", "zh": "水果", "pos": "n."}, {"word": "Help", "display": "Help", "zh": "帮助", "pos": "v."}, {"word": "Lemon", "display": "Lemon", "zh": "柠檬", "pos": "n."}, {"word": "Salt", "display": "Salt", "zh": "盐", "pos": "n."}, {"word": "Salty", "display": "Salty", "zh": "咸的", "pos": "adj."}, {"word": "Smell", "display": "Smell", "zh": "闻；有……气味", "pos": "v."}, {"word": "Sour", "display": "Sour", "zh": "酸的", "pos": "adj."}, {"word": "Sweet", "display": "Sweet", "zh": "糖果", "pos": "n."}, {"word": "Sweet", "display": "Sweet", "zh": "甜的", "pos": "adj."}, {"word": "Taste", "display": "Taste", "zh": "尝；有……味道", "pos": "v."}, {"word": "Whale", "display": "Whale", "zh": "鲸鱼", "pos": "n."}]}}, "M2": {"U1": {"label": "M2U1", "name": "M2U1", "words": [{"word": "Angry", "display": "Angry", "zh": "生气的", "pos": "adj."}, {"word": "Clever", "display": "Clever", "zh": "聪明的", "pos": "adj."}, {"word": "Clock", "display": "Clock", "zh": "钟", "pos": "n."}, {"word": "Cute", "display": "Cute", "zh": "可爱的", "pos": "adj."}, {"word": "Elephant", "display": "Elephant", "zh": "大象", "pos": "n."}, {"word": "Finally", "display": "Finally", "zh": "最后；终于", "pos": "adv."}, {"word": "Has", "display": "Has", "zh": "有；拥有（第三人称单数）", "pos": "v."}, {"word": "Hat", "display": "Hat", "zh": "帽子", "pos": "n."}, {"word": "Here", "display": "Here", "zh": "这里；在这里", "pos": "adv."}, {"word": "Into", "display": "Into", "zh": "到……里面", "pos": "prep."}, {"word": "Jump", "display": "Jump", "zh": "跳", "pos": "v."}, {"word": "Lion", "display": "Lion", "zh": "狮子", "pos": "n."}, {"word": "Monkey", "display": "Monkey", "zh": "猴子", "pos": "n."}, {"word": "Panda", "display": "Panda", "zh": "熊猫", "pos": "n."}, {"word": "Rock", "display": "Rock", "zh": "岩石", "pos": "n."}, {"word": "So", "display": "So", "zh": "那么；如此", "pos": "adv."}, {"word": "Strong", "display": "Strong", "zh": "强壮的", "pos": "adj."}, {"word": "Summer", "display": "Summer", "zh": "夏天", "pos": "n."}, {"word": "Take", "display": "Take", "zh": "拿；获得", "pos": "v."}, {"word": "Take a rest", "display": "Take a rest", "zh": "休息", "pos": ""}, {"word": "Tiger", "display": "Tiger", "zh": "老虎", "pos": "n."}, {"word": "Tree", "display": "Tree", "zh": "树", "pos": "n."}, {"word": "Uncle", "display": "Uncle", "zh": "叔，舅", "pos": "n."}]}, "U2": {"label": "M2U2", "name": "M2U2", "words": [{"word": "Doll", "display": "Doll", "zh": "玩具娃娃", "pos": "n."}, {"word": "Fun", "display": "Fun", "zh": "乐趣", "pos": "n."}, {"word": "Lovely", "display": "Lovely", "zh": "可爱的", "pos": "adj."}, {"word": "Play", "display": "Play", "zh": "玩", "pos": "v."}, {"word": "Robot", "display": "Robot", "zh": "机器人", "pos": "n."}, {"word": "Skateboard", "display": "Skateboard", "zh": "滑板", "pos": "n."}, {"word": "Super", "display": "Super", "zh": "超级的", "pos": "adj."}, {"word": "Together", "display": "Together", "zh": "一起", "pos": "adv."}, {"word": "Train", "display": "Train", "zh": "火车", "pos": "n."}, {"word": "Walk", "display": "Walk", "zh": "行走", "pos": "v."}, {"word": "Wall", "display": "Wall", "zh": "墙", "pos": "n."}]}, "U3": {"label": "M2U3", "name": "M2U3", "words": [{"word": "Clothes", "display": "Clothes", "zh": "衣服", "pos": "n."}, {"word": "English", "display": "English", "zh": "英语", "pos": "n."}, {"word": "Glass", "display": "Glass", "zh": "玻璃", "pos": "n."}, {"word": "Glove", "display": "Glove", "zh": "手套", "pos": "n."}, {"word": "Great", "display": "Great", "zh": "好极的", "pos": "adj."}, {"word": "His", "display": "His", "zh": "他的", "pos": "pron."}, {"word": "Horse", "display": "Horse", "zh": "马", "pos": "n."}, {"word": "Jacket", "display": "Jacket", "zh": "夹克衫", "pos": "n."}, {"word": "Make", "display": "Make", "zh": "做", "pos": "v."}, {"word": "Pair", "display": "Pair", "zh": "一双；一对", "pos": "n."}, {"word": "A pair of", "display": "A pair of", "zh": "一双；一对", "pos": ""}, {"word": "Scarf", "display": "Scarf", "zh": "围巾", "pos": "n."}, {"word": "Sock", "display": "Sock", "zh": "短袜", "pos": "n."}, {"word": "These", "display": "These", "zh": "这些", "pos": "pron."}, {"word": "Those", "display": "Those", "zh": "那些", "pos": "pron."}, {"word": "Trousers", "display": "Trousers", "zh": "裤子", "pos": "n."}, {"word": "Word", "display": "Word", "zh": "单词", "pos": "n."}, {"word": "Zebra", "display": "Zebra", "zh": "斑马", "pos": "n."}]}}, "M3": {"U1": {"label": "M3U1", "name": "M3U1", "words": [{"word": "Circle", "display": "Circle", "zh": "圆形", "pos": "n."}, {"word": "Home", "display": "Home", "zh": "到家；在家", "pos": "adv."}, {"word": "House", "display": "House", "zh": "房子", "pos": "n."}, {"word": "Rectangle", "display": "Rectangle", "zh": "长方形；矩形", "pos": "n."}, {"word": "Shape", "display": "Shape", "zh": "形状", "pos": "n."}, {"word": "Square", "display": "Square", "zh": "正方形", "pos": "n."}, {"word": "Star", "display": "Star", "zh": "（五角）星形", "pos": "n."}, {"word": "Take off", "display": "Take off", "zh": "脱下（衣服）", "pos": ""}, {"word": "Triangle", "display": "Triangle", "zh": "三角形", "pos": "n."}, {"word": "Turn off", "display": "Turn off", "zh": "关掉（开关等）", "pos": ""}]}, "U2": {"label": "M3U2", "name": "M3U2", "words": [{"word": "Autumn", "display": "Autumn", "zh": "秋天", "pos": "n."}, {"word": "Busy", "display": "Busy", "zh": "忙碌的", "pos": "adj."}, {"word": "Cold", "display": "Cold", "zh": "冷的", "pos": "adj."}, {"word": "Grass", "display": "Grass", "zh": "草", "pos": "n."}, {"word": "Grasshopper", "display": "Grasshopper", "zh": "蚱蜢", "pos": "n."}, {"word": "Home", "display": "Home", "zh": "家", "pos": "n."}, {"word": "Mountain", "display": "Mountain", "zh": "山", "pos": "n."}, {"word": "Outside", "display": "Outside", "zh": "在外面", "pos": "adv."}, {"word": "River", "display": "River", "zh": "河流", "pos": "n."}, {"word": "Sea", "display": "Sea", "zh": "海", "pos": "n."}, {"word": "Sky", "display": "Sky", "zh": "天空", "pos": "n."}, {"word": "Sleep", "display": "Sleep", "zh": "睡觉", "pos": "v."}, {"word": "Snow", "display": "Snow", "zh": "雪", "pos": "n."}, {"word": "Spring", "display": "Spring", "zh": "春天", "pos": "n."}, {"word": "Winter", "display": "Winter", "zh": "冬天", "pos": "n."}]}, "U3": {"label": "M3U3", "name": "M3U3", "words": [{"word": "Beach", "display": "Beach", "zh": "海滩", "pos": "n."}, {"word": "Ice-skate", "display": "Ice-skate", "zh": "滑冰", "pos": "v."}, {"word": "Park", "display": "Park", "zh": "公园", "pos": "n."}, {"word": "Picnic", "display": "Picnic", "zh": "野餐", "pos": "n."}, {"word": "Plant", "display": "Plant", "zh": "种植", "pos": "v."}, {"word": "Sandcastle", "display": "Sandcastle", "zh": "沙堡", "pos": "n."}, {"word": "Season", "display": "Season", "zh": "季节", "pos": "n."}, {"word": "Ski", "display": "Ski", "zh": "滑雪", "pos": "v."}, {"word": "Slowly", "display": "Slowly", "zh": "缓慢地", "pos": "adv."}]}}, "M4": {"U1": {"label": "M4U1", "name": "M4U1", "words": [{"word": "Arm", "display": "Arm", "zh": "手臂", "pos": "n."}, {"word": "Body", "display": "Body", "zh": "身体；躯干", "pos": "n."}, {"word": "Easy", "display": "Easy", "zh": "简单的；容易的", "pos": "adj."}, {"word": "Finger", "display": "Finger", "zh": "手指", "pos": "n."}, {"word": "Foot (feet)", "display": "Foot (feet)", "zh": "脚", "pos": "n."}, {"word": "Funny", "display": "Funny", "zh": "有趣的；滑稽的", "pos": "adj."}, {"word": "Head", "display": "Head", "zh": "头", "pos": "n."}, {"word": "Knee", "display": "Knee", "zh": "膝盖", "pos": "n."}, {"word": "Leg", "display": "Leg", "zh": "腿", "pos": "n."}, {"word": "Myself", "display": "Myself", "zh": "我自己", "pos": "pron."}, {"word": "Shoulder", "display": "Shoulder", "zh": "肩膀", "pos": "n."}, {"word": "Yourself", "display": "Yourself", "zh": "你自己", "pos": "pron."}]}, "U2": {"label": "M4U2", "name": "M4U2", "words": [{"word": "Children’s Day", "display": "Children’s Day", "zh": "儿童节", "pos": ""}, {"word": "China", "display": "China", "zh": "中国", "pos": ""}, {"word": "Cinema", "display": "Cinema", "zh": "电影院", "pos": "n."}, {"word": "Fifth", "display": "Fifth", "zh": "第五", "pos": "num."}, {"word": "First", "display": "First", "zh": "第一", "pos": "num."}, {"word": "For", "display": "For", "zh": "给；对；为", "pos": "prep."}, {"word": "January", "display": "January", "zh": "一月", "pos": "n."}, {"word": "Japan", "display": "Japan", "zh": "日本", "pos": ""}, {"word": "July", "display": "July", "zh": "七月", "pos": "n."}, {"word": "June", "display": "June", "zh": "六月", "pos": "n."}, {"word": "March", "display": "March", "zh": "三月", "pos": "n."}, {"word": "May", "display": "May", "zh": "五月", "pos": "n."}, {"word": "Middle", "display": "Middle", "zh": "中间；中部", "pos": "n."}, {"word": "October", "display": "October", "zh": "十月", "pos": "n."}, {"word": "Parent", "display": "Parent", "zh": "父亲（或母亲）", "pos": "n."}, {"word": "Photograph", "display": "Photograph", "zh": "照片", "pos": "n."}, {"word": "Saturday", "display": "Saturday", "zh": "星期六", "pos": "n."}, {"word": "Second", "display": "Second", "zh": "第二", "pos": "num."}, {"word": "Singapore", "display": "Singapore", "zh": "新加坡", "pos": ""}, {"word": "Song", "display": "Song", "zh": "歌曲", "pos": "n."}, {"word": "Take a photograph", "display": "Take a photograph", "zh": "拍照", "pos": ""}, {"word": "Thailand", "display": "Thailand", "zh": "泰国", "pos": ""}, {"word": "Third", "display": "Third", "zh": "第三", "pos": "num."}, {"word": "(the) UK", "display": "(the) UK", "zh": "英国", "pos": ""}, {"word": "With", "display": "With", "zh": "和……一起", "pos": "prep."}, {"word": "Zoo", "display": "Zoo", "zh": "动物园", "pos": "n."}]}, "U3": {"label": "M4U3", "name": "M4U3", "words": [{"word": "Afraid", "display": "Afraid", "zh": "害怕的", "pos": "adj."}, {"word": "Bad", "display": "Bad", "zh": "坏的", "pos": "adj."}, {"word": "Boil", "display": "Boil", "zh": "煮沸", "pos": "v."}, {"word": "Go away", "display": "Go away", "zh": "离开", "pos": ""}, {"word": "Go fishing", "display": "Go fishing", "zh": "去钓鱼", "pos": ""}, {"word": "Over there", "display": "Over there", "zh": "在那里", "pos": ""}, {"word": "Own", "display": "Own", "zh": "自己的", "pos": "adj."}, {"word": "Stop", "display": "Stop", "zh": "停止", "pos": "v."}, {"word": "Story", "display": "Story", "zh": "故事", "pos": "n."}, {"word": "Time", "display": "Time", "zh": "时间", "pos": "n."}, {"word": "Water", "display": "Water", "zh": "水", "pos": "n."}, {"word": "Wolf", "display": "Wolf", "zh": "狼", "pos": "n."}]}}};
   const UNIT_DATA = splitUnitData(RAW_UNIT_DATA);
+  const ALPHABET_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const ALPHABET_LOWER = 'abcdefghijklmnopqrstuvwxyz';
+  const CAR_STYLES = [
+    {body:'#ff8ea8', body2:'#ffc0cf', line:'#dd6a86', glass:'#dff4ff', deco:'#fff0f4', variant:'bean'},
+    {body:'#7fb6ff', body2:'#b8d6ff', line:'#558ddd', glass:'#e3f6ff', deco:'#f7fbff', variant:'puff'},
+    {body:'#ffd56b', body2:'#ffe89b', line:'#d9a847', glass:'#effbff', deco:'#fff8d8', variant:'van'},
+    {body:'#97df9a', body2:'#c4f0c6', line:'#6bb771', glass:'#e8fbff', deco:'#f7fff5', variant:'bean'},
+    {body:'#bca0ff', body2:'#dccfff', line:'#8d75d8', glass:'#ebf1ff', deco:'#faf7ff', variant:'puff'}
+  ];
 
-  els.carA.innerHTML = carSvg();
-  els.carB.innerHTML = carSvg();
-  document.title = '肖悦瞳的单词修路游戏';
+  const CAR_ROAD_OFFSET = 14;
 
   const geometry = {
-    roadWidth: 56,
-    gapHeight: 136,
     routeH: 0,
     W: 430,
-    slots: {},
     startPos: {x:0,y:0},
-    hiddenPos: {x:0,y:0},
-    fork: {x:0,y:0},
-    lowerGap: {},
-    upperGap: {},
-    exits: {},
-    controls: {},
-    bridgeHome: {xCenter:0, top:0}
+    forkPos: {x:0,y:0},
+    hiddenPos: {x:0,y:0}
   };
 
   let state = {};
-  let dragCtx = null;
 
   function splitUnitData(raw) {
     const result = {};
@@ -274,9 +254,9 @@
         const total = words.length;
         const base = Math.floor(total / 3);
         const remainder = total % 3;
-        const sizes = [0, 1, 2].map(i => base + (i < remainder ? 1 : 0));
+        const sizes = [0,1,2].map(i => base + (i < remainder ? 1 : 0));
         let cursor = 0;
-        ['a', 'b', 'c'].forEach((suffix, idx) => {
+        ['a','b','c'].forEach((suffix, idx) => {
           const count = sizes[idx];
           const chunk = words.slice(cursor, cursor + count);
           cursor += count;
@@ -292,112 +272,190 @@
   }
 
   function initState() {
-    const firstModule = Object.keys(UNIT_DATA)[0];
+    const modules = Object.keys(UNIT_DATA);
+    const firstModule = modules[0];
     const firstUnit = Object.keys(UNIT_DATA[firstModule])[0];
     state = {
-      stage: 0, wrong: 0, solved: false, draggingEnabled: false, answeredThisStep: false, currentQuestion: null,
-      questionOrder: [], activeCarKey: 'A', isAnimating: false, raf: null, selectedLane: null,
-      selectedModule: firstModule, selectedUnit: firstUnit
+      stage: 0,
+      wrong: 0,
+      questionOrder: [],
+      currentQuestion: null,
+      selectedModule: firstModule,
+      selectedUnit: firstUnit,
+      activeCarKey: 'A',
+      isAnimating: false,
+      raf: null,
+      drawMode: false,
+      isDrawing: false,
+      drawPoints: [],
+      flashTimer: null,
+      speechTimer: null,
+      stepLocked: false
     };
+    populateSelectors();
     computeLayout();
+    applyRandomCarStyle(els.carA);
+    applyRandomCarStyle(els.carB);
+    setDriving(els.carA, false);
+    setDriving(els.carB, false);
     placeCar(els.carA, geometry.startPos.x, geometry.startPos.y, 0, true);
     placeCar(els.carB, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
-    resetBridge(); updateHUD();
+    updateHUD();
+    clearDrawPath();
+    els.feedback.textContent = '';
+    els.feedback.className = 'feedback';
     els.endOverlay.classList.add('hidden');
-    els.quizPanel.classList.remove('repair-mode');
-    els.feedback.textContent = ''; els.feedback.className = 'feedback'; els.dragHint.classList.remove('show');
-    populateSelectors();
   }
 
   function computeLayout() {
     const appRect = els.app.getBoundingClientRect();
     const panelRect = els.quizPanel.getBoundingClientRect();
     const W = els.app.clientWidth || 430;
-    const H = els.app.clientHeight || 932;
-    const routeH = Math.max(300, Math.floor(panelRect.top - appRect.top - 14));
+    const routeH = Math.max(280, Math.floor(panelRect.top - appRect.top - 14));
     els.app.style.setProperty('--route-h', `${routeH}px`);
-
-    const centerX = W / 2;
-    const spread = Math.min(119, W * 0.277);
-    const forkY = Math.min(Math.round(H * 0.33), routeH - 170);
-    const upperY = Math.max(50, forkY - 226);
-    const lowerY = upperY + geometry.gapHeight;
-    const exitY = -210;
-    const mainBottomY = routeH + 120;
-
-    geometry.W = W; geometry.routeH = routeH; geometry.fork = { x:centerX, y:forkY };
-    geometry.startPos = { x:centerX, y:routeH - 56 };
-    geometry.hiddenPos = { x:centerX, y:routeH + 92 };
-    geometry.slots = {
-      left: { x:centerX - spread, y:upperY },
-      center: { x:centerX, y:upperY },
-      right: { x:centerX + spread, y:upperY }
-    };
-    geometry.upperGap = JSON.parse(JSON.stringify(geometry.slots));
-    geometry.lowerGap = {
-      left: { x:centerX - spread, y:lowerY },
-      center: { x:centerX, y:lowerY },
-      right: { x:centerX + spread, y:lowerY }
-    };
-    geometry.exits = {
-      left: { x:centerX - spread - Math.min(68, W * 0.16), y:exitY },
-      center: { x:centerX, y:exitY },
-      right: { x:centerX + spread + Math.min(68, W * 0.16), y:exitY }
-    };
-    geometry.controls = {
-      leftLower: { x:centerX - spread * 0.38, y:forkY - 36 },
-      rightLower: { x:centerX + spread * 0.38, y:forkY - 36 },
-      leftUpper: { x:centerX - spread, y:upperY - 92 },
-      rightUpper: { x:centerX + spread, y:upperY - 92 }, mainBottomY, exitY
-    };
-    geometry.bridgeHome = { xCenter: W - 6 - geometry.roadWidth / 2, top: Math.round(routeH / 2 - geometry.gapHeight / 2) };
-
-    renderScene(); positionBridgeLayers();
+    geometry.W = W;
+    geometry.routeH = routeH;
+    const startY = Math.max(126, routeH - 28);
+    const startX = 59;
+    geometry.startPos = { x: startX, y: startY };
+    geometry.hiddenPos = { x: -118, y: startY };
+    geometry.forkPos = { x: Math.min(W - 78, startX + 56), y: startY };
+    renderScene();
+    renderDrawPath();
+    positionSpeechBubble();
   }
 
   function renderScene() {
-    const w = geometry.W, rw = geometry.roadWidth, dash = 6, f = geometry.fork, lg = geometry.lowerGap, ug = geometry.upperGap, ex = geometry.exits, c = geometry.controls;
-    const svg = `
-      <svg viewBox="0 0 ${w} ${geometry.routeH}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs><filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.18"/></filter></defs>
-        <g filter="url(#shadow)">
-          ${roadLine(`M ${f.x} ${c.mainBottomY} L ${f.x} ${f.y}`, rw, dash)}
-          ${roadCurve(`M ${f.x} ${f.y} Q ${c.leftLower.x} ${c.leftLower.y} ${lg.left.x} ${lg.left.y}`, rw, dash)}
-          ${roadLine(`M ${lg.left.x} ${lg.left.y} L ${ug.left.x} ${ug.left.y}`, rw, dash)}
-          ${roadCurve(`M ${ug.left.x} ${ug.left.y} Q ${c.leftUpper.x} ${c.leftUpper.y} ${ex.left.x} ${ex.left.y}`, rw, dash)}
-          ${roadLine(`M ${f.x} ${f.y} L ${lg.center.x} ${lg.center.y}`, rw, dash)}
-          ${roadLine(`M ${lg.center.x} ${lg.center.y} L ${ug.center.x} ${ug.center.y}`, rw, dash)}
-          ${roadLine(`M ${ug.center.x} ${ug.center.y} L ${ex.center.x} ${ex.center.y}`, rw, dash)}
-          ${roadCurve(`M ${f.x} ${f.y} Q ${c.rightLower.x} ${c.rightLower.y} ${lg.right.x} ${lg.right.y}`, rw, dash)}
-          ${roadLine(`M ${lg.right.x} ${lg.right.y} L ${ug.right.x} ${ug.right.y}`, rw, dash)}
-          ${roadCurve(`M ${ug.right.x} ${ug.right.y} Q ${c.rightUpper.x} ${c.rightUpper.y} ${ex.right.x} ${ex.right.y}`, rw, dash)}
+    const w = geometry.W;
+    const routeH = geometry.routeH;
+    const sx = geometry.startPos.x;
+    const sy = geometry.startPos.y;
+    const fx = geometry.forkPos.x;
+    const fy = geometry.forkPos.y;
+    const roadW = 62;
+    const centerW = 6;
+    const roadStartX = -8;
+    const guideEndX = Math.min(w - 48, fx + 52);
+    els.scene.innerHTML = `
+      <svg viewBox="0 0 ${w} ${routeH}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <filter id="roadShadow"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity="0.15"/></filter>
+          <filter id="forkGlow"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#72a6ff" flood-opacity=".38"/></filter>
+        </defs>
+        <g filter="url(#roadShadow)">
+          <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#59646f" stroke-width="${roadW}" stroke-linecap="round" fill="none"/>
+          <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#f6d85f" stroke-width="${centerW}" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+          <ellipse cx="${sx - 8}" cy="${sy}" rx="58" ry="21" fill="rgba(89,100,111,.18)"/>
         </g>
-        ${gapRect(ug.left.x, ug.left.y, rw, geometry.gapHeight)}
-        ${gapRect(ug.center.x, ug.center.y, rw, geometry.gapHeight)}
-        ${gapRect(ug.right.x, ug.right.y, rw, geometry.gapHeight)}
+        <path d="M ${fx} ${fy} Q ${fx+18} ${fy-18} ${guideEndX} ${fy-48}" class="draw-guide"/>
+        <g filter="url(#forkGlow)">
+          <circle cx="${fx}" cy="${fy}" r="18" fill="rgba(75,139,255,.10)"/>
+          <circle cx="${fx}" cy="${fy}" r="9" fill="rgba(75,139,255,.28)"/>
+          <path d="M ${fx+32} ${fy-32} L ${fx+52} ${fy-48} L ${fx+48} ${fy-30} Z" class="draw-arrow"/>
+        </g>
       </svg>`;
-    els.scene.innerHTML = svg;
+    els.drawSvg.setAttribute('viewBox', `0 0 ${w} ${routeH}`);
   }
 
-  function roadLine(d, rw, dash) { return `<path d="${d}" stroke="#59646f" stroke-width="${rw}" stroke-linecap="round" fill="none"/><path d="${d}" stroke="#f6d85f" stroke-width="${dash}" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>`; }
-  function roadCurve(d, rw, dash) { return roadLine(d, rw, dash); }
-  function gapRect(cx, top, width, height) { return `<rect x="${cx-width/2}" y="${top}" width="${width}" height="${height}" rx="${width/2}" fill="#dce7f4"/>`; }
-  function positionBridgeLayers() {
-    positionLaneTarget(els.leftLane, geometry.slots.left.x, geometry.slots.left.y);
-    positionLaneTarget(els.centerLane, geometry.slots.center.x, geometry.slots.center.y);
-    positionLaneTarget(els.rightLane, geometry.slots.right.x, geometry.slots.right.y);
-    if (state.selectedLane) { const s = geometry.slots[state.selectedLane]; setBridgePosition(s.x, s.y); }
-    else { setBridgePosition(geometry.bridgeHome.xCenter, geometry.bridgeHome.top); }
+  function renderDrawPath() {
+    const pts = state.drawPoints || [];
+    const poly = pts.map(p => `${p.x},${p.y}`).join(' ');
+    const fork = geometry.forkPos;
+    els.drawSvg.innerHTML = `
+      <polyline points="${poly}" fill="none" stroke="rgba(62,86,120,.12)" stroke-width="74" stroke-linecap="round" stroke-linejoin="round"></polyline>
+      <polyline points="${poly}" fill="none" stroke="#59646f" stroke-width="62" stroke-linecap="round" stroke-linejoin="round"></polyline>
+      <polyline points="${poly}" fill="none" stroke="#f6d85f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="18 18"></polyline>
+      ${state.drawMode ? `<circle class="draw-start" cx="${fork.x}" cy="${fork.y}" r="18"></circle><circle class="draw-pulse" cx="${fork.x}" cy="${fork.y}" r="26"></circle>` : ''}
+    `;
   }
-  function positionLaneTarget(el, x, y) { el.style.left = `${x}px`; el.style.top = `${y}px`; }
+
+  function clearDrawPath() {
+    state.drawPoints = [];
+    state.drawMode = false;
+    state.isDrawing = false;
+    els.drawLayer.classList.remove('active');
+    els.dragHint.classList.remove('show');
+    renderDrawPath();
+  }
+
   function getActiveCar() { return state.activeCarKey === 'A' ? els.carA : els.carB; }
   function getNextCar() { return state.activeCarKey === 'A' ? els.carB : els.carA; }
-  function placeCar(el, x, y, angle, visible = true) { el.style.left = `${x}px`; el.style.top = `${y}px`; el.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`; el.classList.toggle('visible', visible); }
-  function setBridgePosition(xCenter, top) { els.bridgePiece.style.left = `${xCenter - geometry.roadWidth / 2}px`; els.bridgePiece.style.top = `${top}px`; }
+  function placeCar(el, x, y, angle, visible = true) {
+    el.style.left = `${x}px`;
+    el.style.top = `${y - CAR_ROAD_OFFSET}px`;
+    el.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`;
+    el.classList.toggle('visible', visible);
+  }
+  function applyRandomCarStyle(el) {
+    const style = CAR_STYLES[Math.floor(Math.random() * CAR_STYLES.length)];
+    el.innerHTML = carSvg(style);
+  }
 
-  function resetBridge() {
-    state.selectedLane = null; els.bridgeZone.classList.remove('active'); els.quizPanel.classList.remove('repair-mode');
-    els.bridgePiece.classList.remove('active', 'locked'); setBridgePosition(geometry.bridgeHome.xCenter, geometry.bridgeHome.top);
+  function setDriving(el, driving) {
+    el.classList.toggle('driving', !!driving);
+  }
+
+  function positionSpeechBubble() {
+    if (!els.carSpeech) return;
+    els.carSpeech.style.left = `${geometry.startPos.x + 14}px`;
+    els.carSpeech.style.top = `${Math.max(52, geometry.startPos.y - 106)}px`;
+  }
+
+  function hideSpeechBubble() {
+    clearTimeout(state.speechTimer);
+    if (!els.carSpeech) return;
+    els.carSpeech.classList.remove('show');
+  }
+
+  function showSpeechBubble() {
+    if (!els.carSpeech) return;
+    clearTimeout(state.speechTimer);
+    positionSpeechBubble();
+    els.carSpeech.textContent = 'Oh, no! Spell the word to fix the road!';
+    els.carSpeech.classList.add('show');
+    state.speechTimer = setTimeout(() => {
+      els.carSpeech.classList.remove('show');
+    }, 3000);
+  }
+
+  function carSvg(style) {
+    const gradId = `bodyGrad-${Math.random().toString(36).slice(2,8)}`;
+    const roofId = `roofGrad-${Math.random().toString(36).slice(2,8)}`;
+    const deco = style.variant === 'van'
+      ? `<rect x="78" y="18" width="30" height="10" rx="5" fill="${style.deco}" opacity=".92"/><rect x="84" y="60" width="20" height="8" rx="4" fill="${style.deco}" opacity=".84"/>`
+      : style.variant === 'puff'
+      ? `<circle cx="62" cy="18" r="6" fill="${style.deco}" opacity=".94"/><circle cx="92" cy="18" r="6" fill="${style.deco}" opacity=".94"/><rect x="84" y="61" width="18" height="8" rx="4" fill="${style.deco}" opacity=".82"/>`
+      : `<path d="M66 18 C74 10,94 10,102 18 L96 28 C88 23,80 23,72 28 Z" fill="${style.deco}" opacity=".95"/><rect x="84" y="61" width="18" height="8" rx="4" fill="${style.deco}" opacity=".8"/>`;
+    const wheel = (cx,cy)=>`<g class="wheel-group" transform="translate(${cx} ${cy})"><circle r="16" fill="#222b38"/><circle r="7" fill="#dde5ef"/><line x1="0" y1="-7" x2="0" y2="7" stroke="#a9b7c7" stroke-width="2" stroke-linecap="round"/><line x1="-7" y1="0" x2="7" y2="0" stroke="#a9b7c7" stroke-width="2" stroke-linecap="round"/></g>`;
+    return `
+      <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="${style.body2}"/>
+            <stop offset="1" stop-color="${style.body}"/>
+          </linearGradient>
+          <linearGradient id="${roofId}" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="${style.body2}"/>
+            <stop offset="1" stop-color="${style.body}"/>
+          </linearGradient>
+        </defs>
+        <g>
+          <ellipse cx="98" cy="97" rx="70" ry="9" fill="rgba(0,0,0,.12)"/>
+          ${wheel(62,84)}
+          ${wheel(140,84)}
+          <path d="M36 70 C36 45, 48 30, 76 30 L118 30 C138 30, 152 36, 164 48 L176 60 C181 65, 182 75, 176 78 C168 82, 62 84, 42 80 C38 79, 36 75, 36 70 Z" fill="url(#${gradId})" stroke="${style.line}" stroke-width="4"/>
+          <path d="M76 30 C86 18, 110 16, 132 24 C144 28, 152 35, 158 47 L98 47 C94 47, 91 46, 88 43 L76 30 Z" fill="url(#${roofId})" stroke="${style.line}" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M89 35 C98 27, 114 27, 129 31 C137 33, 144 37, 149 44 L102 44 C97 44, 94 43, 90 40 Z" fill="${style.glass}" opacity=".95"/>
+          <rect x="50" y="48" width="34" height="22" rx="11" fill="${style.glass}" opacity=".9"/>
+          <rect x="86" y="49" width="28" height="21" rx="10" fill="${style.glass}" opacity=".88"/>
+          ${deco}
+          <circle cx="174" cy="65" r="7" fill="#fff2a8"/>
+          <circle cx="178" cy="64" r="3" fill="#fff7cf"/>
+          <circle cx="42" cy="65" r="6" fill="#ff7087" opacity=".88"/>
+          <circle cx="56" cy="65" r="6" fill="#ff7087" opacity=".88"/>
+          <path d="M116 67 Q 126 74 136 67" fill="none" stroke="${style.deco}" stroke-width="3" stroke-linecap="round" opacity=".95"/>
+        </g>
+      </svg>`;
   }
 
   function populateSelectors() {
@@ -408,32 +466,46 @@
     state.selectedModule = currentM;
     populateUnitSelect();
   }
+
   function populateUnitSelect() {
     const moduleKey = els.moduleSelect.value;
-    const m = UNIT_DATA[moduleKey] || {};
-    const units = Object.keys(m);
-    const target = units.includes(state.selectedUnit) ? state.selectedUnit : units[0];
-    els.unitSelect.innerHTML = units.map(k => `<option value="${k}">${m[k].label || `${moduleKey}${k}`}</option>`).join('');
-    els.unitSelect.value = target || '';
+    const units = Object.keys(UNIT_DATA[moduleKey] || {});
+    const currentU = units.includes(state.selectedUnit) ? state.selectedUnit : units[0];
+    els.unitSelect.innerHTML = units.map(k => `<option value="${k}">${UNIT_DATA[moduleKey][k].label}</option>`).join('');
+    if (currentU) els.unitSelect.value = currentU;
     state.selectedModule = moduleKey;
-    state.selectedUnit = target || '';
+    state.selectedUnit = currentU;
     updateUnitSummary();
   }
-  function updateUnitSummary() {
-    const unit = getSelectedUnitData(); const count = unit.words.length;
-    const totalQuestions = countQuestionsForUnit(unit);
-    els.unitSummary.textContent = `${unit.label}：当前有 ${count} 个单词，将生成 ${totalQuestions} 题。每个原 Unit 已按顺序尽量平均拆成 a / b / c 三部分。1 字母词只有 1 关，2 字母词有 2 关，3 字母词有 3 关，4 字母及以上的词有 4 关。`;
+
+  function getSelectedUnitData() {
+    return UNIT_DATA[state.selectedModule][state.selectedUnit];
   }
-  function getSelectedUnitData() { return UNIT_DATA[state.selectedModule][state.selectedUnit]; }
-  function countQuestionsForUnit(unit) {
+
+  function getUnitQuestionCount(unit) {
     return unit.words.reduce((sum, raw) => {
       const display = String((raw && (raw.display || raw.word)) || '').replace(/\s+/g, ' ').trim();
       const len = display.replace(/[^A-Za-z]/g, '').length;
       return sum + Math.min(4, Math.max(0, len));
     }, 0);
   }
+
+  function updateUnitSummary() {
+    const unit = getSelectedUnitData();
+    const count = unit.words.length;
+    const qCount = getUnitQuestionCount(unit);
+    const words = unit.words
+      .map(w => String((w && (w.display || w.word)) || '').replace(/\s+/g, ' ').trim())
+      .filter(Boolean);
+    const wordHtml = words.length
+      ? `<div style="margin-top:8px;color:var(--text);font-weight:700;line-height:1.55;word-break:break-word;">${words.map(escapeHtml).join(' / ')}</div>`
+      : '';
+    els.unitSummary.innerHTML = `${unit.label}：当前有 ${count} 个词条，将生成 ${qCount} 题。每个词条会根据字母长度解锁 1~4 关。${wordHtml}`;
+  }
+
   function buildQuestionsForSelection() {
-    const unit = getSelectedUnitData(); const stages = [];
+    const unit = getSelectedUnitData();
+    const stages = [];
     unit.words.forEach(raw => {
       const entry = normalizeWordEntry(raw);
       if (!entry.word) return;
@@ -442,6 +514,7 @@
     });
     return stages;
   }
+
   function normalizeWordEntry(entry) {
     const display = String(entry.display || entry.word || '').replace(/\s+/g, ' ').trim();
     const word = display.replace(/[^A-Za-z]/g, '');
@@ -461,7 +534,7 @@
         return id;
       }));
       return {
-        difficulty: level, levelName, type: 'drag', word: entry.word, display: entry.display, zh: entry.zh, pos: entry.pos, image: entry.image,
+        difficulty: level, levelName, type: 'scramble', word: entry.word, display: entry.display, zh: entry.zh, pos: entry.pos, image: entry.image,
         blankPositions: Array.from({ length: letters.length }, (_, i) => i),
         blankDisplayPositions: displayLetterPositions.slice(),
         filledLetters: {}, currentStep: 0,
@@ -469,22 +542,499 @@
       };
     }
     const blankCount = Math.min(level, entry.word.length);
-    const blankPositions = chooseBlankPositions(entry.word.length, blankCount, level);
+    const blankPositions = chooseBlankPositions(entry.word.length, blankCount);
     const blankDisplayPositions = blankPositions.map(i => displayLetterPositions[i]);
+    const optionLetters = buildChoiceOptionSet(entry.word, blankPositions, level);
     return {
       difficulty: level, levelName, type: 'choice', word: entry.word, display: entry.display, zh: entry.zh, pos: entry.pos, image: entry.image,
-      blankPositions, blankDisplayPositions, filledLetters: {}, currentStep: 0
+      blankPositions, blankDisplayPositions, filledLetters: {}, currentStep: 0, optionLetters
     };
   }
-  function chooseBlankPositions(len, blankCount, level) {
+
+  function chooseBlankPositions(len, blankCount) {
     if (blankCount >= len) return Array.from({ length: len }, (_, i) => i);
     if (blankCount === 1) return [Math.min(len - 2, Math.max(1, Math.floor(len / 2)))];
     if (blankCount === 2) return len <= 4 ? [0, len - 1] : [1, len - 2];
     const pos = new Set([0, Math.floor((len - 1) / 2), len - 1]);
-    while (pos.size > blankCount) pos.delete([...pos][1]);
-    while (pos.size < blankCount) pos.add(pos.size);
-    return [...pos].sort((a, b) => a - b);
+    return [...pos].sort((a, b) => a - b).slice(0, blankCount);
   }
+
+  function buildChoiceOptionSet(word, blankPositions, level) {
+    const desiredCount = level === 1 ? 3 : 4;
+    const correctLetters = blankPositions.map(i => word[i]);
+    const options = [];
+    correctLetters.forEach(ch => { if (!options.includes(ch)) options.push(ch); });
+    const wordPool = shuffle(word.split('').filter(ch => !options.includes(ch)));
+    for (const ch of wordPool) {
+      if (!options.includes(ch)) options.push(ch);
+      if (options.length >= desiredCount) break;
+    }
+    const preferLower = /[a-z]/.test(word);
+    const alphabet = preferLower ? ALPHABET_LOWER : ALPHABET_UPPER;
+    while (options.length < desiredCount) {
+      const ch = alphabet[Math.floor(Math.random() * alphabet.length)];
+      if (!options.includes(ch)) options.push(ch);
+    }
+    return shuffle(options);
+  }
+
+  function loadStage() {
+    if (state.wrong >= 3) return endGame(false);
+    if (state.stage >= state.questionOrder.length) return endGame(true);
+    clearTimeout(state.flashTimer);
+    hideSpeechBubble();
+    state.isAnimating = false;
+    state.stepLocked = false;
+    clearDrawPath();
+    const q = structuredClone(state.questionOrder[state.stage]);
+    q.filledLetters = {};
+    q.currentStep = 0;
+    state.currentQuestion = q;
+    state.stepLocked = false;
+    els.picBox.innerHTML = q.image;
+    els.cnHint.textContent = `${q.zh || '中文释义'}${q.pos ? ` · ${q.pos}` : ''}`;
+    els.feedback.textContent = '';
+    els.feedback.className = 'feedback';
+    refreshQuestionText();
+    renderQuestion();
+    const active = getActiveCar();
+    const next = getNextCar();
+    placeCar(active, geometry.startPos.x, geometry.startPos.y, 0, true);
+    applyRandomCarStyle(next);
+    setDriving(active, true);
+    setDriving(next, false);
+    placeCar(next, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
+    showSpeechBubble();
+    updateHUD();
+  }
+
+  function refreshQuestionText() {
+    const q = state.currentQuestion;
+    if (!q) return;
+    if (q.type === 'scramble') {
+      els.statusMini.textContent = `${q.levelName} · 点击拼词`;
+      return;
+    }
+    const totalBlanks = q.blankPositions.length;
+    const currentNo = Math.min(q.currentStep + 1, totalBlanks);
+    els.statusMini.textContent = `${q.levelName} · ${currentNo}/${totalBlanks}`;
+  }
+
+  function renderQuestion() {
+    const q = state.currentQuestion;
+    renderMask(q);
+    if (q.type === 'scramble') {
+      els.options.style.display = 'none';
+      els.scrambleWrap.classList.remove('hidden');
+      renderScrambleBank();
+      return;
+    }
+    els.scrambleWrap.classList.add('hidden');
+    els.options.style.display = 'grid';
+    els.options.style.gridTemplateColumns = `repeat(${q.optionLetters.length}, minmax(0, 1fr))`;
+    els.options.innerHTML = '';
+    q.optionLetters.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => checkChoiceAnswer(opt, btn));
+      els.options.appendChild(btn);
+    });
+  }
+
+  function renderMask(q, revealAll = false) {
+    const blankMap = new Map(q.blankDisplayPositions.map((pos, idx) => [pos, idx]));
+    const chars = q.display.split('');
+    els.wordMask.className = 'word-mask' + (q.word.length > 10 ? ' long' : '') + (q.word.length > 14 ? ' xlong' : '');
+    els.wordMask.innerHTML = chars.map((ch, idx) => {
+      if (!/[A-Za-z]/.test(ch)) {
+        if (/\s/.test(ch)) return '<span class="mask-gap"></span>';
+        return `<span class="mask-punc">${escapeHtml(ch)}</span>`;
+      }
+      const blankIdx = blankMap.get(idx);
+      if (blankIdx === undefined) return `<span class="mask-cell filled">${escapeHtml(ch)}</span>`;
+      if (revealAll) return `<span class="mask-cell filled">${escapeHtml(ch)}</span>`;
+      if (q.type === 'scramble') {
+        const tileId = q.dragState.slots[blankIdx];
+        if (tileId) return `<span class="mask-cell filled drop-slot" data-slot-index="${blankIdx}">${escapeHtml(q.dragState.tiles[tileId].letter)}</span>`;
+        return `<span class="mask-cell empty drop-slot" data-slot-index="${blankIdx}">&nbsp;</span>`;
+      }
+      if (q.filledLetters[blankIdx]) return `<span class="mask-cell filled">${escapeHtml(ch)}</span>`;
+      const currentClass = blankIdx === q.currentStep ? ' current' : '';
+      return `<span class="mask-cell empty${currentClass}">&nbsp;</span>`;
+    }).join('');
+  }
+
+  function checkChoiceAnswer(opt, btn) {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'choice' || state.isAnimating || state.drawMode || state.stepLocked) return;
+    const correct = q.word[q.blankPositions[q.currentStep]];
+    clearChoiceButtonStates();
+    state.stepLocked = true;
+    if (opt === correct) {
+      btn.classList.add('correct');
+      q.filledLetters[q.currentStep] = correct;
+      renderMask(q);
+      const doneCount = Object.keys(q.filledLetters).length;
+      const totalBlanks = q.blankPositions.length;
+      if (doneCount < totalBlanks) {
+        els.feedback.textContent = '答对了，继续补下一个字母。';
+        els.feedback.className = 'feedback ok';
+        state.flashTimer = setTimeout(() => {
+          q.currentStep += 1;
+          refreshQuestionText();
+          clearChoiceButtonStates();
+          renderMask(q);
+          state.stepLocked = false;
+        }, 280);
+      } else {
+        els.feedback.textContent = `答对了！完整单词：${q.display}`;
+        els.feedback.className = 'feedback ok';
+        state.stepLocked = false;
+        enterDrawMode();
+      }
+    } else {
+      btn.classList.add('wrong');
+      const correctBtn = [...els.options.querySelectorAll('.option-btn')].find(b => b.textContent === correct);
+      if (correctBtn) correctBtn.classList.add('correct');
+      renderMask(q, true);
+      handleWrongAnswer(q.display);
+    }
+  }
+
+  function clearChoiceButtonStates() {
+    els.options.querySelectorAll('.option-btn').forEach(b => b.classList.remove('correct', 'wrong'));
+  }
+
+  function renderScrambleBank() {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'scramble' || state.stepLocked) return;
+    els.scrambleBank.innerHTML = q.dragState.bank.map(tileId => `<span class="letter-tile" data-tile-id="${tileId}">${escapeHtml(q.dragState.tiles[tileId].letter)}</span>`).join('');
+  }
+
+  function resetScramble() {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'scramble' || state.isAnimating || state.drawMode || state.stepLocked) return;
+    q.dragState.bank = q.dragState.initialBank.slice();
+    q.dragState.slots = Array(q.word.length).fill(null);
+    renderMask(q); renderScrambleBank();
+    els.feedback.textContent = '已重置，请重新点击字母。';
+    els.feedback.className = 'feedback';
+  }
+
+  function confirmScramble() {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'scramble' || state.isAnimating || state.drawMode || state.stepLocked) return;
+    if (q.dragState.slots.some(v => !v)) {
+      els.feedback.textContent = '请先把所有字母都点到横线上。';
+      els.feedback.className = 'feedback bad';
+      return;
+    }
+    const attempt = q.dragState.slots.map(id => q.dragState.tiles[id].letter).join('');
+    if (attempt === q.word) {
+      els.feedback.textContent = `答对了！完整单词：${q.display}`;
+      els.feedback.className = 'feedback ok';
+      enterDrawMode();
+    } else {
+      renderMask(q, true);
+      handleWrongAnswer(q.display);
+    }
+  }
+
+  function placeTileToNextSlot(tileId) {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'scramble' || state.stepLocked) return;
+    const nextEmpty = q.dragState.slots.findIndex(v => !v);
+    if (nextEmpty === -1) {
+      els.feedback.textContent = '横线已经填满了，点上方字母可取下后再调整。';
+      els.feedback.className = 'feedback bad';
+      return;
+    }
+    q.dragState.bank = q.dragState.bank.filter(id => id !== tileId);
+    q.dragState.slots[nextEmpty] = tileId;
+    renderMask(q); renderScrambleBank();
+    els.feedback.textContent = '';
+    els.feedback.className = 'feedback';
+  }
+
+  function removeTileFromSlot(slotIndex) {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'scramble') return;
+    const tileId = q.dragState.slots[slotIndex];
+    if (!tileId) return;
+    q.dragState.slots[slotIndex] = null;
+    q.dragState.bank.push(tileId);
+    q.dragState.bank.sort((a, b) => q.dragState.initialBank.indexOf(a) - q.dragState.initialBank.indexOf(b));
+    renderMask(q); renderScrambleBank();
+    els.feedback.textContent = '已取下字母，请继续点击选择。';
+    els.feedback.className = 'feedback';
+  }
+
+  function handleScrambleClick(e) {
+    const q = state.currentQuestion;
+    if (!q || q.type !== 'scramble' || state.isAnimating || state.drawMode || state.stepLocked) return;
+    const bankTile = e.target.closest('#scrambleBank .letter-tile');
+    if (bankTile) return placeTileToNextSlot(bankTile.dataset.tileId);
+    const slotEl = e.target.closest('#wordMask .drop-slot[data-slot-index]');
+    if (slotEl) return removeTileFromSlot(Number(slotEl.dataset.slotIndex));
+  }
+
+  function enterDrawMode() {
+    state.drawMode = true;
+    state.drawPoints = [ {...geometry.forkPos} ];
+    els.quizPanel.classList.add('draw-mode');
+    els.drawLayer.classList.add('active');
+    els.dragHint.textContent = '答对了，请在上方任意位置手绘路线';
+    els.dragHint.classList.add('show');
+    els.statusMini.textContent = `${state.currentQuestion.levelName} · 手绘路线`;
+    renderDrawPath();
+  }
+
+  function getPoint(evt) {
+    const p = evt.touches ? evt.touches[0] : evt;
+    const rect = els.drawLayer.getBoundingClientRect();
+    const x = Math.max(16, Math.min(rect.width - 16, p.clientX - rect.left));
+    const y = Math.max(8, Math.min(rect.height - 8, p.clientY - rect.top));
+    return { x, y };
+  }
+
+  function startDrawing(evt) {
+    if (!state.drawMode || state.isAnimating) return;
+    const p = getPoint(evt);
+    state.isDrawing = true;
+    if (Math.hypot(p.x - geometry.forkPos.x, p.y - geometry.forkPos.y) <= 6) {
+      state.drawPoints = [{ ...geometry.forkPos }, { ...geometry.forkPos }];
+    } else {
+      state.drawPoints = [{ ...geometry.forkPos }, p];
+    }
+    renderDrawPath();
+    evt.preventDefault();
+  }
+
+  function moveDrawing(evt) {
+    if (!state.drawMode || !state.isDrawing || state.isAnimating) return;
+    const p = getPoint(evt);
+    const last = state.drawPoints[state.drawPoints.length - 1];
+    if (Math.hypot(p.x - last.x, p.y - last.y) < 5) return;
+    state.drawPoints.push(p);
+    renderDrawPath();
+    evt.preventDefault();
+  }
+
+  function endDrawing() {
+    if (!state.drawMode || !state.isDrawing || state.isAnimating) return;
+    state.isDrawing = false;
+    const simplified = simplifyPoints(state.drawPoints);
+    if (pathLength(simplified) < 120) {
+      state.drawPoints = [{...geometry.forkPos}];
+      renderDrawPath();
+      els.feedback.textContent = '路线太短了，请从上方区域多画一点。';
+      els.feedback.className = 'feedback bad';
+      return;
+    }
+    const smoothed = smoothPath(simplified, 2);
+    state.drawPoints = extendPathOffscreen(smoothed);
+    renderDrawPath();
+    els.feedback.textContent = '路线完成，小车出发！';
+    els.feedback.className = 'feedback ok';
+    state.drawMode = false;
+    els.drawLayer.classList.remove('active');
+    els.dragHint.classList.remove('show');
+    animateDriveAlongDrawnPath();
+  }
+
+  function simplifyPoints(points) {
+    const out = [points[0]];
+    for (let i = 1; i < points.length; i += 1) {
+      const p = points[i];
+      const last = out[out.length - 1];
+      if (Math.hypot(p.x - last.x, p.y - last.y) >= 6) out.push(p);
+    }
+    return out;
+  }
+
+  function smoothPath(points, iterations = 2) {
+    let pts = points.slice();
+    for (let iter = 0; iter < iterations; iter += 1) {
+      if (pts.length < 3) break;
+      const next = [pts[0]];
+      for (let i = 0; i < pts.length - 1; i += 1) {
+        const p0 = pts[i];
+        const p1 = pts[i + 1];
+        next.push({ x: p0.x * 0.75 + p1.x * 0.25, y: p0.y * 0.75 + p1.y * 0.25 });
+        next.push({ x: p0.x * 0.25 + p1.x * 0.75, y: p0.y * 0.25 + p1.y * 0.75 });
+      }
+      next.push(pts[pts.length - 1]);
+      pts = next;
+    }
+    const cleaned = [pts[0]];
+    for (let i = 1; i < pts.length; i += 1) {
+      const p = pts[i];
+      const last = cleaned[cleaned.length - 1];
+      if (Math.hypot(p.x - last.x, p.y - last.y) >= 3) cleaned.push(p);
+    }
+    return cleaned;
+  }
+
+  function pathLength(points) {
+    let len = 0;
+    for (let i = 1; i < points.length; i += 1) len += Math.hypot(points[i].x - points[i-1].x, points[i].y - points[i-1].y);
+    return len;
+  }
+
+  function extendPathOffscreen(points) {
+    const out = points.slice();
+    let last = out[out.length - 1];
+    let prev = out[out.length - 2] || geometry.forkPos;
+    let dx = last.x - prev.x;
+    let dy = last.y - prev.y;
+    if (Math.abs(dx) + Math.abs(dy) < 0.01) { dx = 0; dy = -1; }
+    if (dy >= -0.2) dy = -Math.max(0.8, Math.abs(dy));
+    const mag = Math.hypot(dx, dy) || 1;
+    dx /= mag; dy /= mag;
+    const candidates = [];
+    const margin = 80;
+    if (dy < 0) candidates.push((0 - margin - last.y) / dy);
+    if (dx < 0) candidates.push((0 - margin - last.x) / dx);
+    if (dx > 0) candidates.push((geometry.W + margin - last.x) / dx);
+    let t = Math.min(...candidates.filter(v => v > 0));
+    if (!Number.isFinite(t)) t = 220;
+    out.push({ x: last.x + dx * t, y: last.y + dy * t });
+    return out;
+  }
+
+  function buildTravelPoints() {
+    const draw = state.drawPoints.length ? state.drawPoints.slice() : [{...geometry.forkPos}];
+    const pts = [{...geometry.startPos}, {...geometry.forkPos}, ...draw.slice(1)];
+    return pts;
+  }
+
+  function animateDriveAlongDrawnPath() {
+    state.isAnimating = true;
+    const active = getActiveCar();
+    const next = getNextCar();
+    applyRandomCarStyle(next);
+    setDriving(active, true);
+    setDriving(next, false);
+    placeCar(next, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
+    const pts = buildTravelPoints();
+    const segs = [];
+    let totalDist = 0;
+    for (let i = 1; i < pts.length; i += 1) {
+      const d = Math.hypot(pts[i].x - pts[i-1].x, pts[i].y - pts[i-1].y);
+      segs.push({ p0: pts[i-1], p1: pts[i], dist: d });
+      totalDist += d;
+    }
+    const total = Math.max(2200, totalDist * 6.5);
+    const nextStart = total * 0.52;
+    const nextDuration = 900;
+    const start = performance.now();
+    cancelAnimationFrame(state.raf);
+    function tick(now) {
+      const t = Math.min(1, (now - start) / total);
+      const traveled = totalDist * easeInOut(t);
+      const pose = samplePolyline(segs, traveled);
+      placeCar(active, pose.x, pose.y, pose.angle, true);
+      const t2 = Math.max(0, Math.min(1, (now - start - nextStart) / nextDuration));
+      if (t2 > 0) {
+        const x = geometry.hiddenPos.x + (geometry.startPos.x - geometry.hiddenPos.x) * easeOutCubic(t2);
+        placeCar(next, x, geometry.startPos.y, 0, true);
+      }
+      if (t < 1) state.raf = requestAnimationFrame(tick);
+      else {
+        setDriving(active, false);
+        setDriving(next, false);
+        placeCar(active, pts[pts.length - 1].x, pts[pts.length - 1].y, pose.angle, false);
+        placeCar(next, geometry.startPos.x, geometry.startPos.y, 0, true);
+        state.activeCarKey = state.activeCarKey === 'A' ? 'B' : 'A';
+        state.stage += 1;
+        clearDrawPath();
+        loadStage();
+      }
+    }
+    state.raf = requestAnimationFrame(tick);
+  }
+
+  function samplePolyline(segs, traveled) {
+    let acc = 0;
+    for (const seg of segs) {
+      if (traveled <= acc + seg.dist || seg === segs[segs.length - 1]) {
+        const local = seg.dist === 0 ? 1 : Math.max(0, Math.min(1, (traveled - acc) / seg.dist));
+        const x = lerp(seg.p0.x, seg.p1.x, local);
+        const y = lerp(seg.p0.y, seg.p1.y, local);
+        const angle = Math.atan2(seg.p1.y - seg.p0.y, seg.p1.x - seg.p0.x) * 180 / Math.PI;
+        return { x, y, angle };
+      }
+      acc += seg.dist;
+    }
+    return { x: segs[segs.length - 1].p1.x, y: segs[segs.length - 1].p1.y, angle: 0 };
+  }
+
+  function handleWrongAnswer(answerText) {
+    state.stepLocked = true;
+    const q = state.currentQuestion;
+    state.wrong += 1;
+    updateHUD();
+    els.feedback.textContent = `答错了，正确答案是：${answerText}`;
+    els.feedback.className = 'feedback bad';
+    els.statusMini.textContent = `${q.levelName} · 已跳过`;
+    clearDrawPath();
+    if (state.wrong >= 3) setTimeout(() => endGame(false), 1200);
+    else setTimeout(() => { state.stage += 1; loadStage(); }, 1200);
+  }
+
+  function updateHUD() {
+    const total = Math.max(1, state.questionOrder.length || 1);
+    const current = Math.min(state.stage + 1, total);
+    els.stageInfo.textContent = `第 ${current} / ${total} 题`;
+    els.lifeInfo.textContent = `答错 ${state.wrong} / 3`;
+  }
+
+  function startGame() {
+    cancelAnimationFrame(state.raf);
+    state.selectedModule = els.moduleSelect.value;
+    state.selectedUnit = els.unitSelect.value;
+    state.questionOrder = buildQuestionsForSelection();
+    state.stage = 0;
+    state.wrong = 0;
+    state.currentQuestion = null;
+    state.activeCarKey = 'A';
+    state.isAnimating = false;
+    state.stepLocked = false;
+    clearDrawPath();
+    hideSpeechBubble();
+    applyRandomCarStyle(els.carA);
+    applyRandomCarStyle(els.carB);
+    setDriving(els.carA, false);
+    setDriving(els.carB, false);
+    placeCar(els.carA, geometry.startPos.x, geometry.startPos.y, 0, true);
+    placeCar(els.carB, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
+    els.endOverlay.classList.add('hidden');
+    els.startOverlay.classList.add('hidden');
+    loadStage();
+  }
+
+  function endGame(success) {
+    state.isAnimating = false;
+    cancelAnimationFrame(state.raf);
+    clearDrawPath();
+    hideSpeechBubble();
+    els.endOverlay.classList.remove('hidden');
+    if (success) {
+      els.endTitle.textContent = '闯关成功';
+      els.endDesc.textContent = `太棒了！你完成了 ${state.questionOrder.length} 题，累计答错 ${state.wrong} 次。`;
+    } else {
+      els.endTitle.textContent = '游戏结束';
+      els.endDesc.textContent = '累计答错 3 次，小车没法继续前进了。可以重新开始。';
+    }
+  }
+
+  function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  function easeInOut(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function escapeHtml(str) { return String(str).replace(/[&<>\"]/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[ch]); }
+
   function buildPictureCard(entry) {
     const emoji = guessEmoji(entry);
     return `<div class="pic-card pure-pic" aria-hidden="true"><div class="pic-emoji">${emoji}</div></div>`;
@@ -516,313 +1066,6 @@
     if (/sour/.test(key)) return '🍋'; if (/bitter/.test(key)) return '☕'; if (/hungry/.test(key)) return '🍽️'; return '🖼️';
   }
 
-  function updateHUD() {
-    const total = Math.max(1, state.questionOrder.length || 1);
-    const current = Math.min(state.stage + 1, total);
-    els.stageInfo.textContent = `第 ${current} / ${total} 题`;
-    els.lifeInfo.textContent = `答错 ${state.wrong} / 3`;
-  }
-
-  function loadStage() {
-    if (state.wrong >= 3) return endGame(false);
-    if (state.stage >= state.questionOrder.length) return endGame(true);
-    state.solved = false; state.draggingEnabled = false; state.answeredThisStep = false; state.isAnimating = false; resetBridge();
-    const q = structuredClone(state.questionOrder[state.stage]);
-    if (q.type === 'choice') { q.filledLetters = {}; q.currentStep = 0; }
-    if (q.type === 'drag') { q.currentStep = 0; }
-    state.currentQuestion = q;
-    els.picBox.innerHTML = q.image;
-    els.cnHint.textContent = `${q.zh || '中文释义'}${q.pos ? ` · ${q.pos}` : ''}`;
-    els.feedback.textContent = '';
-    els.feedback.className = 'feedback';
-    els.dragHint.classList.remove('show');
-    refreshQuestionText();
-    renderQuestion();
-    placeCar(getActiveCar(), geometry.startPos.x, geometry.startPos.y, 0, true);
-    placeCar(getNextCar(), geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
-    updateHUD();
-  }
-
-  function refreshQuestionText() {
-    const q = state.currentQuestion;
-    if (q.type === 'drag') {
-      els.statusMini.textContent = `${q.levelName} · 点击拼词`; 
-      els.instructionText.textContent = '';
-      return;
-    }
-    const totalBlanks = q.blankPositions.length;
-    const currentNo = Math.min(q.currentStep + 1, totalBlanks);
-    if (totalBlanks === 1) {
-      els.statusMini.textContent = `${q.levelName} · 1字母`;
-      els.instructionText.textContent = '';
-    } else {
-      els.statusMini.textContent = `${q.levelName} · ${currentNo}/${totalBlanks}字母`; // 选项区保持不变
-      els.instructionText.textContent = '';
-    }
-  }
-
-  function renderQuestion() {
-    const q = state.currentQuestion;
-    renderMask(q);
-    if (q.type === 'drag') {
-      els.options.style.display = 'none';
-      els.scrambleWrap.classList.remove('hidden');
-      renderScrambleBank();
-      return;
-    }
-    els.scrambleWrap.classList.add('hidden');
-    els.options.style.display = 'grid';
-    const options = q.optionLetters || buildChoiceOptionSet(q.word, q.blankPositions, q.difficulty);
-    els.options.innerHTML = '';
-    options.forEach(opt => {
-      const btn = document.createElement('button');
-      btn.className = 'option-btn';
-      btn.textContent = opt;
-      btn.addEventListener('click', () => checkAnswer(opt, btn));
-      els.options.appendChild(btn);
-    });
-  }
-
-  function renderMask(q, revealAll = false) {
-    const blankMap = new Map(q.blankDisplayPositions.map((pos, idx) => [pos, idx]));
-    const chars = q.display.split('');
-    els.wordMask.className = 'word-mask' + (q.word.length > 10 ? ' long' : '') + (q.word.length > 14 ? ' xlong' : '');
-    els.wordMask.innerHTML = chars.map((ch, idx) => {
-      if (!/[A-Za-z]/.test(ch)) {
-        if (/\s/.test(ch)) return '<span class="mask-gap"></span>';
-        return `<span class="mask-punc">${escapeHtml(ch)}</span>`;
-      }
-      const blankIdx = blankMap.get(idx);
-      if (blankIdx === undefined) return `<span class="mask-cell filled">${escapeHtml(ch)}</span>`;
-      if (revealAll) return `<span class="mask-cell filled">${escapeHtml(ch)}</span>`;
-      if (q.type === 'drag') {
-        const tileId = q.dragState.slots[blankIdx];
-        if (tileId) {
-          const letter = q.dragState.tiles[tileId].letter;
-          return `<span class="mask-cell filled drop-slot has-tile" data-slot-index="${blankIdx}">${escapeHtml(letter)}</span>`;
-        }
-        return `<span class="mask-cell empty drop-slot" data-slot-index="${blankIdx}">&nbsp;</span>`;
-      }
-      if (q.filledLetters[blankIdx]) return `<span class="mask-cell filled">${escapeHtml(ch)}</span>`;
-      const currentClass = blankIdx === q.currentStep ? ' current' : '';
-      return `<span class="mask-cell empty${currentClass}">&nbsp;</span>`;
-    }).join('');
-  }
-
-  function renderScrambleBank() {
-    const q = state.currentQuestion;
-    if (!q || q.type !== 'drag') return;
-    els.scrambleBank.innerHTML = q.dragState.bank.map(tileId => {
-      const tile = q.dragState.tiles[tileId];
-      return `<span class="letter-tile" data-tile-id="${tile.id}">${escapeHtml(tile.letter)}</span>`;
-    }).join('');
-  }
-
-  function buildChoiceOptionSet(word, blankPositions, level) {
-    const desiredCount = level === 1 ? 3 : level === 2 ? 4 : 5;
-    const correctLetters = blankPositions.map(i => word[i]);
-    const options = [];
-    correctLetters.forEach(ch => {
-      if (!options.includes(ch)) options.push(ch);
-    });
-    const wordPool = shuffle(word.split('').filter(ch => !options.includes(ch)));
-    for (const ch of wordPool) {
-      if (!options.includes(ch)) options.push(ch);
-      if (options.length >= desiredCount) break;
-    }
-    const preferLower = correctLetters.some(ch => /[a-z]/.test(ch));
-    const alphabet = preferLower ? ALPHABET_LOWER : ALPHABET_UPPER;
-    while (options.length < desiredCount) {
-      const ch = alphabet[Math.floor(Math.random() * alphabet.length)];
-      if (!options.includes(ch)) options.push(ch);
-    }
-    return shuffle(options);
-  }
-
-  function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-
-  function checkAnswer(opt, btn) {
-    if (state.answeredThisStep || state.draggingEnabled || state.isAnimating) return;
-    state.answeredThisStep = true;
-    const q = state.currentQuestion;
-    const buttons = [...els.options.querySelectorAll('.option-btn')];
-    buttons.forEach(b => b.disabled = true);
-    const correct = q.word[q.blankPositions[q.currentStep]];
-    if (opt === correct) {
-      btn.classList.add('correct'); q.filledLetters[q.currentStep] = correct; renderMask(q);
-      const doneCount = Object.keys(q.filledLetters).length; const totalBlanks = q.blankPositions.length;
-      if (doneCount < totalBlanks) {
-        els.feedback.textContent = '答对了，继续补下一个字母。'; els.feedback.className = 'feedback ok';
-        setTimeout(() => { q.currentStep += 1; state.answeredThisStep = false; refreshQuestionText(); renderQuestion(); }, 420);
-      } else {
-        enterRepairMode();
-      }
-    } else {
-      btn.classList.add('wrong'); const correctBtn = buttons.find(b => b.textContent === correct); if (correctBtn) correctBtn.classList.add('correct');
-      renderMask(q, true); handleWrongAnswer(q.display);
-    }
-  }
-
-  function enterRepairMode() {
-    state.solved = true; state.draggingEnabled = true;
-    els.feedback.textContent = `答对了！完整单词：${state.currentQuestion.display}`;
-    els.feedback.className = 'feedback ok';
-    els.statusMini.textContent = `${state.currentQuestion.levelName} · 可修路`;
-    els.instructionText.textContent = '';
-    els.quizPanel.classList.add('repair-mode');
-    els.bridgeZone.classList.add('active');
-    els.dragHint.classList.add('show');
-    state.answeredThisStep = false;
-  }
-
-  function handleWrongAnswer(answerText) {
-    const q = state.currentQuestion;
-    if (q.type === 'drag') {
-      renderMask(q, true);
-    }
-    state.wrong += 1; updateHUD();
-    els.feedback.textContent = `答错了，正确答案是：${answerText}`;
-    els.feedback.className = 'feedback bad';
-    els.statusMini.textContent = `${q.levelName} · 已跳过`;
-    state.answeredThisStep = false;
-    if (state.wrong >= 3) setTimeout(() => endGame(false), 1200);
-    else setTimeout(() => { state.stage += 1; loadStage(); }, 1200);
-  }
-
-  function resetScramble() {
-    const q = state.currentQuestion;
-    if (!q || q.type !== 'drag' || state.isAnimating || state.draggingEnabled) return;
-    q.dragState.bank = q.dragState.initialBank.slice();
-    q.dragState.slots = Array(q.word.length).fill(null);
-    renderMask(q);
-    renderScrambleBank();
-    els.feedback.textContent = '已重置，请重新点击字母。';
-    els.feedback.className = 'feedback';
-  }
-
-  function confirmScramble() {
-    const q = state.currentQuestion;
-    if (!q || q.type !== 'drag' || state.isAnimating || state.draggingEnabled) return;
-    const slots = q.dragState.slots;
-    if (slots.some(v => !v)) {
-      els.feedback.textContent = '请先把所有字母都点到横线上。';
-      els.feedback.className = 'feedback bad';
-      return;
-    }
-    const attempt = slots.map(id => q.dragState.tiles[id].letter).join('');
-    if (attempt === q.word) {
-      enterRepairMode();
-    } else {
-      handleWrongAnswer(q.display);
-    }
-  }
-
-  function placeTileToNextSlot(tileId) {
-    const q = state.currentQuestion;
-    if (!q || q.type !== 'drag') return;
-    const ds = q.dragState;
-    const nextEmpty = ds.slots.findIndex(v => !v);
-    if (nextEmpty === -1) {
-      els.feedback.textContent = '横线已经填满了，点上方字母可取下后再调整。';
-      els.feedback.className = 'feedback bad';
-      return;
-    }
-    ds.bank = ds.bank.filter(id => id !== tileId);
-    ds.slots[nextEmpty] = tileId;
-    renderMask(q);
-    renderScrambleBank();
-    els.feedback.textContent = '';
-    els.feedback.className = 'feedback';
-  }
-
-  function removeTileFromSlot(slotIndex) {
-    const q = state.currentQuestion;
-    if (!q || q.type !== 'drag') return;
-    const ds = q.dragState;
-    const tileId = ds.slots[slotIndex];
-    if (!tileId) return;
-    ds.slots[slotIndex] = null;
-    if (!ds.bank.includes(tileId)) ds.bank.push(tileId);
-    ds.bank.sort((a, b) => ds.initialBank.indexOf(a) - ds.initialBank.indexOf(b));
-    renderMask(q);
-    renderScrambleBank();
-    els.feedback.textContent = '已取下字母，请继续点击选择。';
-    els.feedback.className = 'feedback';
-  }
-
-  function handleScrambleClick(e) {
-    const q = state.currentQuestion;
-    if (!q || q.type !== 'drag' || state.isAnimating || state.draggingEnabled) return;
-
-    const bankTile = e.target.closest('#scrambleBank .letter-tile');
-    if (bankTile) {
-      placeTileToNextSlot(bankTile.dataset.tileId);
-      return;
-    }
-
-    const slotEl = e.target.closest('#wordMask .drop-slot[data-slot-index]');
-    if (slotEl) {
-      removeTileFromSlot(Number(slotEl.dataset.slotIndex));
-    }
-  }
-
-  function snapBridge(targetName) {
-
-    const slot = geometry.slots[targetName]; state.selectedLane = targetName; state.draggingEnabled = false; els.bridgePiece.classList.add('locked'); setBridgePosition(slot.x, slot.y);
-    els.bridgeZone.classList.remove('active'); els.dragHint.classList.remove('show'); els.statusMini.textContent = `${state.currentQuestion.levelName} · ${targetName === 'left' ? '左路' : targetName === 'center' ? '中路' : '右路'}已通`; animateDrive(targetName);
-  }
-  function animateDrive(targetName) {
-    state.isAnimating = true; const active = getActiveCar(); const next = getNextCar(); placeCar(next, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
-    const segs = buildPath(targetName), total = 2550, nextStart = 1450, nextDuration = 850, start = performance.now();
-    cancelAnimationFrame(state.raf);
-    function tick(now) {
-      const t = Math.min(1, (now - start) / total); const pose = sampleSegments(segs, t); placeCar(active, pose.x, pose.y, pose.angle, true);
-      const t2 = Math.max(0, Math.min(1, (now - start - nextStart) / nextDuration));
-      if (t2 > 0) { const y = geometry.hiddenPos.y + (geometry.startPos.y - geometry.hiddenPos.y) * easeOutCubic(t2); placeCar(next, geometry.startPos.x, y, 0, true); }
-      if (t < 1) state.raf = requestAnimationFrame(tick);
-      else { placeCar(active, geometry.exits[targetName].x, geometry.exits[targetName].y, pose.angle, false); placeCar(next, geometry.startPos.x, geometry.startPos.y, 0, true); state.activeCarKey = state.activeCarKey === 'A' ? 'B' : 'A'; state.stage += 1; loadStage(); }
-    }
-    state.raf = requestAnimationFrame(tick);
-  }
-  function buildPath(targetName) {
-    const lg = geometry.lowerGap[targetName], ug = geometry.upperGap[targetName], ex = geometry.exits[targetName];
-    const segs = [{ type:'line', p0:geometry.startPos, p1:geometry.fork, weight:0.42 }];
-    if (targetName === 'center') segs.push({ type:'line', p0:geometry.fork, p1:lg, weight:0.08 }, { type:'line', p0:lg, p1:ug, weight:0.16 }, { type:'line', p0:ug, p1:ex, weight:0.34 });
-    else if (targetName === 'left') segs.push({ type:'quad', p0:geometry.fork, c:geometry.controls.leftLower, p1:lg, weight:0.12 }, { type:'line', p0:lg, p1:ug, weight:0.16 }, { type:'quad', p0:ug, c:geometry.controls.leftUpper, p1:ex, weight:0.30 });
-    else segs.push({ type:'quad', p0:geometry.fork, c:geometry.controls.rightLower, p1:lg, weight:0.12 }, { type:'line', p0:lg, p1:ug, weight:0.16 }, { type:'quad', p0:ug, c:geometry.controls.rightUpper, p1:ex, weight:0.30 });
-    return segs;
-  }
-  function sampleSegments(segs, t) { let acc = 0; for (const seg of segs) { const nextAcc = acc + seg.weight; if (t <= nextAcc || seg === segs[segs.length - 1]) { const localT = seg.weight === 0 ? 1 : Math.max(0, Math.min(1, (t - acc) / seg.weight)); return sampleSegment(seg, localT); } acc = nextAcc; } return sampleSegment(segs[segs.length - 1], 1); }
-  function sampleSegment(seg, t) { let x, y, dx, dy; if (seg.type === 'line') { x = lerp(seg.p0.x, seg.p1.x, t); y = lerp(seg.p0.y, seg.p1.y, t); dx = seg.p1.x - seg.p0.x; dy = seg.p1.y - seg.p0.y; } else { x = quadAt(seg.p0.x, seg.c.x, seg.p1.x, t); y = quadAt(seg.p0.y, seg.c.y, seg.p1.y, t); dx = 2 * (1 - t) * (seg.c.x - seg.p0.x) + 2 * t * (seg.p1.x - seg.c.x); dy = 2 * (1 - t) * (seg.c.y - seg.p0.y) + 2 * t * (seg.p1.y - seg.c.y); } const angle = Math.atan2(dy, dx) * 180 / Math.PI + 90; return { x, y, angle }; }
-  function lerp(a, b, t) { return a + (b - a) * t; }
-  function quadAt(a, b, c, t) { return (1 - t) * (1 - t) * a + 2 * (1 - t) * t * b + t * t * c; }
-  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-  function endGame(success) {
-    state.isAnimating = false; cancelAnimationFrame(state.raf); els.endOverlay.classList.remove('hidden'); els.bridgeZone.classList.remove('active'); els.dragHint.classList.remove('show');
-    if (success) { els.endTitle.textContent = '闯关成功'; els.endDesc.textContent = `太棒了！你完成了 ${state.questionOrder.length} 题，累计答错 ${state.wrong} 次。`; }
-    else { els.endTitle.textContent = '游戏结束'; els.endDesc.textContent = '累计答错 3 次，小车没法继续前进了。可以重新开始。'; }
-  }
-  function startGame() {
-    cancelAnimationFrame(state.raf); state.selectedModule = els.moduleSelect.value; state.selectedUnit = els.unitSelect.value; state.questionOrder = buildQuestionsForSelection(); state.stage = 0; state.wrong = 0;
-    state.currentQuestion = null; state.raf = null; state.activeCarKey = 'A'; state.isAnimating = false; state.selectedLane = null; state.draggingEnabled = false;
-    resetBridge(); placeCar(els.carA, geometry.startPos.x, geometry.startPos.y, 0, true); placeCar(els.carB, geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false); updateHUD(); els.endOverlay.classList.add('hidden'); els.startOverlay.classList.add('hidden'); loadStage();
-  }
-  function setupBridgeDrag() {
-    const piece = els.bridgePiece, zone = els.bridgeZone; let dragging = false, offsetX = 0, offsetY = 0;
-    const getPoint2 = e => { const p = e.touches ? e.touches[0] : e; return {x:p.clientX, y:p.clientY}; };
-    function onDown(e) { if (!state.draggingEnabled || state.isAnimating) return; dragging = true; piece.classList.add('active'); const rect = piece.getBoundingClientRect(); const p = getPoint2(e); offsetX = p.x - rect.left; offsetY = p.y - rect.top; e.preventDefault(); }
-    function onMove(e) { if (!dragging || !state.draggingEnabled) return; const zoneRect = zone.getBoundingClientRect(); const p = getPoint2(e); let left = p.x - zoneRect.left - offsetX; let top = p.y - zoneRect.top - offsetY; left = Math.max(0, Math.min(zoneRect.width - piece.offsetWidth, left)); top = Math.max(0, Math.min(geometry.routeH - piece.offsetHeight, top)); piece.style.left = `${left}px`; piece.style.top = `${top}px`; e.preventDefault(); }
-    function onUp() { if (!dragging) return; dragging = false; piece.classList.remove('active'); if (!state.draggingEnabled) return; const rect = piece.getBoundingClientRect(); const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2; const zoneRect = zone.getBoundingClientRect(); const candidates = Object.entries(geometry.slots).map(([laneName, pos]) => ({ laneName, d: Math.hypot(centerX - (zoneRect.left + pos.x), centerY - (zoneRect.top + pos.y + geometry.gapHeight / 2)) })).sort((a, b) => a.d - b.d); if (candidates[0].d < 76) snapBridge(candidates[0].laneName); else setBridgePosition(geometry.bridgeHome.xCenter, geometry.bridgeHome.top); }
-    piece.addEventListener('touchstart', onDown, { passive:false }); piece.addEventListener('mousedown', onDown); window.addEventListener('touchmove', onMove, { passive:false }); window.addEventListener('mousemove', onMove); window.addEventListener('touchend', onUp); window.addEventListener('mouseup', onUp);
-  }
-  function setupScrambleClick() {
-    document.addEventListener('click', handleScrambleClick);
-  }
-  function escapeHtml(str) { return String(str).replace(/[&<>\"]/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[ch]); }
-  function carSvg() {
-    return `<svg viewBox="0 0 80 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="carBodyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--carBody2)"/><stop offset="1" stop-color="var(--carBody)"/></linearGradient></defs><g><rect x="22" y="8" width="36" height="124" rx="16" fill="url(#carBodyGrad)" stroke="var(--carLine)" stroke-width="3"/><rect x="28" y="20" width="24" height="30" rx="8" fill="var(--carGlass)" opacity=".96"/><rect x="28" y="90" width="24" height="24" rx="8" fill="var(--carGlass)" opacity=".96"/><rect x="18" y="34" width="8" height="20" rx="4" fill="#222b38"/><rect x="54" y="34" width="8" height="20" rx="4" fill="#222b38"/><rect x="18" y="88" width="8" height="20" rx="4" fill="#222b38"/><rect x="54" y="88" width="8" height="20" rx="4" fill="#222b38"/><rect x="32" y="58" width="16" height="18" rx="6" fill="#f7fafc" opacity=".9"/><circle cx="31" cy="15" r="4" fill="#ffe27a"/><circle cx="49" cy="15" r="4" fill="#ffe27a"/><circle cx="31" cy="125" r="4" fill="#ff9fa4"/><circle cx="49" cy="125" r="4" fill="#ff9fa4"/></g></svg>`;
-  }
-
   els.moduleSelect.addEventListener('change', () => { state.selectedModule = els.moduleSelect.value; populateUnitSelect(); });
   els.unitSelect.addEventListener('change', () => { state.selectedUnit = els.unitSelect.value; updateUnitSummary(); });
   els.startBtn.addEventListener('click', startGame);
@@ -830,14 +1073,24 @@
   els.closeBtn.addEventListener('click', () => els.endOverlay.classList.add('hidden'));
   els.resetWordBtn.addEventListener('click', resetScramble);
   els.confirmWordBtn.addEventListener('click', confirmScramble);
-  window.addEventListener('resize', () => { computeLayout(); if (!state.isAnimating) { placeCar(getActiveCar(), geometry.startPos.x, geometry.startPos.y, 0, true); placeCar(getNextCar(), geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false); } });
+  document.addEventListener('click', handleScrambleClick);
+  els.drawLayer.addEventListener('mousedown', startDrawing);
+  els.drawLayer.addEventListener('touchstart', startDrawing, { passive:false });
+  window.addEventListener('mousemove', moveDrawing);
+  window.addEventListener('touchmove', moveDrawing, { passive:false });
+  window.addEventListener('mouseup', endDrawing);
+  window.addEventListener('touchend', endDrawing);
+  window.addEventListener('resize', () => {
+    computeLayout();
+    if (!state.isAnimating) {
+      placeCar(getActiveCar(), geometry.startPos.x, geometry.startPos.y, 0, true);
+      placeCar(getNextCar(), geometry.hiddenPos.x, geometry.hiddenPos.y, 0, false);
+      positionSpeechBubble();
+    }
+  });
 
   initState();
-  setupBridgeDrag();
-  setupScrambleClick();
 })();
-
 </script>
-
 </body>
 </html>
