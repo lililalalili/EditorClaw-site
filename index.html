@@ -322,6 +322,41 @@
     geometry.forkPos = { x: Math.min(W - 78, startX + 88), y: startY };
     renderScene();
     renderDrawPath();
+    positionSpeechBubble();
+  }
+
+
+
+  function renderScene() {
+    const w = geometry.W;
+    const routeH = geometry.routeH;
+    const sx = geometry.startPos.x;
+    const sy = geometry.startPos.y;
+    const fx = geometry.forkPos.x;
+    const fy = geometry.forkPos.y;
+    const roadW = 62;
+    const centerW = 6;
+    const roadStartX = -8;
+    const guideEndX = Math.min(w - 48, fx + 52);
+    els.scene.innerHTML = `
+      <svg viewBox="0 0 ${w} ${routeH}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <filter id="roadShadow"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity="0.15"/></filter>
+          <filter id="forkGlow"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#72a6ff" flood-opacity=".38"/></filter>
+        </defs>
+        <g filter="url(#roadShadow)">
+          <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#59646f" stroke-width="${roadW}" stroke-linecap="round" fill="none"/>
+          <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#f6d85f" stroke-width="${centerW}" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
+          <ellipse cx="${sx - 8}" cy="${sy}" rx="58" ry="21" fill="rgba(89,100,111,.18)"/>
+        </g>
+        <path d="M ${fx} ${fy} Q ${fx+18} ${fy-18} ${guideEndX} ${fy-48}" class="draw-guide"/>
+        <g filter="url(#forkGlow)">
+          <circle cx="${fx}" cy="${fy}" r="18" fill="rgba(75,139,255,.10)"/>
+          <circle cx="${fx}" cy="${fy}" r="9" fill="rgba(75,139,255,.28)"/>
+          <path d="M ${fx+32} ${fy-32} L ${fx+52} ${fy-48} L ${fx+48} ${fy-30} Z" class="draw-arrow"/>
+        </g>
+      </svg>`;
+    els.drawSvg.setAttribute('viewBox', `0 0 ${w} ${routeH}`);
   }
 
   function getActiveCar() { return state.activeCarKey === 'A' ? els.carA : els.carB; }
