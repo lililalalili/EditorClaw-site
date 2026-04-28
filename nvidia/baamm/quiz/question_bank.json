@@ -1,0 +1,1446 @@
+[
+  {
+    "id": "Q001",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "多模态数据类型与差异",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "在多模态 AI 中，为什么不能把相机图像、LiDAR 点云、文本和表格数据简单地当作同一种输入处理？",
+    "options": {
+      "A": "因为不同模态的数据结构、噪声来源、空间/时间分辨率和语义层级不同",
+      "B": "因为所有神经网络只能处理文本输入",
+      "C": "因为 LiDAR 数据不能用于神经网络",
+      "D": "因为多模态任务不需要预处理"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "不同模态具有不同的数据结构和统计特性。例如图像是二维像素网格，LiDAR 通常是三维点云或深度信息，文本是离散 token 序列。进入神经网络前，需要将它们转换为可学习的张量表示，并处理对齐、归一化和噪声问题。"
+  },
+  {
+    "id": "Q002",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "多模态数据类型与差异",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "下列哪些属于多模态系统设计时需要考虑的数据差异？",
+    "options": {
+      "A": "空间分辨率与坐标系",
+      "B": "时间同步与采样频率",
+      "C": "噪声模式和缺失模式",
+      "D": "所有模态都天然共享同一个语义空间"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "图像、LiDAR、文本、视频等模态往往在坐标系、分辨率、采样频率和噪声来源上不同，因此需要专门的预处理与对齐。D 错在“天然共享同一个语义空间”，共享语义空间通常需要通过编码器、投影层或对比学习训练得到。"
+  },
+  {
+    "id": "Q003",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "相机与 LiDAR 的互补性",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "在机器人或自动驾驶场景中，相机与 LiDAR 的主要互补关系是什么？",
+    "options": {
+      "A": "相机通常提供丰富外观纹理，LiDAR 提供更直接的几何/距离信息",
+      "B": "相机只能提供三维点云，LiDAR 只能提供颜色",
+      "C": "LiDAR 一定比相机包含更多语义信息",
+      "D": "相机和 LiDAR 的数据完全等价"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "相机擅长记录颜色、纹理、边缘和语义外观；LiDAR 擅长提供距离、深度和三维几何结构。多模态融合的动机之一就是利用这种互补性。"
+  },
+  {
+    "id": "Q004",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "相机与 LiDAR 的互补性",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "关于相机和 LiDAR 的表述，哪些是合理的？",
+    "options": {
+      "A": "相机数据通常受光照、遮挡和天气影响",
+      "B": "LiDAR 数据可提供点云或深度相关信息",
+      "C": "相机与 LiDAR 融合可以提升物体位置预测的鲁棒性",
+      "D": "融合后不再需要坐标标定"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "A、B、C 都是多传感器融合中的常见事实。D 错，融合前通常仍需相机内外参、LiDAR 坐标系、时间同步等标定或对齐步骤。"
+  },
+  {
+    "id": "Q005",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "神经网络可处理格式",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "“将不同数据类型转换为 neural-network ready”的核心含义是什么？",
+    "options": {
+      "A": "把原始数据转换为神经网络可输入的数值张量，并进行必要的归一化、编码和对齐",
+      "B": "把所有数据都转换为自然语言句子",
+      "C": "只保留文件名，不读取内容",
+      "D": "删除所有元数据和坐标信息"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "神经网络通常接收张量输入。图像要调整尺寸、归一化；点云可能要投影、体素化或提取特征；文本要分词与向量化；表格要编码数值和类别变量。"
+  },
+  {
+    "id": "Q006",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "神经网络可处理格式",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "以下哪些操作有助于把数据转换为神经网络可处理的形式？",
+    "options": {
+      "A": "图像 resize、归一化和通道排列调整",
+      "B": "点云投影到 BEV 或转换为体素/特征张量",
+      "C": "文本 tokenization 和 embedding",
+      "D": "忽略缺失值和异常值，让模型自行解决一切"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "A、B、C 是典型预处理方式。D 不严谨，缺失值和异常值常会显著影响模型训练，需要标记、填补、过滤或建模处理。"
+  },
+  {
+    "id": "Q007",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "空间标定与时间同步",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "多传感器融合中，标定和时间同步的主要目的是什么？",
+    "options": {
+      "A": "确保来自不同传感器的观测能够对应到同一物理对象或同一时刻",
+      "B": "让所有传感器使用同一个品牌",
+      "C": "减少模型参数数量到 0",
+      "D": "避免使用任何神经网络"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "如果相机帧和 LiDAR 扫描在空间或时间上不对齐，模型可能把不同对象或不同时刻的数据错误融合，导致定位、检测和推理错误。"
+  },
+  {
+    "id": "Q008",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "空间标定与时间同步",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "关于多模态对齐，哪些说法正确？",
+    "options": {
+      "A": "空间对齐常涉及坐标变换、投影关系和外参标定",
+      "B": "时间对齐可减少运动目标带来的错配",
+      "C": "语义对齐可通过共享 embedding 或对比学习实现",
+      "D": "只要模型足够大，对齐永远不重要"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "空间、时间和语义对齐分别解决“在哪里”“什么时候”“表达是否可比较”的问题。D 是常见误解，模型容量不能替代基本的数据质量与对齐。"
+  },
+  {
+    "id": "Q009",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "早期融合",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "早期融合（early fusion）的典型做法是？",
+    "options": {
+      "A": "在较低层或输入阶段将多个模态合并，再输入同一模型或共享主干",
+      "B": "各模态独立预测，最后只平均结果",
+      "C": "只使用文本，不使用其他模态",
+      "D": "完全不做特征提取"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "早期融合强调在输入或低层特征阶段合并信息，例如把图像特征和深度特征拼接，或将 LiDAR 投影到图像/BEV 后一起送入网络。"
+  },
+  {
+    "id": "Q010",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "早期融合",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "早期融合的潜在优点包括哪些？",
+    "options": {
+      "A": "模型可较早学习跨模态低层互补关系",
+      "B": "可能充分利用空间上精细对齐的信息",
+      "C": "通常对输入对齐和预处理要求较高",
+      "D": "完全不需要设计网络结构"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "A、B 是优点，C 是伴随的要求/代价。早期融合不是“无需设计结构”，相反常需要认真设计输入表示、维度匹配和对齐方式。"
+  },
+  {
+    "id": "Q011",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "后期融合",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "后期融合（late fusion）更强调在哪个阶段合并多模态信息？",
+    "options": {
+      "A": "各模态模型分别输出预测或高层特征后再合并",
+      "B": "原始文件下载前合并",
+      "C": "数据采集硬件内部合并",
+      "D": "训练完成后删除一个模态"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "后期融合通常让每个模态拥有自己的编码器或预测器，最后融合 logits、概率、决策结果或高层语义特征。"
+  },
+  {
+    "id": "Q012",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "后期融合",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "后期融合的特点包括哪些？",
+    "options": {
+      "A": "可保留各模态专用模型",
+      "B": "相对便于处理某个模态缺失的情况",
+      "C": "可通过加权平均、投票或元分类器融合结果",
+      "D": "一定比早期融合效果差"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "后期融合具有模块化、可解释性较强、容错性较好的特点。D 错，早期/中期/后期融合没有绝对优劣，应结合任务、数据量、对齐质量和部署约束选择。"
+  },
+  {
+    "id": "Q013",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "模态专用编码器",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "为什么多模态模型常为不同模态使用不同编码器？",
+    "options": {
+      "A": "不同模态的数据结构不同，需要不同归纳偏置和特征提取方式",
+      "B": "因为一个编码器不能含有任何参数",
+      "C": "因为图像和文本一定不能融合",
+      "D": "因为编码器只用于加密数据"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "图像适合 CNN/ViT 等视觉编码器，文本适合 Transformer 语言编码器，点云适合 PointNet、体素网络或 BEV 编码器。模态专用编码器可以更有效提取各模态特征。"
+  },
+  {
+    "id": "Q014",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "模态专用编码器",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "以下哪些可以作为模态专用编码器或特征提取器？",
+    "options": {
+      "A": "图像 CNN 或 Vision Transformer",
+      "B": "文本 Transformer 编码器",
+      "C": "点云/BEV 编码器",
+      "D": "随机删除全部输入的函数"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "A、B、C 都是常见编码器类型。D 不是有效编码器，因为它破坏了输入信息，无法支持稳定学习。"
+  },
+  {
+    "id": "Q015",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "物体位置预测",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "使用相机和 LiDAR 预测物体位置时，最关键的输出通常是什么？",
+    "options": {
+      "A": "目标在图像或三维空间中的位置/边界框/坐标",
+      "B": "课程讲师姓名",
+      "C": "操作系统版本",
+      "D": "网页背景颜色"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "机器人和自动驾驶中的物体定位任务通常关注 2D/3D bounding box、中心点、深度、姿态或轨迹等空间信息。"
+  },
+  {
+    "id": "Q016",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "物体位置预测",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "为了提升物体位置预测，哪些信息通常有帮助？",
+    "options": {
+      "A": "相机图像中的外观和语义线索",
+      "B": "LiDAR 的距离和几何线索",
+      "C": "传感器之间的标定关系",
+      "D": "与任务无关的随机噪声"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "物体位置预测依赖语义外观、几何距离与正确对齐。随机噪声通常会干扰模型。"
+  },
+  {
+    "id": "Q017",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "缺失/噪声模态",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "如果部署时 LiDAR 偶发失效，而训练时模型强依赖 LiDAR，最可能出现什么问题？",
+    "options": {
+      "A": "模型性能显著下降，需要缺失模态鲁棒性设计",
+      "B": "模型一定自动变得更准确",
+      "C": "相机也会自动失效",
+      "D": "不影响任何结果"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "多模态系统应考虑模态缺失、噪声变化和传感器故障。常见方法包括 modality dropout、后期融合容错、缺失标记和单模态 fallback。"
+  },
+  {
+    "id": "Q018",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "缺失/噪声模态",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "增强多模态系统鲁棒性的策略包括哪些？",
+    "options": {
+      "A": "训练时随机丢弃部分模态",
+      "B": "设计单模态 fallback 或后期融合分支",
+      "C": "对传感器噪声进行数据增强",
+      "D": "假设所有传感器永远完美工作"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "A、B、C 都是常见鲁棒性方法。D 是不现实假设，真实部署中传感器可能出现噪声、遮挡、漂移或断连。"
+  },
+  {
+    "id": "Q019",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "融合策略权衡",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "选择 early fusion、intermediate fusion 或 late fusion 时，最合理的原则是？",
+    "options": {
+      "A": "根据任务目标、模态对齐质量、数据规模、可解释性和部署约束综合选择",
+      "B": "永远选择 early fusion",
+      "C": "永远选择 late fusion",
+      "D": "只看模型名字是否流行"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "融合策略没有绝对最优。早期融合适合低层信息强对齐，中期融合适合共享表示学习，后期融合适合模块化和缺失模态容错。"
+  },
+  {
+    "id": "Q020",
+    "module": "模块1 Early and Late Fusion：早期融合与后期融合",
+    "knowledge_point": "融合策略权衡",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "影响融合策略选择的因素包括哪些？",
+    "options": {
+      "A": "输入模态是否精确对齐",
+      "B": "训练数据量与标注质量",
+      "C": "推理延迟、可解释性和容错需求",
+      "D": "完全不考虑任务类型"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "融合策略取决于数据与任务条件。D 错，多模态融合必须围绕具体任务和实际部署约束设计。"
+  },
+  {
+    "id": "Q021",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "中期融合",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "中期融合（intermediate fusion）通常指什么？",
+    "options": {
+      "A": "在各模态经过初步编码后，在特征/表示层进行交互或融合",
+      "B": "只在最终投票阶段融合预测",
+      "C": "不使用任何编码器",
+      "D": "把所有数据转成 PDF"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "中期融合位于输入级融合和决策级融合之间，通常在特征层进行跨模态注意力、拼接、门控或共享 embedding 对齐。"
+  },
+  {
+    "id": "Q022",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "中期融合",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "哪些机制可用于中期融合？",
+    "options": {
+      "A": "跨模态注意力",
+      "B": "特征拼接后接 MLP",
+      "C": "门控融合或加权融合",
+      "D": "完全忽略一个模态的所有特征"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "A、B、C 都可作为中期融合机制。D 不是融合，而是丢弃模态信息。"
+  },
+  {
+    "id": "Q023",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "共享 embedding 空间",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "训练共享 embedding 空间的主要目的是什么？",
+    "options": {
+      "A": "让不同模态的相关样本在向量空间中更接近，不相关样本更远",
+      "B": "让所有向量都变成零向量",
+      "C": "让图像文件变得更小",
+      "D": "让数据库不再需要索引"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "共享 embedding 空间使图像、文本、视频片段或文档片段可以通过相似度进行跨模态比较和检索，是 CLIP 类模型和 RAG 系统的基础。"
+  },
+  {
+    "id": "Q024",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "共享 embedding 空间",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "关于共享 embedding 空间，下列说法正确的是？",
+    "options": {
+      "A": "可支持文本检索图像或视频片段",
+      "B": "可用于相似度搜索",
+      "C": "通常需要编码器和投影层学习对齐",
+      "D": "只适用于纯文本，不适用于图像"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "共享 embedding 空间常用于跨模态检索和相似度计算。D 错，图像、音频、视频和文本都可被编码成向量。"
+  },
+  {
+    "id": "Q025",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "对比预训练",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "对比预训练（contrastive pretraining）的核心思想是？",
+    "options": {
+      "A": "拉近匹配样本的表示距离，拉远不匹配样本的表示距离",
+      "B": "只训练模型记住文件路径",
+      "C": "只用随机标签训练",
+      "D": "训练目标是让所有样本相同"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "对比学习通常构造正样本对和负样本对，通过交叉熵或 InfoNCE 类损失学习可比较的表示空间。"
+  },
+  {
+    "id": "Q026",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "对比预训练",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "对比学习中常见的组成包括哪些？",
+    "options": {
+      "A": "正样本对",
+      "B": "负样本对或 batch 内其他样本",
+      "C": "相似度函数，例如点积或余弦相似度",
+      "D": "完全不需要损失函数"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "对比学习依赖正负样本、相似度度量和损失函数。D 错，没有优化目标就无法训练可用表示。"
+  },
+  {
+    "id": "Q027",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "正负样本与损失函数",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "在图文对比学习中，一个图像与其正确描述文本通常构成什么？",
+    "options": {
+      "A": "正样本对",
+      "B": "负样本对",
+      "C": "无关噪声",
+      "D": "测试集泄漏"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "图像与对应说明文本是语义匹配关系，通常作为正样本对；同一 batch 中其他不匹配文本常作为负样本。"
+  },
+  {
+    "id": "Q028",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "正负样本与损失函数",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "若构建图像-文本对比学习批次，哪些做法合理？",
+    "options": {
+      "A": "将正确图文配对作为正样本",
+      "B": "将同批次其他不匹配文本作为负样本",
+      "C": "计算图像 embedding 与文本 embedding 的相似度矩阵",
+      "D": "让模型只输出文件大小作为语义表示"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "典型 CLIP 式训练会构建图文相似度矩阵，并通过损失函数使正确配对相似度最高。D 不能表达语义。"
+  },
+  {
+    "id": "Q029",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "向量数据库",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "向量数据库在多模态 Agent/RAG 中的主要作用是？",
+    "options": {
+      "A": "存储 embedding 并支持相似度检索",
+      "B": "替代所有模型训练",
+      "C": "只保存图片像素，不能检索",
+      "D": "自动保证回答永远正确"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "向量数据库用于保存文本块、图像、视频片段等的向量表示，并根据查询向量找回相似内容，为后续问答或生成提供证据。"
+  },
+  {
+    "id": "Q030",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "向量数据库",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "构建向量数据库时通常需要哪些步骤？",
+    "options": {
+      "A": "将文档、图像或视频片段编码成 embedding",
+      "B": "建立索引以支持高效近邻搜索",
+      "C": "保存原始内容或元数据以便回溯证据",
+      "D": "删除所有来源信息以节省空间"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "可追溯性对 RAG 很重要，因此通常要保存 chunk、时间戳、文档页码、视频片段等元数据。D 会削弱可解释性和证据追踪。"
+  },
+  {
+    "id": "Q031",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "相似度检索与指标",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "Top-K 检索中的 K 表示什么？",
+    "options": {
+      "A": "返回相似度排名最高的 K 个候选结果",
+      "B": "训练轮数必须为 K",
+      "C": "模型层数必须为 K",
+      "D": "类别数量永远等于 K"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "Top-K 指返回排序最靠前的 K 个结果，例如 Top-5 表示返回最相关的 5 条候选。"
+  },
+  {
+    "id": "Q032",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "相似度检索与指标",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "评估检索系统时，哪些指标或概念是常见的？",
+    "options": {
+      "A": "Recall@K",
+      "B": "MRR",
+      "C": "检索延迟",
+      "D": "显示器尺寸"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Recall@K 衡量正确结果是否出现在前 K 个结果中，MRR 衡量正确答案排名是否靠前，延迟影响系统可用性。显示器尺寸不是检索质量指标。"
+  },
+  {
+    "id": "Q033",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "多模态架构设计",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "有效多模态架构设计的关键不是简单拼接所有输入，而是要解决什么问题？",
+    "options": {
+      "A": "表示、对齐、融合、检索和任务目标之间的匹配",
+      "B": "让模型参数全部固定为 1",
+      "C": "只选择最大文件作为输入",
+      "D": "避免任何评估"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "多模态架构要考虑每个模态如何编码、不同模态如何对齐、何时融合、如何服务任务目标以及如何评估。"
+  },
+  {
+    "id": "Q034",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "多模态架构设计",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "下列哪些属于设计多模态架构时的关键问题？",
+    "options": {
+      "A": "每个模态用什么编码器",
+      "B": "在哪一层进行融合",
+      "C": "训练目标是否能促成跨模态对齐",
+      "D": "是否完全不需要验证集"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "A、B、C 都直接影响模型有效性。D 错，验证集和任务指标对于避免过拟合和评估泛化能力非常重要。"
+  },
+  {
+    "id": "Q035",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "特征归一化与相似度",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "在使用余弦相似度进行向量检索时，常见做法是？",
+    "options": {
+      "A": "对 embedding 做归一化，以便比较方向相似性",
+      "B": "把所有 embedding 置为同一个常数",
+      "C": "只比较文件创建时间",
+      "D": "不计算任何相似度"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "余弦相似度关注向量方向。对向量做 L2 归一化后，点积可等价于余弦相似度，便于高效检索。"
+  },
+  {
+    "id": "Q036",
+    "module": "模块2 Intermediate Fusion：中期融合、对比预训练与向量数据库",
+    "knowledge_point": "特征归一化与相似度",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "关于 embedding 检索，下列说法正确的是？",
+    "options": {
+      "A": "相似度函数会影响检索结果",
+      "B": "归一化可使不同向量尺度更可比",
+      "C": "向量维度和索引方法会影响速度与内存",
+      "D": "embedding 的质量与上游编码器无关"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "检索效果依赖编码器质量、向量表示、相似度函数、索引结构和数据切分。D 错，上游编码器直接影响语义表示质量。"
+  },
+  {
+    "id": "Q037",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "跨模态投影",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "跨模态投影的核心目标是什么？",
+    "options": {
+      "A": "把非语言模态特征映射到语言模型可理解或可融合的表示空间",
+      "B": "把所有文本转换为图片水印",
+      "C": "删除语言模型的全部词表",
+      "D": "只改变网页字体"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "跨模态投影常通过 projector 或 adapter 将视觉/音频/传感器特征映射到 LLM 的 token embedding 空间或中间表示空间，使语言模型能够处理非文本输入。"
+  },
+  {
+    "id": "Q038",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "跨模态投影",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "跨模态投影可能涉及哪些组件？",
+    "options": {
+      "A": "视觉或传感器编码器",
+      "B": "线性层、MLP 或 adapter",
+      "C": "LLM 的 token embedding 或上下文输入接口",
+      "D": "与任务无关的随机网页广告"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "跨模态投影通常包括模态编码器、投影模块和语言模型接口。D 与模型结构无关。"
+  },
+  {
+    "id": "Q039",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "VLM 架构",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "Vision-Language Model（VLM）与纯 LLM 的关键区别是？",
+    "options": {
+      "A": "VLM 能同时处理视觉信息和语言信息",
+      "B": "VLM 只能处理数字表格",
+      "C": "VLM 没有任何语言能力",
+      "D": "VLM 不需要训练数据"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "VLM 通过视觉编码器、跨模态投影、跨注意力或多模态 token 等机制，将图像/视频与文本联合建模。"
+  },
+  {
+    "id": "Q040",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "VLM 架构",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "典型 VLM 可以支持哪些任务？",
+    "options": {
+      "A": "图像问答",
+      "B": "图像或视频描述生成",
+      "C": "文档图像理解",
+      "D": "让 GPU 物理重量变轻"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "VLM 常用于视觉问答、captioning、文档理解、视频理解和视觉推理。D 是物理属性，与模型任务无关。"
+  },
+  {
+    "id": "Q041",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "投影层与适配器",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "在把预训练 LLM 改造成 VLM 时，投影层/适配器的作用通常是？",
+    "options": {
+      "A": "匹配视觉特征维度与语言模型输入表示空间",
+      "B": "把 GPU 变成硬盘",
+      "C": "删除视觉编码器",
+      "D": "让所有答案固定为 A"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "投影层常用于维度变换和语义空间对齐，使视觉特征能够作为 pseudo-token 或上下文信息进入语言模型。"
+  },
+  {
+    "id": "Q042",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "投影层与适配器",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "训练投影层/适配器时，哪些策略可能合理？",
+    "options": {
+      "A": "冻结大部分预训练 LLM，只训练 projector",
+      "B": "先用图文对齐数据训练跨模态映射",
+      "C": "根据任务再进行指令微调或监督微调",
+      "D": "完全不看验证效果"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "冻结 LLM 训练 projector 可降低成本和灾难性遗忘风险；再通过图文对齐和任务微调提升能力。D 错，验证集和错误分析必不可少。"
+  },
+  {
+    "id": "Q043",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "OCR",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "OCR 在课程中的主要用途是什么？",
+    "options": {
+      "A": "从扫描件、图片型 PDF 或文档图像中提取文字",
+      "B": "训练机器人行走",
+      "C": "替代所有向量检索",
+      "D": "压缩 GPU 显存"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "OCR 是 Optical Character Recognition，用于识别图像中的文本，是文档理解和 PDF 问答系统的基础环节。"
+  },
+  {
+    "id": "Q044",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "OCR",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "OCR 输出质量可能受哪些因素影响？",
+    "options": {
+      "A": "扫描清晰度和分辨率",
+      "B": "版式复杂度、表格和多栏排版",
+      "C": "文字方向、语言和字体",
+      "D": "题目编号是否好看"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "OCR 对图像质量、排版复杂度、文字方向、语言、字体和噪声敏感。D 与 OCR 识别质量无关。"
+  },
+  {
+    "id": "Q045",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "PDF 版式解析",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "为什么 PDF 处理不应只关注 OCR 文本本身？",
+    "options": {
+      "A": "因为表格、图题、标题层级、阅读顺序和页码等结构信息也会影响理解",
+      "B": "因为 PDF 永远没有文字",
+      "C": "因为 OCR 后不需要任何校验",
+      "D": "因为 PDF 只能用于图片生成"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "复杂 PDF 包含多栏、表格、图片、脚注和标题层级。仅提取纯文本可能打乱阅读顺序或丢失表格关系，影响后续 RAG 和问答。"
+  },
+  {
+    "id": "Q046",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "PDF 版式解析",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "构建 PDF 问答系统时，哪些元数据有助于证据追踪？",
+    "options": {
+      "A": "页码",
+      "B": "段落/标题层级",
+      "C": "表格位置或图题信息",
+      "D": "随机生成的无意义 ID 且不保存来源"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "页码、标题层级、表格位置和图题信息可帮助回答溯源和人工复核。D 无法支持可追溯性。"
+  },
+  {
+    "id": "Q047",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "文档 RAG",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "将 OCR/PDF 抽取结果接入 RAG 的典型流程是？",
+    "options": {
+      "A": "抽取文本与结构 → 切分 chunk → 生成 embedding → 检索 → 基于证据回答",
+      "B": "抽取文本后立即删除所有内容",
+      "C": "只让 LLM 猜测答案",
+      "D": "只保存 PDF 文件名"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "RAG 需要把文档内容转换成可检索单元，并保存来源信息。用户提问后，系统检索相关片段，再让模型基于证据生成答案。"
+  },
+  {
+    "id": "Q048",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "文档 RAG",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "文档 RAG 系统中，哪些设计可降低幻觉风险？",
+    "options": {
+      "A": "要求回答引用检索到的证据片段",
+      "B": "在证据不足时明确回答“不确定/未找到依据”",
+      "C": "保留文档来源、页码或时间戳",
+      "D": "鼓励模型自由编造缺失内容"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "RAG 的目标是让回答有依据。引用证据、保留来源、承认不确定性都有助于降低幻觉。D 与 grounded QA 原则相反。"
+  },
+  {
+    "id": "Q049",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "幻觉与 grounded QA",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "Grounded QA 中“grounded”的含义最接近哪一项？",
+    "options": {
+      "A": "回答应建立在可检索、可追溯的证据之上",
+      "B": "回答必须越长越好",
+      "C": "回答必须包含所有互联网内容",
+      "D": "回答不能使用任何模型"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "Grounded QA 强调答案应基于给定文档、视频片段、检索结果或数据库证据，并可追溯。"
+  },
+  {
+    "id": "Q050",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "幻觉与 grounded QA",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "以下哪些属于 grounded QA 的良好实践？",
+    "options": {
+      "A": "显示引用来源或证据片段",
+      "B": "区分模型推断与原文事实",
+      "C": "当检索结果冲突时提示不确定性",
+      "D": "无证据时也给出绝对肯定答案"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Grounded QA 要求透明、可追溯和谨慎。D 容易造成幻觉或误导。"
+  },
+  {
+    "id": "Q051",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "冻结、微调与迁移",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "将语言模型扩展到新模态时，冻结大模型、只训练小型投影层的一个优点是？",
+    "options": {
+      "A": "降低训练成本并减少对原语言能力的破坏",
+      "B": "让模型无需任何数据",
+      "C": "使模型完全不能处理文本",
+      "D": "保证所有任务 100% 正确"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "冻结 LLM 并训练 projector 是常见轻量迁移策略，可利用预训练语言能力，同时降低算力需求和灾难性遗忘风险。"
+  },
+  {
+    "id": "Q052",
+    "module": "模块3 Cross-modal Projection：跨模态投影、VLM 与 OCR/PDF",
+    "knowledge_point": "冻结、微调与迁移",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "关于冻结与微调，下列说法正确的是？",
+    "options": {
+      "A": "冻结编码器可以降低训练参数量",
+      "B": "全量微调通常成本更高，也更容易过拟合或遗忘",
+      "C": "适配器/LoRA/projector 可用于参数高效迁移",
+      "D": "冻结模型后就完全不需要任务数据"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "冻结、适配器和 LoRA 等方法是参数高效迁移策略。D 错，仍需任务数据训练投影层、适配器或评估系统。"
+  },
+  {
+    "id": "Q053",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "模态与编排的区别",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "“modality”和“agent orchestration”的区别是什么？",
+    "options": {
+      "A": "modality 指数据类型/输入形式；orchestration 指多个模型、工具和步骤的协调流程",
+      "B": "二者完全同义",
+      "C": "modality 只指 GPU 型号",
+      "D": "orchestration 只指网页配色"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "模态是图像、文本、视频、LiDAR 等数据形式；编排是把 OCR、检索、VLM、LLM、工具调用、后处理等组件组织成可完成任务的流程。"
+  },
+  {
+    "id": "Q054",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "模态与编排的区别",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "下列哪些属于 agent orchestration 需要处理的问题？",
+    "options": {
+      "A": "决定先调用 OCR、检索还是 VLM",
+      "B": "把中间结果传给下一个模型或工具",
+      "C": "处理错误、超时和结果冲突",
+      "D": "只讨论输入数据是否是图片"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "编排强调工作流控制、工具选择、状态管理、错误处理和结果整合。D 只涉及模态类型，不是完整编排问题。"
+  },
+  {
+    "id": "Q055",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "Agent 工具链",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "一个多模态视频问答 Agent 通常不只包含一个模型，原因是？",
+    "options": {
+      "A": "视频问答可能需要上传、切片、检测、检索、摘要、问答和引用等多个步骤",
+      "B": "因为单个模型不能输出任何文本",
+      "C": "因为视频文件不能被切分",
+      "D": "因为所有工具必须随机调用"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "实际系统常由多个服务组成：视频 ingest、帧/片段抽取、embedding、检索、VLM 分析、LLM 总结、UI 和日志监控等。"
+  },
+  {
+    "id": "Q056",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "Agent 工具链",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "多模态 Agent 的工具链可能包括哪些组件？",
+    "options": {
+      "A": "视频切片和索引",
+      "B": "目标检测或视觉理解模型",
+      "C": "向量检索和 LLM 总结",
+      "D": "完全不保存中间状态"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "视频 Agent 常需要切片、索引、检测、检索和总结。D 不利于调试、可追溯性和错误恢复。"
+  },
+  {
+    "id": "Q057",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "视频理解与 Cosmos/Nemotron",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "课程中分析视频的关键能力最接近哪一项？",
+    "options": {
+      "A": "从视频帧/片段中提取语义，支持问答、摘要或事件理解",
+      "B": "只改变视频文件扩展名",
+      "C": "只统计文件大小",
+      "D": "删除所有时间信息"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "视频理解需要将视觉、时间和语言语义结合起来，识别对象、动作、场景变化和关键事件。"
+  },
+  {
+    "id": "Q058",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "视频理解与 Cosmos/Nemotron",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "视频理解任务中，哪些信息通常重要？",
+    "options": {
+      "A": "对象和场景",
+      "B": "动作与事件发生的时间顺序",
+      "C": "镜头或片段级别的语义描述",
+      "D": "完全忽略时间维度"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "视频不同于单张图像，时间顺序、事件演变和片段语义非常关键。D 会损害视频理解。"
+  },
+  {
+    "id": "Q059",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "VSS 能力",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "VSS 在课程语境中主要指什么？",
+    "options": {
+      "A": "NVIDIA Video Search and Summarization，用于视频搜索、摘要和问答等视频智能体能力",
+      "B": "一种电子表格格式",
+      "C": "一种图像压缩算法",
+      "D": "一种操作系统"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "VSS 是 NVIDIA 视频搜索与摘要相关蓝图/系统，可用于视频检索、摘要、问答、告警和视频分析工作流。"
+  },
+  {
+    "id": "Q060",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "VSS 能力",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "VSS 或视频智能体系统可支持哪些能力？",
+    "options": {
+      "A": "视频摘要",
+      "B": "基于文本问题的视频问答",
+      "C": "视频片段检索或高亮定位",
+      "D": "把所有视频自动变成结构化表格且无误差"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "VSS 常见能力包括视频摘要、问答、检索、事件分析和告警。D 过度绝对化，实际系统仍需评估和人工复核。"
+  },
+  {
+    "id": "Q061",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "NVIDIA AI Blueprints",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "NVIDIA AI Blueprints 的教学意义是什么？",
+    "options": {
+      "A": "提供可参考的端到端架构和工作流，加速真实应用开发",
+      "B": "只是一张不可运行的壁纸",
+      "C": "替代所有业务需求分析",
+      "D": "只用于文字排版"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "AI Blueprints 可作为参考架构，把模型、NIM 微服务、数据流和应用逻辑组合起来，帮助开发者快速构建可部署的 AI 应用。"
+  },
+  {
+    "id": "Q062",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "NVIDIA AI Blueprints",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "使用 AI Blueprint 时，开发者通常仍需做哪些工作？",
+    "options": {
+      "A": "根据业务场景调整数据源和流程",
+      "B": "配置模型、服务、API 和部署环境",
+      "C": "评估输出质量、延迟和安全风险",
+      "D": "完全不需要理解系统架构"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Blueprint 是参考架构，不是免思考按钮。真实部署需要配置、定制、评估和持续监控。"
+  },
+  {
+    "id": "Q063",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "NIM 微服务",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "NVIDIA NIM 在多模型编排中的作用最接近哪一项？",
+    "options": {
+      "A": "以优化的推理微服务形式部署模型，并通过标准 API 调用",
+      "B": "把所有模型转换为 Excel",
+      "C": "只负责显示图片",
+      "D": "完全不需要 GPU 或推理服务"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "NIM 提供预构建、优化的推理微服务，可通过标准 API 集成到应用或 Agent 工作流中。"
+  },
+  {
+    "id": "Q064",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "NIM 微服务",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "使用 NIM 微服务的潜在优势包括哪些？",
+    "options": {
+      "A": "降低模型部署和集成复杂度",
+      "B": "通过标准 API 被编排系统调用",
+      "C": "利用优化推理引擎提升吞吐或延迟表现",
+      "D": "自动替代所有数据治理工作"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "NIM 有助于模型服务化和性能优化，但不自动解决数据治理、权限、安全审计和业务质量控制。"
+  },
+  {
+    "id": "Q065",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "系统评估与可观测性",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "多模态 Agent 上线前为什么需要端到端评估？",
+    "options": {
+      "A": "因为单个模型准确不代表整个工作流在真实任务中可靠",
+      "B": "因为评估只用于生成漂亮图表",
+      "C": "因为上线后不能再看日志",
+      "D": "因为用户问题永远相同"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "多模态 Agent 由多个组件组成，错误会在 OCR、检索、VLM、LLM、工具调用和后处理之间传播，因此需要端到端评估。"
+  },
+  {
+    "id": "Q066",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "系统评估与可观测性",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "多模态 Agent 的可观测性可包括哪些内容？",
+    "options": {
+      "A": "输入、检索结果和模型输出日志",
+      "B": "延迟、失败率和资源消耗",
+      "C": "用户反馈和人工审核结果",
+      "D": "拒绝记录任何错误"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "可观测性用于定位瓶颈、发现幻觉、评估性能和保障可维护性。D 会导致问题不可诊断。"
+  },
+  {
+    "id": "Q067",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "安全、隐私与权限",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "在企业视频/文档 Agent 中，隐私和权限控制重要的主要原因是？",
+    "options": {
+      "A": "输入数据可能包含敏感场景、个人信息或企业内部资料",
+      "B": "因为模型只能处理公开数据",
+      "C": "因为权限控制会自动提高准确率",
+      "D": "因为隐私与 AI 系统无关"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "视频、文档和业务数据库可能含有敏感信息。系统需要访问控制、审计、脱敏、数据保留策略和安全部署。"
+  },
+  {
+    "id": "Q068",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "安全、隐私与权限",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "部署多模态 Agent 时，哪些属于安全与治理措施？",
+    "options": {
+      "A": "访问权限控制",
+      "B": "日志审计和数据保留策略",
+      "C": "敏感信息脱敏",
+      "D": "把所有密钥写在公开前端代码中"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "A、B、C 是常见治理措施。D 是严重安全风险，API key 和密钥不应暴露在公开前端代码中。"
+  },
+  {
+    "id": "Q069",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "视频切片与时间检索",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "视频问答系统通常需要保存时间戳或片段 ID，主要是为了什么？",
+    "options": {
+      "A": "让回答可以追溯到具体视频片段",
+      "B": "让文件名更长",
+      "C": "减少所有计算为 0",
+      "D": "防止用户上传视频"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "时间戳和片段 ID 可支持证据定位、回放、摘要引用和错误复核，是视频 grounded QA 的关键元数据。"
+  },
+  {
+    "id": "Q070",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "视频切片与时间检索",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "关于视频切片与检索，哪些说法正确？",
+    "options": {
+      "A": "切片粒度过粗可能导致检索结果不精确",
+      "B": "切片粒度过细可能增加索引规模和上下文碎片化",
+      "C": "时间戳有助于定位事件发生位置",
+      "D": "视频检索不需要任何元数据"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "切片粒度需要在精度、成本和上下文完整性之间平衡。元数据对视频检索和证据追踪非常重要。"
+  },
+  {
+    "id": "Q071",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "摘要、问答、告警与动作识别",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "视频摘要、问答、告警和动作识别之间的共同点是？",
+    "options": {
+      "A": "都需要从视频内容中提取语义并转化为可用信息",
+      "B": "都只需要读取文件名",
+      "C": "都不涉及时间信息",
+      "D": "都不能与 LLM 结合"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "这些任务都建立在视频语义理解之上，只是输出形式不同：摘要输出文本概括，问答按问题定位答案，告警识别特定事件，动作识别判断行为类别。"
+  },
+  {
+    "id": "Q072",
+    "module": "模块4 Model Orchestration：模型编排、视频智能体、VSS 与 AI Blueprints",
+    "knowledge_point": "摘要、问答、告警与动作识别",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "在视频智能体应用中，哪些输出形式是常见的？",
+    "options": {
+      "A": "自然语言摘要",
+      "B": "针对用户问题的答案",
+      "C": "事件告警或高亮片段",
+      "D": "无条件输出空白"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "视频智能体常把底层视觉分析转化为摘要、问答、告警、事件报告或可检索片段。D 不是有效应用输出。"
+  },
+  {
+    "id": "Q073",
+    "module": "模块5 Assessment：迁移、投影与端到端设计",
+    "knowledge_point": "预训练模型迁移到新数据类型",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "课程考核中“convert a pre-trained model to input a different datatype using projection”最核心考查的是？",
+    "options": {
+      "A": "利用投影层把新模态特征接入已有预训练模型",
+      "B": "从零训练一个完全无关的大模型",
+      "C": "只改变文件扩展名",
+      "D": "删除所有输入数据"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "该考核关注迁移思想：保留已有预训练模型能力，通过编码器和投影层把新数据类型映射到模型可处理的表示空间。"
+  },
+  {
+    "id": "Q074",
+    "module": "模块5 Assessment：迁移、投影与端到端设计",
+    "knowledge_point": "预训练模型迁移到新数据类型",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "完成“预训练模型接入新模态”任务时，通常需要哪些步骤？",
+    "options": {
+      "A": "选择或训练新模态编码器",
+      "B": "设计投影层匹配目标模型表示维度",
+      "C": "用配对数据或任务数据训练/验证",
+      "D": "完全不做评估直接上线"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "新模态接入需要编码、投影、训练和评估。D 是不可靠做法。"
+  },
+  {
+    "id": "Q075",
+    "module": "模块5 Assessment：迁移、投影与端到端设计",
+    "knowledge_point": "端到端方案选择",
+    "type": "single",
+    "difficulty": "中",
+    "stem": "如果要为工厂监控视频构建“搜索某类事件并生成日报”的系统，最合适的高层方案是？",
+    "options": {
+      "A": "视频 ingest/切片 → 视觉分析/embedding → 检索 → LLM 汇总 → 输出报告并保留时间戳",
+      "B": "只让 LLM 猜测当天发生了什么",
+      "C": "只保存视频文件名",
+      "D": "不记录任何证据来源"
+    },
+    "answer": [
+      "A"
+    ],
+    "explanation": "这是典型视频 Agent/VSS 类工作流：先结构化和索引视频，再根据查询检索相关片段，最后生成可追溯摘要或报告。"
+  },
+  {
+    "id": "Q076",
+    "module": "模块5 Assessment：迁移、投影与端到端设计",
+    "knowledge_point": "端到端方案选择",
+    "type": "multi",
+    "difficulty": "中",
+    "stem": "设计多模态 Agent 时，哪些判断体现了端到端思维？",
+    "options": {
+      "A": "明确输入、输出、证据链和失败处理",
+      "B": "选择合适的融合策略和模型服务方式",
+      "C": "设计评估指标和人工复核流程",
+      "D": "只追求 demo 能跑一次，不考虑可靠性"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "端到端系统要考虑任务目标、数据、模型、编排、评估、部署和维护。D 只适合临时演示，不适合课程掌握或真实应用。"
+  }
+]
