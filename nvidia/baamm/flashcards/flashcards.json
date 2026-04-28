@@ -1,0 +1,642 @@
+[
+  {
+    "abbr": "AI",
+    "english": "Artificial Intelligence",
+    "chinese": "人工智能",
+    "meaning": "让计算机系统执行感知、推理、生成、决策等智能任务的技术总称。",
+    "category": "课程与 AI 基础",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "DLI",
+    "english": "Deep Learning Institute",
+    "chinese": "深度学习学院 / 深度学习培训机构",
+    "meaning": "NVIDIA 的官方培训体系，课程来自 NVIDIA DLI。",
+    "category": "课程与 AI 基础",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "BAAMM",
+    "english": "Building AI Agents with Multimodal Models",
+    "chinese": "使用多模态模型构建 AI 智能体",
+    "meaning": "本课程标题的缩写式代号，指用多模态模型构建 AI Agent 的课程主题。",
+    "category": "课程与 AI 基础",
+    "note": "课程缩写"
+  },
+  {
+    "abbr": "ML",
+    "english": "Machine Learning",
+    "chinese": "机器学习",
+    "meaning": "AI 的重要分支，让模型从数据中学习规律并进行预测、分类或生成。",
+    "category": "课程与 AI 基础",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "DL",
+    "english": "Deep Learning",
+    "chinese": "深度学习",
+    "meaning": "基于深层神经网络的机器学习方法，是现代多模态模型的重要基础。",
+    "category": "课程与 AI 基础",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "NN",
+    "english": "Neural Network",
+    "chinese": "神经网络",
+    "meaning": "由多层可训练参数组成的模型结构，用于表示、分类、生成或预测。",
+    "category": "课程与 AI 基础",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "API",
+    "english": "Application Programming Interface",
+    "chinese": "应用程序编程接口",
+    "meaning": "程序之间相互调用服务的接口，例如调用 OCR、LLM、VLM 或 NIM 服务。",
+    "category": "课程与 AI 基础",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "UI",
+    "english": "User Interface",
+    "chinese": "用户界面",
+    "meaning": "用户与系统交互的界面，例如视频问答系统或刷题系统的网页界面。",
+    "category": "课程与 AI 基础",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "Q&A / QA",
+    "english": "Question and Answering / Question Answering",
+    "chinese": "问答",
+    "meaning": "系统根据文本、图像、视频或检索结果回答用户问题。本讲义中 QA 主要指问答，而不是 Quality Assurance。",
+    "category": "课程与 AI 基础",
+    "note": "常见缩写"
+  },
+  {
+    "abbr": "LiDAR",
+    "english": "Light Detection and Ranging",
+    "chinese": "激光雷达",
+    "meaning": "通过激光测距获得三维空间信息，常与相机数据融合，用于自动驾驶、机器人和空间感知。",
+    "category": "多模态、视觉与传感器",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "2D",
+    "english": "Two-Dimensional",
+    "chinese": "二维",
+    "meaning": "平面数据或二维坐标，例如图像中的像素位置。",
+    "category": "多模态、视觉与传感器",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "3D",
+    "english": "Three-Dimensional",
+    "chinese": "三维",
+    "meaning": "三维空间数据，例如点云、物体三维位置和深度信息。",
+    "category": "多模态、视觉与传感器",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "BEV",
+    "english": "Bird’s-Eye View",
+    "chinese": "鸟瞰图 / 俯视图",
+    "meaning": "从上往下观察场景的统一空间表示，常用于自动驾驶和多传感器融合。",
+    "category": "多模态、视觉与传感器",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "BEVFusion",
+    "english": "Bird’s-Eye-View Fusion",
+    "chinese": "鸟瞰图融合",
+    "meaning": "把相机、LiDAR 等模态统一到 BEV 空间后再进行融合的多模态感知方法或模型名称。",
+    "category": "多模态、视觉与传感器",
+    "note": "模型/方法名"
+  },
+  {
+    "abbr": "CV",
+    "english": "Computer Vision",
+    "chinese": "计算机视觉",
+    "meaning": "让机器理解图像、视频和视觉场景的技术领域。",
+    "category": "多模态、视觉与传感器",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "VLM",
+    "english": "Vision-Language Model / Visual Language Model",
+    "chinese": "视觉语言模型",
+    "meaning": "能同时处理图像/视频和文本的模型，可用于看图问答、视频理解和文档理解。",
+    "category": "多模态、视觉与传感器",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "LLM",
+    "english": "Large Language Model",
+    "chinese": "大语言模型",
+    "meaning": "以文本理解、推理和生成为核心能力的大规模语言模型。",
+    "category": "多模态、视觉与传感器",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "VILA",
+    "english": "Vision Language Assistant",
+    "chinese": "视觉语言助手",
+    "meaning": "NVIDIA 相关视觉语言模型/研究中的模型名，用于说明 VLM 预训练与图文/视频理解。",
+    "category": "多模态、视觉与传感器",
+    "note": "模型名"
+  },
+  {
+    "abbr": "CLIP",
+    "english": "Contrastive Language-Image Pre-training",
+    "chinese": "对比式语言-图像预训练",
+    "meaning": "通过图像—文本对比学习，把图像和文本映射到共享向量空间，支持跨模态检索和零样本分类。",
+    "category": "多模态、视觉与传感器",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "RT-DETR",
+    "english": "Real-Time Detection Transformer",
+    "chinese": "实时检测 Transformer",
+    "meaning": "实时目标检测模型，可在视频分析或视觉检测组件中使用。",
+    "category": "多模态、视觉与传感器",
+    "note": "模型缩写"
+  },
+  {
+    "abbr": "DINO",
+    "english": "DETR with Improved deNoising anchOr boxes",
+    "chinese": "改进去噪锚框检测 Transformer",
+    "meaning": "在 Grounding DINO 等模型名中出现，常用于开放词汇目标检测或视觉定位。",
+    "category": "多模态、视觉与传感器",
+    "note": "模型缩写"
+  },
+  {
+    "abbr": "Sparse4D",
+    "english": "Sparse 4D",
+    "chinese": "稀疏四维感知模型",
+    "meaning": "模型/方法名，常用于时空目标检测或自动驾驶场景理解；不是普通英文短语缩写。",
+    "category": "多模态、视觉与传感器",
+    "note": "模型/方法名"
+  },
+  {
+    "abbr": "OCR",
+    "english": "Optical Character Recognition",
+    "chinese": "光学字符识别",
+    "meaning": "从图片、扫描件或 PDF 页面中识别文字，是文档理解和 PDF 问答的基础环节。",
+    "category": "文档、检索与知识增强",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "PDF",
+    "english": "Portable Document Format",
+    "chinese": "便携式文档格式",
+    "meaning": "常见文档格式，课程中用于说明 OCR、文档解析和 RAG 数据接入。",
+    "category": "文档、检索与知识增强",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "RAG",
+    "english": "Retrieval-Augmented Generation",
+    "chinese": "检索增强生成",
+    "meaning": "先从文档、向量库或知识库检索相关内容，再让 LLM 基于证据生成回答。",
+    "category": "文档、检索与知识增强",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "ANN",
+    "english": "Approximate Nearest Neighbor",
+    "chinese": "近似最近邻",
+    "meaning": "用于大规模向量检索的近似搜索方法，用少量精度损失换取更高速度。",
+    "category": "文档、检索与知识增强",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "Faiss",
+    "english": "Facebook AI Similarity Search",
+    "chinese": "Facebook AI 相似度搜索库",
+    "meaning": "常用向量检索库，可用于 embedding 建索引和 Top-K 相似样本检索。",
+    "category": "文档、检索与知识增强",
+    "note": "库名/缩写"
+  },
+  {
+    "abbr": "Top-K",
+    "english": "Top K Results",
+    "chinese": "前 K 个结果",
+    "meaning": "检索或排序中返回最相关的 K 个结果，例如 Top-3、Top-5。",
+    "category": "文档、检索与知识增强",
+    "note": "检索术语"
+  },
+  {
+    "abbr": "Recall@K / R@K",
+    "english": "Recall at K",
+    "chinese": "K 个结果内召回率",
+    "meaning": "衡量正确答案是否出现在前 K 个检索结果中的指标。",
+    "category": "文档、检索与知识增强",
+    "note": "评估指标"
+  },
+  {
+    "abbr": "MRR",
+    "english": "Mean Reciprocal Rank",
+    "chinese": "平均倒数排名",
+    "meaning": "衡量正确答案在检索结果中排名靠前程度的指标。",
+    "category": "文档、检索与知识增强",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "Grounded QA",
+    "english": "Grounded Question Answering",
+    "chinese": "有证据支撑的问答",
+    "meaning": "回答必须基于检索到的文本、图像、视频片段或文档证据，而不是自由发挥。",
+    "category": "文档、检索与知识增强",
+    "note": "术语"
+  },
+  {
+    "abbr": "CE",
+    "english": "Cross Entropy",
+    "chinese": "交叉熵",
+    "meaning": "分类任务和对比学习中常见损失函数，用来衡量预测分布与真实标签的差异。",
+    "category": "模型训练、网络结构与数学指标",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "MLP",
+    "english": "Multi-Layer Perceptron",
+    "chinese": "多层感知机",
+    "meaning": "由多层全连接网络组成的简单神经网络结构，可作为 projector 或分类头。",
+    "category": "模型训练、网络结构与数学指标",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "ReLU",
+    "english": "Rectified Linear Unit",
+    "chinese": "修正线性单元",
+    "meaning": "常用激活函数，形式为 max(0, x)。",
+    "category": "模型训练、网络结构与数学指标",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "GELU",
+    "english": "Gaussian Error Linear Unit",
+    "chinese": "高斯误差线性单元",
+    "meaning": "Transformer 和现代神经网络中常用的平滑激活函数。",
+    "category": "模型训练、网络结构与数学指标",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "logits",
+    "english": "Logits",
+    "chinese": "未归一化预测分数",
+    "meaning": "模型在 softmax 前输出的原始分数。不是缩写，但讲义代码中常出现。",
+    "category": "模型训练、网络结构与数学指标",
+    "note": "非缩写术语"
+  },
+  {
+    "abbr": "embedding",
+    "english": "Embedding",
+    "chinese": "嵌入向量",
+    "meaning": "把文本、图像、视频或文档片段表示成向量，便于相似度计算和检索。",
+    "category": "模型训练、网络结构与数学指标",
+    "note": "非缩写术语"
+  },
+  {
+    "abbr": "token",
+    "english": "Token",
+    "chinese": "词元 / 标记",
+    "meaning": "语言模型处理文本或视觉输入的基本单位。",
+    "category": "模型训练、网络结构与数学指标",
+    "note": "非缩写术语"
+  },
+  {
+    "abbr": "NVIDIA",
+    "english": "NVIDIA",
+    "chinese": "英伟达",
+    "meaning": "公司/品牌名，不建议当作普通缩写展开。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "品牌名"
+  },
+  {
+    "abbr": "VSS",
+    "english": "Video Search and Summarization",
+    "chinese": "视频搜索与摘要",
+    "meaning": "NVIDIA 视频搜索与摘要蓝图，用于视频上传、检索、问答、总结、报告生成和视频智能体构建。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "VSS Agent",
+    "english": "Video Search and Summarization Agent",
+    "chinese": "视频搜索与摘要智能体",
+    "meaning": "基于 VSS 的视频分析智能体，可进行视频搜索、摘要、报告生成和视频内容问答。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "术语"
+  },
+  {
+    "abbr": "NIM",
+    "english": "NVIDIA Inference Microservice / NVIDIA NIM",
+    "chinese": "NVIDIA 推理微服务",
+    "meaning": "NVIDIA 预构建、优化好的 AI 推理微服务，用容器和标准 API 简化模型部署。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "产品缩写"
+  },
+  {
+    "abbr": "NeMo",
+    "english": "Neural Modules / NVIDIA NeMo",
+    "chinese": "NVIDIA 神经模块 / NeMo 框架",
+    "meaning": "NVIDIA 的 AI 模型、训练和检索相关工具体系名称；在讲义中主要出现在 NeMo Retriever OCR。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "产品名/框架名"
+  },
+  {
+    "abbr": "Nemotron Parse",
+    "english": "NVIDIA Nemotron Parse",
+    "chinese": "NVIDIA Nemotron 文档解析",
+    "meaning": "用于扫描件或复杂版式 PDF 的高精度文本抽取和文档解析能力。不是严格缩写，但在讲义中应作为关键术语掌握。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "产品/模型名"
+  },
+  {
+    "abbr": "NGC",
+    "english": "NVIDIA GPU Cloud",
+    "chinese": "NVIDIA GPU 云",
+    "meaning": "NVIDIA 的容器、模型、Helm chart 等资源平台，课程部署命令中可能用到 NGC API Key。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "CLI",
+    "english": "Command-Line Interface",
+    "chinese": "命令行界面",
+    "meaning": "通过终端命令操作工具或服务，例如 NGC CLI。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "NVCR",
+    "english": "NVIDIA Container Registry",
+    "chinese": "NVIDIA 容器注册库",
+    "meaning": "NVIDIA 容器镜像仓库，镜像地址常以 nvcr.io 开头。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "MCP",
+    "english": "Model Context Protocol",
+    "chinese": "模型上下文协议",
+    "meaning": "用于让智能体连接外部工具、服务或数据源的协议。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "DeepStream",
+    "english": "NVIDIA DeepStream SDK",
+    "chinese": "NVIDIA 视频流分析 SDK",
+    "meaning": "NVIDIA 的视频流分析开发工具，用于实时视频分析、目标检测和边缘视觉应用。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "产品名"
+  },
+  {
+    "abbr": "Riva",
+    "english": "NVIDIA Riva",
+    "chinese": "NVIDIA 语音 AI SDK",
+    "meaning": "NVIDIA 的语音识别和语音合成服务体系；不是严格缩写。",
+    "category": "NVIDIA 产品、蓝图与平台",
+    "note": "产品名"
+  },
+  {
+    "abbr": "HTTP",
+    "english": "HyperText Transfer Protocol",
+    "chinese": "超文本传输协议",
+    "meaning": "Web 服务和 API 请求常用协议，OCR 或模型服务调用常使用 HTTP endpoint。",
+    "category": "系统、数据格式与开发工具",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "REST",
+    "english": "Representational State Transfer",
+    "chinese": "表述性状态转移",
+    "meaning": "常见 Web API 设计风格，通常与 HTTP API 一起使用。",
+    "category": "系统、数据格式与开发工具",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "JSON",
+    "english": "JavaScript Object Notation",
+    "chinese": "JavaScript 对象表示法",
+    "meaning": "常用结构化数据格式，API 返回结果、配置和日志中常见。",
+    "category": "系统、数据格式与开发工具",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "YAML",
+    "english": "YAML Ain’t Markup Language",
+    "chinese": "YAML 标记语言",
+    "meaning": "常用配置文件格式，例如 environment.yml。",
+    "category": "系统、数据格式与开发工具",
+    "note": "递归缩写"
+  },
+  {
+    "abbr": "CSV",
+    "english": "Comma-Separated Values",
+    "chinese": "逗号分隔值",
+    "meaning": "表格数据文本格式，常用于保存 camera.csv、lidar.csv 等实验数据。",
+    "category": "系统、数据格式与开发工具",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "HTML",
+    "english": "HyperText Markup Language",
+    "chinese": "超文本标记语言",
+    "meaning": "网页结构语言，本学习系统使用 HTML 构建。",
+    "category": "系统、数据格式与开发工具",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "URL",
+    "english": "Uniform Resource Locator",
+    "chinese": "统一资源定位符",
+    "meaning": "网页、API endpoint、模型服务地址等链接。",
+    "category": "系统、数据格式与开发工具",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "endpoint",
+    "english": "Endpoint",
+    "chinese": "服务端点",
+    "meaning": "API 或模型服务的访问地址。不是缩写，但在部署和调用服务时常见。",
+    "category": "系统、数据格式与开发工具",
+    "note": "非缩写术语"
+  },
+  {
+    "abbr": "Docker",
+    "english": "Docker",
+    "chinese": "容器化平台",
+    "meaning": "用于打包和运行服务容器；不是缩写。",
+    "category": "系统、数据格式与开发工具",
+    "note": "产品/工具名"
+  },
+  {
+    "abbr": "Helm",
+    "english": "Helm",
+    "chinese": "Kubernetes 包管理工具",
+    "meaning": "用于部署 Kubernetes 应用；不是缩写。",
+    "category": "系统、数据格式与开发工具",
+    "note": "工具名"
+  },
+  {
+    "abbr": "Kubernetes / K8s",
+    "english": "Kubernetes",
+    "chinese": "容器编排系统",
+    "meaning": "大规模部署容器化服务的系统；K8s 是常见缩写写法。",
+    "category": "系统、数据格式与开发工具",
+    "note": "工具名/缩写"
+  },
+  {
+    "abbr": "GPU",
+    "english": "Graphics Processing Unit",
+    "chinese": "图形处理器",
+    "meaning": "深度学习训练和推理的核心加速硬件。",
+    "category": "硬件、计算资源与单位",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "CPU",
+    "english": "Central Processing Unit",
+    "chinese": "中央处理器",
+    "meaning": "通用计算处理器，负责系统控制和一般计算任务。",
+    "category": "硬件、计算资源与单位",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "RAM",
+    "english": "Random Access Memory",
+    "chinese": "随机存取存储器 / 内存",
+    "meaning": "程序运行时使用的主内存。",
+    "category": "硬件、计算资源与单位",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "SSD",
+    "english": "Solid-State Drive",
+    "chinese": "固态硬盘",
+    "meaning": "高速存储设备，用于保存数据集、模型权重和索引。",
+    "category": "硬件、计算资源与单位",
+    "note": "严格缩写"
+  },
+  {
+    "abbr": "GB",
+    "english": "Gigabyte",
+    "chinese": "吉字节",
+    "meaning": "存储容量单位，约等于 10⁹ 字节；在内存、显存和硬盘容量中常见。",
+    "category": "硬件、计算资源与单位",
+    "note": "单位缩写"
+  },
+  {
+    "abbr": "TB",
+    "english": "Terabyte",
+    "chinese": "太字节",
+    "meaning": "存储容量单位，约等于 10¹² 字节。",
+    "category": "硬件、计算资源与单位",
+    "note": "单位缩写"
+  },
+  {
+    "abbr": "Gbps",
+    "english": "Gigabits per second",
+    "chinese": "吉比特每秒",
+    "meaning": "网络带宽单位，例如 1 Gbps 网口。",
+    "category": "硬件、计算资源与单位",
+    "note": "单位缩写"
+  },
+  {
+    "abbr": "MB",
+    "english": "Megabyte",
+    "chinese": "兆字节",
+    "meaning": "存储容量单位，讲义中 GPU memory 配置可能以 MB 表示。",
+    "category": "硬件、计算资源与单位",
+    "note": "单位缩写"
+  },
+  {
+    "abbr": "H100",
+    "english": "NVIDIA H100 Tensor Core GPU",
+    "chinese": "NVIDIA H100 GPU",
+    "meaning": "NVIDIA 数据中心 GPU 型号，不是普通缩写。",
+    "category": "硬件、计算资源与单位",
+    "note": "硬件型号"
+  },
+  {
+    "abbr": "A100",
+    "english": "NVIDIA A100 Tensor Core GPU",
+    "chinese": "NVIDIA A100 GPU",
+    "meaning": "NVIDIA 数据中心 GPU 型号，不是普通缩写。",
+    "category": "硬件、计算资源与单位",
+    "note": "硬件型号"
+  },
+  {
+    "abbr": "L40S",
+    "english": "NVIDIA L40S GPU",
+    "chinese": "NVIDIA L40S GPU",
+    "meaning": "NVIDIA 数据中心/图形与推理 GPU 型号，不是普通缩写。",
+    "category": "硬件、计算资源与单位",
+    "note": "硬件型号"
+  },
+  {
+    "abbr": "B200",
+    "english": "NVIDIA B200 GPU",
+    "chinese": "NVIDIA B200 GPU",
+    "meaning": "NVIDIA Blackwell 架构相关 GPU 型号，不是普通缩写。",
+    "category": "硬件、计算资源与单位",
+    "note": "硬件型号"
+  },
+  {
+    "abbr": "RTX",
+    "english": "NVIDIA RTX",
+    "chinese": "NVIDIA RTX 图形与 AI 加速产品线",
+    "meaning": "NVIDIA 图形与 AI 加速产品线名称，常见于 RTX GPU。课堂中不建议强行按普通缩写展开。",
+    "category": "硬件、计算资源与单位",
+    "note": "产品线名称"
+  },
+  {
+    "abbr": "DGX",
+    "english": "NVIDIA DGX",
+    "chinese": "NVIDIA DGX AI 系统",
+    "meaning": "NVIDIA 面向 AI 训练和推理的高性能系统产品线。",
+    "category": "硬件、计算资源与单位",
+    "note": "产品线名称"
+  },
+  {
+    "abbr": "IGX",
+    "english": "NVIDIA IGX",
+    "chinese": "NVIDIA 工业边缘 AI 平台",
+    "meaning": "NVIDIA 面向工业、机器人、医疗等边缘 AI 的平台名称，不建议强行展开。",
+    "category": "硬件、计算资源与单位",
+    "note": "平台名"
+  },
+  {
+    "abbr": "AGX",
+    "english": "NVIDIA AGX",
+    "chinese": "NVIDIA 自主机器平台",
+    "meaning": "NVIDIA 面向机器人、边缘 AI 和自主机器的计算平台名称。",
+    "category": "硬件、计算资源与单位",
+    "note": "平台名"
+  },
+  {
+    "abbr": "PPT",
+    "english": "PowerPoint Presentation",
+    "chinese": "演示文稿",
+    "meaning": "课程课件常用格式，讲义可拆成章节 PPT。",
+    "category": "文件、课件与输出物",
+    "note": "常见缩写"
+  },
+  {
+    "abbr": "Markdown / MD",
+    "english": "Markdown",
+    "chinese": "轻量级标记语言",
+    "meaning": "用纯文本写结构化文档的格式，VSS 报告和教学材料可导出为 Markdown。",
+    "category": "文件、课件与输出物",
+    "note": "格式名/缩写"
+  },
+  {
+    "abbr": "Jupyter",
+    "english": "Jupyter Notebook",
+    "chinese": "交互式计算笔记本",
+    "meaning": "用于运行 Python 代码、展示实验过程和记录结果。不是缩写。",
+    "category": "文件、课件与输出物",
+    "note": "工具名"
+  }
+]
