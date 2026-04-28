@@ -1,450 +1,274 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NCP-AAI 知识卡片学习系统</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NCP-AAI 在线刷题与模拟考试系统</title>
   <style>
-    :root {
-      --bg: #f5f7fb;
-      --panel: #ffffff;
-      --text: #152033;
-      --muted: #64748b;
-      --primary: #2563eb;
-      --primary-2: #1d4ed8;
-      --accent: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --border: #dbe3ef;
-      --shadow: 0 20px 45px rgba(15, 23, 42, .12);
-      --radius: 20px;
+    :root{
+      --bg:#0b1020;--panel:#111a2e;--panel2:#17213a;--card:#f8fafc;--text:#e5e7eb;--muted:#94a3b8;--brand:#76b900;--brand2:#b8ff4d;--danger:#ef4444;--warn:#f59e0b;--ok:#22c55e;--line:#263450;--ink:#0f172a;--soft:#eef2f7;
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
-      background: radial-gradient(circle at top left, #e0ecff, transparent 38%), var(--bg);
-      color: var(--text);
-    }
-    header {
-      position: sticky; top: 0; z-index: 20;
-      backdrop-filter: blur(14px);
-      background: rgba(245, 247, 251, .84);
-      border-bottom: 1px solid rgba(219,227,239,.8);
-    }
-    .topbar { max-width: 1220px; margin: 0 auto; padding: 18px 18px; display: flex; gap: 16px; align-items: center; justify-content: space-between; }
-    .brand { display: flex; gap: 12px; align-items: center; }
-    .logo { width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #2563eb, #10b981); display: grid; place-items: center; color: white; font-weight: 900; box-shadow: 0 10px 24px rgba(37,99,235,.3); }
-    .brand h1 { margin: 0; font-size: 21px; letter-spacing: .2px; }
-    .brand p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
-    .statsbar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
-    .pill { background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 8px 12px; color: var(--muted); font-size: 13px; box-shadow: 0 6px 16px rgba(15,23,42,.05); }
-    .pill b { color: var(--text); }
-    main { max-width: 1220px; margin: 0 auto; padding: 22px 18px 48px; display: grid; grid-template-columns: 300px 1fr; gap: 22px; }
-    aside { background: rgba(255,255,255,.82); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; height: fit-content; position: sticky; top: 90px; }
-    .search { width: 100%; padding: 13px 14px; border-radius: 14px; border: 1px solid var(--border); font-size: 15px; outline: none; }
-    .search:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37,99,235,.12); }
-    .filter-title { margin: 18px 0 10px; font-size: 13px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
-    .cat-list { display: grid; gap: 8px; }
-    .cat-btn {
-      width: 100%; text-align: left; border: 1px solid var(--border); background: #fff; border-radius: 14px; padding: 10px 12px; cursor: pointer; color: var(--text); display: flex; justify-content: space-between; gap: 10px; align-items: center;
-    }
-    .cat-btn:hover, .cat-btn.active { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
-    .cat-btn span:last-child { color: var(--muted); font-size: 12px; }
-    .side-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
-    .btn {
-      border: 0; background: var(--primary); color: white; border-radius: 14px; padding: 11px 14px; font-size: 14px; cursor: pointer; font-weight: 700; box-shadow: 0 10px 22px rgba(37,99,235,.18);
-    }
-    .btn:hover { background: var(--primary-2); }
-    .btn.secondary { background: #fff; color: var(--text); border: 1px solid var(--border); box-shadow: none; }
-    .btn.secondary:hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
-    .btn.good { background: var(--accent); }
-    .btn.warn { background: var(--warning); }
-    .btn.bad { background: var(--danger); }
-    .content { min-width: 0; }
-    .tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-    .tab { border: 1px solid var(--border); background: #fff; border-radius: 999px; padding: 10px 14px; cursor: pointer; color: var(--muted); font-weight: 700; }
-    .tab.active { color: #fff; background: var(--primary); border-color: var(--primary); }
-    .panel { background: rgba(255,255,255,.88); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
-    .study-grid { display: grid; grid-template-columns: 1fr 310px; gap: 18px; }
-    .card-wrap { perspective: 1200px; min-height: 420px; }
-    .flashcard {
-      height: 420px; position: relative; transform-style: preserve-3d; transition: transform .55s ease; cursor: pointer;
-    }
-    .flashcard.flipped { transform: rotateY(180deg); }
-    .face {
-      position: absolute; inset: 0; background: linear-gradient(160deg, #ffffff, #f8fbff); border: 1px solid var(--border); border-radius: 28px; padding: 34px; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: 0 18px 38px rgba(15,23,42,.10);
-    }
-    .back { transform: rotateY(180deg); align-items: stretch; text-align: left; justify-content: flex-start; overflow: auto; }
-    .card-id { font-size: 12px; color: var(--muted); background: #f1f5f9; padding: 6px 10px; border-radius: 999px; margin-bottom: 16px; }
-    .term { font-size: clamp(38px, 7vw, 76px); font-weight: 900; letter-spacing: -1.5px; line-height: 1.05; margin: 0; color: var(--text); }
-    .cat-tag { margin-top: 18px; color: var(--primary); background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 999px; padding: 7px 12px; font-weight: 700; }
-    .hint { color: var(--muted); margin-top: 24px; font-size: 14px; }
-    .back h2 { margin: 0 0 16px; font-size: 28px; }
-    .field { margin: 0 0 14px; padding: 14px; background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; }
-    .field label { display: block; color: var(--muted); font-size: 13px; font-weight: 800; margin-bottom: 6px; }
-    .field p { margin: 0; line-height: 1.62; }
-    .card-actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 14px; }
-    .info-panel { display: grid; gap: 12px; }
-    .mini { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 14px; }
-    .mini h3 { margin: 0 0 10px; font-size: 15px; }
-    .progressbar { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
-    .progressbar > div { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); width: 0%; transition: width .3s; }
-    .meta-list { display: grid; gap: 8px; color: var(--muted); font-size: 14px; }
-    .meta-list b { color: var(--text); }
-    .quiz-options { display: grid; gap: 12px; margin-top: 18px; }
-    .option { border: 1px solid var(--border); background: #fff; border-radius: 16px; padding: 14px; cursor: pointer; text-align: left; line-height: 1.45; }
-    .option:hover { border-color: var(--primary); background: #eff6ff; }
-    .option.correct { border-color: var(--accent); background: #ecfdf5; }
-    .option.wrong { border-color: var(--danger); background: #fef2f2; }
-    .quiz-term { font-size: 46px; margin: 16px 0 8px; font-weight: 900; }
-    .table-wrap { overflow: auto; max-height: 680px; border: 1px solid var(--border); border-radius: 16px; }
-    table { width: 100%; border-collapse: collapse; background: #fff; }
-    th, td { padding: 12px 13px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
-    th { background: #f8fafc; text-align: left; position: sticky; top: 0; z-index: 1; }
-    .hidden { display: none !important; }
-    .export-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .note { color: var(--muted); line-height: 1.65; }
-    kbd { background: #0f172a; color: #fff; border-radius: 7px; padding: 2px 6px; font-size: 12px; }
-    @media (max-width: 980px) {
-      main { grid-template-columns: 1fr; }
-      aside { position: static; }
-      .study-grid { grid-template-columns: 1fr; }
-      .card-actions { grid-template-columns: repeat(2, 1fr); }
-      .export-grid { grid-template-columns: 1fr; }
-    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;background:linear-gradient(135deg,#07111f 0%,#111827 55%,#18230c 100%);color:var(--text);min-height:100vh}
+    header{position:sticky;top:0;z-index:10;background:rgba(8,13,25,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+    .wrap{max-width:1180px;margin:0 auto;padding:18px 18px}
+    .title{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .logo{display:flex;gap:12px;align-items:center}.mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--brand),#3f6212);display:grid;place-items:center;font-weight:900;color:#0b1020;box-shadow:0 0 24px rgba(118,185,0,.35)}
+    h1{font-size:22px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:3px}
+    .tabs{display:flex;gap:8px;margin-top:14px;overflow:auto;padding-bottom:2px}.tab{border:1px solid var(--line);background:#0f172a;color:var(--text);padding:10px 14px;border-radius:999px;cursor:pointer;white-space:nowrap}.tab.active{background:var(--brand);color:#08111f;border-color:var(--brand);font-weight:700}.tab:hover{border-color:var(--brand)}
+    .grid{display:grid;grid-template-columns:310px 1fr;gap:18px}.panel{background:rgba(17,26,46,.88);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+    .card{background:var(--card);color:var(--ink);border-radius:20px;padding:22px;border:1px solid #dbe4ee;box-shadow:0 12px 32px rgba(0,0,0,.18)}
+    label{display:block;font-size:13px;color:#cbd5e1;margin:10px 0 6px} select,input{width:100%;border:1px solid #334155;background:#0f172a;color:var(--text);border-radius:12px;padding:10px 12px;outline:none} input[type="number"]{appearance:textfield}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.btn{border:0;background:#23314f;color:var(--text);border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:650}.btn.primary{background:var(--brand);color:#07111f}.btn.ghost{background:transparent;border:1px solid #3b4b69}.btn.danger{background:var(--danger);color:white}.btn.warn{background:var(--warn);color:#111827}.btn.ok{background:var(--ok);color:#052e16}.btn:disabled{opacity:.45;cursor:not-allowed}.btn:hover:not(:disabled){filter:brightness(1.08)}
+    .metric{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.metric div{background:#0f172a;border:1px solid var(--line);border-radius:14px;padding:12px}.metric b{display:block;font-size:22px;color:var(--brand2)}.metric span{font-size:12px;color:var(--muted)}
+    .qmeta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.badge{border-radius:999px;padding:5px 9px;font-size:12px;background:#e2e8f0;color:#0f172a}.badge.green{background:#dcfce7;color:#166534}.badge.blue{background:#dbeafe;color:#1e40af}.badge.orange{background:#ffedd5;color:#9a3412}.badge.dark{background:#1e293b;color:#e2e8f0}.stem{font-size:20px;line-height:1.6;font-weight:750;margin:8px 0 18px}.opts{display:grid;gap:10px}.opt{display:flex;gap:10px;align-items:flex-start;padding:12px 13px;border:1px solid #cbd5e1;border-radius:14px;background:white;cursor:pointer;line-height:1.45}.opt:hover{border-color:#94a3b8;background:#f8fafc}.opt input{width:auto;margin-top:3px}.opt.correct{border-color:#22c55e;background:#dcfce7}.opt.wrong{border-color:#ef4444;background:#fee2e2}.letter{font-weight:800;min-width:22px;color:#334155}.explain{display:none;margin-top:16px;background:#eef8df;border-left:5px solid var(--brand);padding:14px 16px;border-radius:12px;line-height:1.6}.explain.show{display:block}.navline{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px;flex-wrap:wrap}.progress{height:10px;background:#0f172a;border-radius:999px;overflow:hidden;margin-top:12px}.bar{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));width:0%}.small{font-size:12px;color:var(--muted)}
+    .palette{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.pill{width:34px;height:30px;border-radius:10px;border:1px solid #3b4b69;background:#0f172a;color:#e2e8f0;cursor:pointer}.pill.on{background:var(--brand);color:#07111f}.pill.done{border-color:var(--brand)}.pill.bad{background:#7f1d1d}.pill.good{background:#14532d}.timer{font-variant-numeric:tabular-nums;font-size:22px;font-weight:850;color:var(--brand2)}
+    table{width:100%;border-collapse:collapse;background:white;color:#0f172a;border-radius:14px;overflow:hidden}th,td{border-bottom:1px solid #e2e8f0;padding:10px;text-align:left;vertical-align:top;font-size:13px}th{background:#eef2f7;font-weight:800;position:sticky;top:96px}.scroll{overflow:auto;max-height:68vh;border-radius:14px}.hidden{display:none!important}.notice{background:#12213a;border:1px solid #294064;color:#dbeafe;border-radius:14px;padding:12px;line-height:1.6}.guide h3{margin-top:22px;color:#e5e7eb}.guide li{margin:7px 0;line-height:1.6}.code{background:#08111f;border:1px solid #263450;border-radius:14px;padding:12px;overflow:auto;color:#d1fae5;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.5}.footer{color:#94a3b8;font-size:12px;text-align:center;padding:24px}
+    @media(max-width:880px){.grid{grid-template-columns:1fr}.title{align-items:flex-start}.card{padding:16px}th{position:static}.stem{font-size:18px}}
+    @media print{body{background:white;color:black}header,.panel,.tabs,.btn,.footer{display:none}.grid{display:block}.card{box-shadow:none;border:0}.explain{display:block}}
   </style>
 </head>
 <body>
-  <header>
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo">AAI</div>
-        <div>
-          <h1>NCP-AAI 知识卡片学习系统</h1>
-          <p>术语/缩写 → 英文全称、中文全称、中文解释｜离线可用｜支持复习进度保存</p>
-        </div>
-      </div>
-      <div class="statsbar">
-        <div class="pill">总卡片 <b id="totalCards">0</b></div>
-        <div class="pill">已熟悉 <b id="knownCards">0</b></div>
-        <div class="pill">收藏 <b id="starCards">0</b></div>
-      </div>
+<header>
+  <div class="wrap">
+    <div class="title">
+      <div class="logo"><div class="mark">AI</div><div><h1>NCP-AAI 在线刷题与模拟考试系统</h1><div class="sub">Agentic AI Professional · 单选 + 多选 · 章节练习 · 模拟考试 · 错题本</div></div></div>
+      <div class="small">题库 <b id="totalCount">0</b> 题 · 本地离线可用 · 数据保存在浏览器 localStorage</div>
     </div>
-  </header>
-
-  <main>
-    <aside>
-      <input class="search" id="searchBox" placeholder="搜索术语 / 英文 / 中文解释" />
-      <div class="filter-title">章节分类</div>
-      <div class="cat-list" id="categoryList"></div>
-      <div class="side-actions">
-        <button class="btn secondary" id="onlyStarBtn">仅收藏</button>
-        <button class="btn secondary" id="dueBtn">优先复习</button>
-        <button class="btn secondary" id="shuffleBtn">随机排序</button>
-        <button class="btn secondary" id="resetFilterBtn">清除筛选</button>
-      </div>
-      <div class="mini" style="margin-top:16px;">
-        <h3>快捷键</h3>
-        <div class="meta-list">
-          <span><kbd>Space</kbd> 翻面</span>
-          <span><kbd>←</kbd>/<kbd>→</kbd> 上一张/下一张</span>
-          <span><kbd>1</kbd> 不熟；<kbd>2</kbd> 熟悉</span>
-          <span><kbd>S</kbd> 收藏/取消收藏</span>
+    <div class="tabs">
+      <button class="tab active" data-tab="practice">章节刷题</button>
+      <button class="tab" data-tab="exam">模拟考试</button>
+      <button class="tab" data-tab="bank">题库浏览</button>
+      <button class="tab" data-tab="stats">学习统计</button>
+      <button class="tab" data-tab="guide">使用说明/代码模板</button>
+    </div>
+  </div>
+</header>
+<main class="wrap">
+  <section id="practice" class="tabpage">
+    <div class="grid">
+      <aside class="panel">
+        <h2>刷题设置</h2>
+        <label>章节</label><select id="pChapter"></select>
+        <label>题型</label><select id="pType"><option value="all">全部</option><option value="single">单选</option><option value="multi">多选</option></select>
+        <label>难度</label><select id="pDifficulty"><option value="all">全部</option><option>基础</option><option>进阶</option></select>
+        <label>刷题范围</label><select id="pScope"><option value="all">全部符合条件题目</option><option value="wrong">只刷错题</option><option value="bookmarked">只刷收藏</option></select>
+        <label>关键词搜索</label><input id="pSearch" placeholder="如 RAG、ReAct、Guardrails" />
+        <div class="row" style="margin-top:12px"><button class="btn primary" onclick="startPractice()">开始/刷新题组</button><button class="btn ghost" onclick="shufflePractice()">随机顺序</button></div>
+        <div class="metric">
+          <div><b id="pTotal">0</b><span>当前题组</span></div>
+          <div><b id="pIndex">0</b><span>当前进度</span></div>
+          <div><b id="pAccuracy">0%</b><span>累计正确率</span></div>
+          <div><b id="pWrongCount">0</b><span>错题数</span></div>
         </div>
-      </div>
-    </aside>
+        <div class="progress"><div class="bar" id="pBar"></div></div>
+        <div class="palette" id="pPalette"></div>
+      </aside>
+      <div class="card" id="practiceCard"></div>
+    </div>
+  </section>
 
-    <section class="content">
-      <div class="tabs">
-        <button class="tab active" data-tab="study">卡片学习</button>
-        <button class="tab" data-tab="quiz">快速测验</button>
-        <button class="tab" data-tab="browse">卡片总表</button>
-        <button class="tab" data-tab="export">导出/说明</button>
-      </div>
-
-      <div class="panel" id="studyPanel">
-        <div class="study-grid">
-          <div>
-            <div class="card-wrap">
-              <div class="flashcard" id="flashcard" title="点击翻面">
-                <div class="face front">
-                  <div class="card-id" id="cardIdFront"></div>
-                  <h2 class="term" id="termFront"></h2>
-                  <div class="cat-tag" id="catFront"></div>
-                  <div class="hint">点击卡片或按 Space 查看背面</div>
-                </div>
-                <div class="face back">
-                  <h2 id="termBack"></h2>
-                  <div class="field"><label>英文全称</label><p id="englishBack"></p></div>
-                  <div class="field"><label>中文全称</label><p id="chineseBack"></p></div>
-                  <div class="field"><label>中文解释</label><p id="explainBack"></p></div>
-                </div>
-              </div>
-            </div>
-            <div class="card-actions">
-              <button class="btn secondary" id="prevBtn">上一张</button>
-              <button class="btn secondary" id="flipBtn">翻面</button>
-              <button class="btn bad" id="unknownBtn">不熟</button>
-              <button class="btn good" id="knownBtn">熟悉</button>
-              <button class="btn secondary" id="nextBtn">下一张</button>
-            </div>
-          </div>
-          <div class="info-panel">
-            <div class="mini">
-              <h3>学习进度</h3>
-              <div class="progressbar"><div id="progressFill"></div></div>
-              <div class="meta-list" style="margin-top:10px;">
-                <span>当前范围：<b id="rangeCount">0</b> 张</span>
-                <span>当前位置：<b id="positionText">0 / 0</b></span>
-                <span>当前熟悉度：<b id="levelText">0</b> / 5</span>
-              </div>
-            </div>
-            <div class="mini">
-              <h3>当前卡片</h3>
-              <div class="meta-list">
-                <span>ID：<b id="metaId"></b></span>
-                <span>分类：<b id="metaCategory"></b></span>
-                <span>状态：<b id="metaStatus"></b></span>
-              </div>
-              <button class="btn secondary" id="starBtn" style="margin-top:12px;width:100%;">收藏</button>
-            </div>
-            <div class="mini">
-              <h3>复习建议</h3>
-              <p class="note">先按章节筛选，完成一轮“正面识别 → 背面解释”。对不熟卡片点“不熟”，系统会在“优先复习”中把它们排在前面。</p>
-            </div>
-          </div>
+  <section id="exam" class="tabpage hidden">
+    <div class="grid">
+      <aside class="panel">
+        <h2>模拟考试</h2>
+        <label>考试范围</label><select id="eChapter"></select>
+        <label>题型</label><select id="eType"><option value="all">全部</option><option value="single">单选</option><option value="multi">多选</option></select>
+        <label>题数</label><input id="eCount" type="number" min="5" max="120" value="60" />
+        <label>时长（分钟）</label><input id="eMinutes" type="number" min="5" value="120" />
+        <div class="row" style="margin-top:12px"><button class="btn primary" onclick="startExam()">开始模拟考试</button><button class="btn danger" onclick="submitExam()">交卷</button></div>
+        <div class="notice" style="margin-top:12px">考试模式不会即时显示答案。交卷后显示成绩、章节薄弱点、错题解析。</div>
+        <div style="margin-top:14px">剩余时间：<span class="timer" id="timer">--:--</span></div>
+        <div class="metric">
+          <div><b id="eTotal">0</b><span>本次题数</span></div>
+          <div><b id="eAnswered">0</b><span>已答题</span></div>
         </div>
-      </div>
+        <div class="palette" id="ePalette"></div>
+      </aside>
+      <div class="card" id="examCard"><div class="notice">请设置题数与范围后点击“开始模拟考试”。</div></div>
+    </div>
+  </section>
 
-      <div class="panel hidden" id="quizPanel">
-        <h2 style="margin-top:0">快速测验</h2>
-        <p class="note">根据当前筛选范围随机出题。请选择该术语/缩写对应的中文全称或英文全称。</p>
-        <div class="mini">
-          <div class="card-id" id="quizCat"></div>
-          <div class="quiz-term" id="quizTerm"></div>
-          <div id="quizPrompt" class="note"></div>
-          <div class="quiz-options" id="quizOptions"></div>
-          <div id="quizExplain" class="field hidden" style="margin-top:14px;"></div>
-          <button class="btn" id="nextQuizBtn" style="margin-top:14px;">下一题</button>
+  <section id="bank" class="tabpage hidden">
+    <div class="panel" style="margin-bottom:14px">
+      <div class="row"><input id="bSearch" placeholder="搜索题干、解析、标签" oninput="renderBank()" style="max-width:420px"><button class="btn ghost" onclick="toggleBankAnswer()">显示/隐藏答案</button><button class="btn ghost" onclick="downloadJSON()">导出题库 JSON</button></div>
+    </div>
+    <div class="scroll"><table><thead><tr><th>ID</th><th>章节</th><th>题型</th><th>题干</th><th>答案</th><th>解析</th></tr></thead><tbody id="bankBody"></tbody></table></div>
+  </section>
+
+  <section id="stats" class="tabpage hidden">
+    <div class="grid">
+      <aside class="panel">
+        <h2>学习统计</h2>
+        <div class="metric">
+          <div><b id="sAttempts">0</b><span>累计作答</span></div>
+          <div><b id="sCorrect">0</b><span>累计正确</span></div>
+          <div><b id="sRate">0%</b><span>正确率</span></div>
+          <div><b id="sBookmarks">0</b><span>收藏题</span></div>
         </div>
-      </div>
+        <div class="row" style="margin-top:12px"><button class="btn ghost" onclick="exportStats()">导出学习记录</button><button class="btn danger" onclick="resetStats()">清空记录</button></div>
+      </aside>
+      <div class="card"><h2>章节掌握情况</h2><div id="chapterStats"></div><h2>错题本</h2><div id="wrongList"></div></div>
+    </div>
+  </section>
 
-      <div class="panel hidden" id="browsePanel">
-        <h2 style="margin-top:0">卡片总表</h2>
-        <p class="note">可用左侧搜索框和章节分类筛选。表格中的内容也已保存为 cards.csv、cards.json 和 anki_flashcards.tsv。</p>
-        <div class="table-wrap"><table id="cardsTable"></table></div>
-      </div>
-
-      <div class="panel hidden" id="exportPanel">
-        <h2 style="margin-top:0">导出与部署说明</h2>
-        <div class="export-grid">
-          <button class="btn" id="downloadJsonBtn">导出 JSON</button>
-          <button class="btn" id="downloadCsvBtn">导出 CSV</button>
-          <button class="btn" id="downloadAnkiBtn">导出 Anki TSV</button>
-        </div>
-        <div class="field" style="margin-top:16px;">
-          <label>使用方法</label>
-          <p>解压 ZIP 后双击 <b>index.html</b> 即可离线使用。也可以把整个文件夹上传到 GitHub Pages、Nginx、Apache、内网服务器或任意静态网站空间。</p>
-        </div>
-        <div class="field">
-          <label>学习数据</label>
-          <p>收藏、熟悉度和测验记录保存在浏览器 localStorage 中；更换浏览器或清除缓存会丢失本地进度。</p>
-        </div>
-        <div class="field">
-          <label>卡片格式</label>
-          <p>正面仅显示术语/缩写；背面显示英文全称、中文全称和中文解释，适合快速背诵 AAI 考试核心概念。</p>
-        </div>
-        <button class="btn bad" id="resetProgressBtn">清空本地学习进度</button>
-      </div>
-    </section>
-  </main>
-
-  <script>
-    const CARDS = [{"id": "AAI-001", "category": "基础概念", "term": "AAI", "englishFullName": "Agentic AI", "chineseFullName": "智能体式人工智能", "explanation": "一种围绕目标自主规划、调用工具、观察结果并迭代完成任务的 AI 系统范式，强调“行动能力”和“流程闭环”，而不只是一次性生成文本。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-002", "category": "基础概念", "term": "NCP-AAI", "englishFullName": "NVIDIA-Certified Professional: Agentic AI", "chineseFullName": "NVIDIA 认证专业级：智能体式 AI", "explanation": "NVIDIA 面向智能体式 AI 解决方案设计、开发、部署、监控和治理能力的专业级认证考试。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-003", "category": "基础概念", "term": "AI Agent", "englishFullName": "Artificial Intelligence Agent", "chineseFullName": "人工智能智能体", "explanation": "能够感知环境、理解目标、选择行动、调用工具并根据反馈调整下一步行为的软件实体。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-004", "category": "基础概念", "term": "LLM", "englishFullName": "Large Language Model", "chineseFullName": "大语言模型", "explanation": "基于大规模文本和多模态数据训练的基础模型，是智能体理解语言、生成计划、调用工具和组织答案的核心推理组件。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-005", "category": "基础概念", "term": "Foundation Model", "englishFullName": "Foundation Model", "chineseFullName": "基础模型", "explanation": "经过大规模预训练、可通过提示、微调或工具增强适配多种任务的通用模型。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-006", "category": "基础概念", "term": "Goal", "englishFullName": "Goal", "chineseFullName": "目标", "explanation": "智能体试图完成的最终任务或业务结果，例如生成报告、完成审批、检索证据或执行工作流。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-007", "category": "基础概念", "term": "Environment", "englishFullName": "Environment", "chineseFullName": "环境", "explanation": "智能体可以观察并采取行动的外部系统，包括网页、文件、数据库、API、企业应用和用户交互界面。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-008", "category": "基础概念", "term": "Action", "englishFullName": "Action", "chineseFullName": "行动", "explanation": "智能体为了推进任务而执行的步骤，例如调用搜索工具、读取文件、写入数据库或请求人工确认。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-009", "category": "基础概念", "term": "Observation", "englishFullName": "Observation", "chineseFullName": "观察结果", "explanation": "工具调用、环境变化或用户反馈返回给智能体的信息，用于决定后续推理和行动。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-010", "category": "基础概念", "term": "State", "englishFullName": "State", "chineseFullName": "状态", "explanation": "任务执行过程中需要保存的上下文，包括当前目标、已完成步骤、工具结果、错误信息和用户选择。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-011", "category": "基础概念", "term": "Autonomy", "englishFullName": "Autonomy", "chineseFullName": "自主性", "explanation": "智能体在给定边界内自主拆解任务、选择工具、执行步骤和调整计划的能力。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-012", "category": "基础概念", "term": "Policy", "englishFullName": "Policy", "chineseFullName": "策略/规则", "explanation": "约束智能体行为的规则集合，例如工具调用权限、安全边界、输出格式和人工审批条件。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-013", "category": "架构与设计", "term": "Agent Architecture", "englishFullName": "Agent Architecture", "chineseFullName": "智能体架构", "explanation": "智能体系统的组件组织方式，通常包括 LLM、工具、记忆、规划器、执行器、状态管理、监控和安全护栏。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-014", "category": "架构与设计", "term": "Planner", "englishFullName": "Planner", "chineseFullName": "规划器", "explanation": "负责把复杂目标拆成可执行步骤，并根据中间结果决定下一步行动的组件。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-015", "category": "架构与设计", "term": "Executor", "englishFullName": "Executor", "chineseFullName": "执行器", "explanation": "根据规划结果调用工具、执行动作、处理返回值并更新任务状态的组件。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-016", "category": "架构与设计", "term": "Orchestration", "englishFullName": "Orchestration", "chineseFullName": "编排", "explanation": "对多步骤任务、工具调用、多智能体协作和状态流转进行组织与控制，使系统能稳定完成复杂工作流。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-017", "category": "架构与设计", "term": "Stateful Orchestration", "englishFullName": "Stateful Orchestration", "chineseFullName": "有状态编排", "explanation": "在任务执行过程中持续记录状态，使智能体能恢复上下文、处理分支、避免重复行动并支持长任务执行。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-018", "category": "架构与设计", "term": "Workflow", "englishFullName": "Workflow", "chineseFullName": "工作流", "explanation": "由一系列任务节点、条件分支、工具调用和人工审批步骤组成的可执行流程。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-019", "category": "架构与设计", "term": "ReAct", "englishFullName": "Reasoning and Acting", "chineseFullName": "推理与行动框架", "explanation": "让智能体在“思考下一步—调用工具—观察结果—更新计划”之间循环，适合需要外部信息和多步执行的任务。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-020", "category": "架构与设计", "term": "Task Decomposition", "englishFullName": "Task Decomposition", "chineseFullName": "任务分解", "explanation": "把复杂任务拆成更小、更明确、可验证的子任务，以降低复杂度并提高执行稳定性。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-021", "category": "架构与设计", "term": "Routing", "englishFullName": "Routing", "chineseFullName": "路由", "explanation": "根据用户意图、任务类型或系统状态，把请求分派给合适的模型、工具、子流程或智能体。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-022", "category": "架构与设计", "term": "Decision Tree", "englishFullName": "Decision Tree", "chineseFullName": "决策树", "explanation": "用条件分支组织智能体行为的结构，适合明确规则驱动的流程控制。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-023", "category": "架构与设计", "term": "Loop Control", "englishFullName": "Loop Control", "chineseFullName": "循环控制", "explanation": "通过最大步数、终止条件和错误阈值防止智能体陷入无限重试或多智能体循环。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-024", "category": "架构与设计", "term": "Termination Condition", "englishFullName": "Termination Condition", "chineseFullName": "终止条件", "explanation": "判断任务何时完成、何时停止重试或何时转人工处理的规则。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-025", "category": "智能体开发", "term": "Prompt Engineering", "englishFullName": "Prompt Engineering", "chineseFullName": "提示词工程", "explanation": "通过设计角色、目标、输入输出格式、约束、示例和工具说明，引导模型稳定完成任务的工程方法。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-026", "category": "智能体开发", "term": "System Prompt", "englishFullName": "System Prompt", "chineseFullName": "系统提示词", "explanation": "定义智能体身份、边界、行为规则和优先级的高层指令，通常比用户提示具有更高优先级。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-027", "category": "智能体开发", "term": "User Prompt", "englishFullName": "User Prompt", "chineseFullName": "用户提示词", "explanation": "用户向系统提出的具体问题、目标、约束或任务输入。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-028", "category": "智能体开发", "term": "Few-shot Prompting", "englishFullName": "Few-shot Prompting", "chineseFullName": "少样本提示", "explanation": "在提示词中提供少量示例，使模型学习期望的输入输出模式和风格。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-029", "category": "智能体开发", "term": "Zero-shot Prompting", "englishFullName": "Zero-shot Prompting", "chineseFullName": "零样本提示", "explanation": "不提供示例，直接通过任务说明让模型完成任务的方法。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-030", "category": "智能体开发", "term": "Dynamic Prompt Chain", "englishFullName": "Dynamic Prompt Chain", "chineseFullName": "动态提示链", "explanation": "根据任务状态选择不同提示、工具和分支，而不是固定执行同一套步骤。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-031", "category": "智能体开发", "term": "Structured Output", "englishFullName": "Structured Output", "chineseFullName": "结构化输出", "explanation": "让模型按照 JSON、表格、字段模板或 schema 输出，便于程序自动解析和后续工具调用。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-032", "category": "智能体开发", "term": "JSON", "englishFullName": "JavaScript Object Notation", "chineseFullName": "JavaScript 对象表示法", "explanation": "轻量级数据交换格式，常用于智能体与工具、API、前后端之间传递结构化数据。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-033", "category": "智能体开发", "term": "JSON Schema", "englishFullName": "JSON Schema", "chineseFullName": "JSON 模式/结构约束", "explanation": "用于定义 JSON 字段、类型、必填项和格式约束，帮助校验模型输出和函数参数。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-034", "category": "智能体开发", "term": "Function Calling", "englishFullName": "Function Calling", "chineseFullName": "函数调用", "explanation": "让模型根据任务生成符合 schema 的函数参数，并触发外部工具或 API 执行实际动作。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-035", "category": "智能体开发", "term": "Tool Calling", "englishFullName": "Tool Calling", "chineseFullName": "工具调用", "explanation": "智能体调用搜索、数据库、代码执行、邮件、日历、企业系统等外部能力的机制。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-036", "category": "智能体开发", "term": "API", "englishFullName": "Application Programming Interface", "chineseFullName": "应用程序编程接口", "explanation": "软件系统之间进行数据交换和功能调用的接口，是智能体连接外部世界的重要方式。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-037", "category": "智能体开发", "term": "SDK", "englishFullName": "Software Development Kit", "chineseFullName": "软件开发工具包", "explanation": "封装 API、示例和工具的开发包，可帮助开发者更容易集成模型、工具或平台服务。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-038", "category": "智能体开发", "term": "Schema Validation", "englishFullName": "Schema Validation", "chineseFullName": "模式校验", "explanation": "检查模型输出或工具参数是否符合预定义结构，减少格式错误和下游解析失败。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-039", "category": "智能体开发", "term": "Idempotency", "englishFullName": "Idempotency", "chineseFullName": "幂等性", "explanation": "同一操作重复执行不会造成额外副作用，例如不会重复发邮件、重复扣费或重复写入记录。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-040", "category": "智能体开发", "term": "Retry", "englishFullName": "Retry", "chineseFullName": "重试机制", "explanation": "当工具或网络出现临时错误时，按规则再次尝试执行，常与最大次数和指数退避配合使用。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-041", "category": "智能体开发", "term": "Exponential Backoff", "englishFullName": "Exponential Backoff", "chineseFullName": "指数退避", "explanation": "重试间隔逐步增加的策略，可降低系统拥塞并避免对失败服务持续施压。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-042", "category": "智能体开发", "term": "Timeout", "englishFullName": "Timeout", "chineseFullName": "超时控制", "explanation": "限定工具或模型调用的最长等待时间，避免单个步骤阻塞整个智能体流程。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-043", "category": "智能体开发", "term": "Fallback", "englishFullName": "Fallback", "chineseFullName": "降级/备用方案", "explanation": "当主模型、主工具或主路径失败时，切换到备用模型、缓存结果、人工处理或安全回答。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-044", "category": "智能体开发", "term": "Circuit Breaker", "englishFullName": "Circuit Breaker", "chineseFullName": "熔断器", "explanation": "当某个服务持续失败时临时停止调用，保护系统免于反复失败和资源浪费。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-045", "category": "智能体开发", "term": "Multimodal Agent", "englishFullName": "Multimodal Agent", "chineseFullName": "多模态智能体", "explanation": "能够处理文本、图像、音频、视频或结构化数据，并综合不同模态信息完成任务的智能体。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-046", "category": "智能体开发", "term": "OCR", "englishFullName": "Optical Character Recognition", "chineseFullName": "光学字符识别", "explanation": "把图片或扫描件中的文字转换为机器可处理文本的技术，常用于文档理解智能体。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-047", "category": "智能体开发", "term": "STT", "englishFullName": "Speech-to-Text", "chineseFullName": "语音转文本", "explanation": "将语音内容转写为文本，常用于会议助手、客服助手和语音交互智能体。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-048", "category": "智能体开发", "term": "TTS", "englishFullName": "Text-to-Speech", "chineseFullName": "文本转语音", "explanation": "把文本生成自然语音，用于语音助手和多模态交互场景。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-049", "category": "认知、规划与记忆", "term": "Memory", "englishFullName": "Memory", "chineseFullName": "记忆", "explanation": "智能体保存和检索上下文、用户偏好、历史任务和知识的能力，是持续完成多轮任务的基础。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-050", "category": "认知、规划与记忆", "term": "Short-term Memory", "englishFullName": "Short-term Memory", "chineseFullName": "短期记忆", "explanation": "当前会话或当前任务中的上下文信息，例如用户刚刚说过的约束、工具返回结果和当前步骤。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-051", "category": "认知、规划与记忆", "term": "Long-term Memory", "englishFullName": "Long-term Memory", "chineseFullName": "长期记忆", "explanation": "跨会话保存的用户偏好、项目历史、组织知识或经验信息，需要权限、更新和过期管理。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-052", "category": "认知、规划与记忆", "term": "Context Window", "englishFullName": "Context Window", "chineseFullName": "上下文窗口", "explanation": "模型一次推理可接收的最大输入范围；它不是长期记忆，超出窗口的信息会被截断或压缩。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-053", "category": "认知、规划与记忆", "term": "Token", "englishFullName": "Token", "chineseFullName": "词元", "explanation": "模型处理文本的基本单位，可近似理解为词、字或子词片段；成本和上下文长度通常按 token 计算。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-054", "category": "认知、规划与记忆", "term": "Semantic Memory", "englishFullName": "Semantic Memory", "chineseFullName": "语义记忆", "explanation": "保存概念、事实和知识的记忆形式，常通过向量数据库或知识库实现。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-055", "category": "认知、规划与记忆", "term": "Episodic Memory", "englishFullName": "Episodic Memory", "chineseFullName": "情节记忆", "explanation": "保存曾经发生过的任务、对话和事件记录，便于回顾历史上下文。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-056", "category": "认知、规划与记忆", "term": "Procedural Memory", "englishFullName": "Procedural Memory", "chineseFullName": "程序性记忆", "explanation": "保存如何执行某类任务的步骤、SOP 或工作流规则。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-057", "category": "认知、规划与记忆", "term": "Memory Write Policy", "englishFullName": "Memory Write Policy", "chineseFullName": "记忆写入策略", "explanation": "决定哪些信息值得保存到长期记忆、何时保存、是否需要用户确认以及如何避免记忆污染。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-058", "category": "认知、规划与记忆", "term": "Memory Retrieval", "englishFullName": "Memory Retrieval", "chineseFullName": "记忆检索", "explanation": "从历史记忆中找到与当前任务相关的信息，并按权限、时间、相关性和可信度筛选。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-059", "category": "认知、规划与记忆", "term": "Reflection", "englishFullName": "Reflection", "chineseFullName": "反思机制", "explanation": "智能体在完成一个步骤或任务后检查结果、识别错误并调整下一步计划的机制。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-060", "category": "认知、规划与记忆", "term": "Replanning", "englishFullName": "Replanning", "chineseFullName": "重新规划", "explanation": "当环境变化、工具失败或中间结果不符合预期时，重新制定任务执行路径。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-061", "category": "认知、规划与记忆", "term": "Chain-of-Thought", "englishFullName": "Chain of Thought", "chineseFullName": "思维链", "explanation": "一种让模型进行分步推理的提示思想；在生产系统中通常应转化为可验证的步骤、摘要或决策依据，而不一定暴露完整内部推理。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-062", "category": "多智能体协作", "term": "MAS", "englishFullName": "Multi-Agent System", "chineseFullName": "多智能体系统", "explanation": "由多个角色明确、能力互补的智能体协同完成复杂任务的系统。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-063", "category": "多智能体协作", "term": "Supervisor Agent", "englishFullName": "Supervisor Agent", "chineseFullName": "监督者智能体", "explanation": "负责拆解任务、分配工作、检查结果和协调多个 worker 的上层智能体。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-064", "category": "多智能体协作", "term": "Worker Agent", "englishFullName": "Worker Agent", "chineseFullName": "工作者智能体", "explanation": "负责完成监督者分配的具体子任务，例如检索、写作、验证、代码执行等。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-065", "category": "多智能体协作", "term": "Planner-Executor Pattern", "englishFullName": "Planner-Executor Pattern", "chineseFullName": "规划器—执行器模式", "explanation": "由规划器制定任务步骤，执行器负责调用工具和落实步骤的常见智能体架构。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-066", "category": "多智能体协作", "term": "Critic Agent", "englishFullName": "Critic Agent", "chineseFullName": "批判/审查智能体", "explanation": "负责发现错误、审查结果、提出修改建议或评估输出质量的智能体。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-067", "category": "多智能体协作", "term": "Tool Specialist", "englishFullName": "Tool Specialist Agent", "chineseFullName": "工具专家智能体", "explanation": "专门负责某类工具或系统交互的智能体，例如数据库专家、搜索专家或代码执行专家。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-068", "category": "多智能体协作", "term": "Communication Protocol", "englishFullName": "Communication Protocol", "chineseFullName": "通信协议", "explanation": "规定智能体之间如何传递任务、状态、证据、结果和错误信息的格式与规则。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-069", "category": "多智能体协作", "term": "Role Boundary", "englishFullName": "Role Boundary", "chineseFullName": "角色边界", "explanation": "明确每个智能体能做什么、不能做什么，防止重复工作、权限越界和责任混乱。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-070", "category": "多智能体协作", "term": "Task Delegation", "englishFullName": "Task Delegation", "chineseFullName": "任务委派", "explanation": "监督者或编排器把子任务分配给最合适的智能体、工具或流程。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-071", "category": "多智能体协作", "term": "Consensus", "englishFullName": "Consensus", "chineseFullName": "共识机制", "explanation": "多个智能体对同一问题给出判断后，通过投票、评分或审查达成更可靠结论的方法。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-072", "category": "知识整合与 RAG", "term": "RAG", "englishFullName": "Retrieval-Augmented Generation", "chineseFullName": "检索增强生成", "explanation": "先从外部知识库检索相关证据，再让模型基于证据生成答案的方法，可降低幻觉并增强领域知识。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-073", "category": "知识整合与 RAG", "term": "Embedding", "englishFullName": "Embedding", "chineseFullName": "向量嵌入", "explanation": "把文本、图像或其他对象转换为数值向量，使系统能够计算语义相似度。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-074", "category": "知识整合与 RAG", "term": "Vector Database", "englishFullName": "Vector Database", "chineseFullName": "向量数据库", "explanation": "用于存储和检索向量嵌入的数据库，支持按语义相似度快速查找相关内容。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-075", "category": "知识整合与 RAG", "term": "Chunking", "englishFullName": "Chunking", "chineseFullName": "文档切分", "explanation": "把长文档切成适合检索和上下文输入的小片段；切分大小和重叠会显著影响 RAG 质量。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-076", "category": "知识整合与 RAG", "term": "Top-k Retrieval", "englishFullName": "Top-k Retrieval", "chineseFullName": "Top-k 检索", "explanation": "从知识库中返回相似度最高的 k 个候选片段，常用于控制召回数量和上下文长度。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-077", "category": "知识整合与 RAG", "term": "Reranker", "englishFullName": "Reranker", "chineseFullName": "重排序器", "explanation": "在初步检索后重新评估候选文档与问题的相关性，提高最终进入上下文的证据质量。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-078", "category": "知识整合与 RAG", "term": "Metadata Filtering", "englishFullName": "Metadata Filtering", "chineseFullName": "元数据过滤", "explanation": "根据来源、时间、权限、主题、作者等元数据筛选检索结果，提升准确性和合规性。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-079", "category": "知识整合与 RAG", "term": "Hybrid Search", "englishFullName": "Hybrid Search", "chineseFullName": "混合检索", "explanation": "结合关键词检索和向量检索，兼顾精确匹配和语义匹配。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-080", "category": "知识整合与 RAG", "term": "BM25", "englishFullName": "Best Matching 25", "chineseFullName": "BM25 关键词排序算法", "explanation": "经典关键词检索排序算法，适合精确术语、编号、缩写和标题匹配。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-081", "category": "知识整合与 RAG", "term": "Semantic Search", "englishFullName": "Semantic Search", "chineseFullName": "语义检索", "explanation": "根据语义相似度而非字面关键词匹配检索内容，适合表达方式不同但含义相近的问题。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-082", "category": "知识整合与 RAG", "term": "Index", "englishFullName": "Index", "chineseFullName": "索引", "explanation": "为了加速检索而建立的数据结构，可用于关键词检索、向量检索或混合检索。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-083", "category": "知识整合与 RAG", "term": "ETL", "englishFullName": "Extract, Transform, Load", "chineseFullName": "抽取、转换、加载", "explanation": "把外部数据抽取出来，经过清洗、规范化和转换后加载到数据库、向量库或知识库中的流程。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-084", "category": "知识整合与 RAG", "term": "Data Cleaning", "englishFullName": "Data Cleaning", "chineseFullName": "数据清洗", "explanation": "处理重复、缺失、格式错误、过期内容和噪声数据，以提升智能体检索与回答质量。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-085", "category": "知识整合与 RAG", "term": "Data Lineage", "englishFullName": "Data Lineage", "chineseFullName": "数据血缘", "explanation": "记录数据从来源到处理、转换、入库和使用的全过程，便于审计、追踪和排错。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-086", "category": "知识整合与 RAG", "term": "Knowledge Graph", "englishFullName": "Knowledge Graph", "chineseFullName": "知识图谱", "explanation": "用实体和关系表示知识的结构化网络，适合关系推理、依赖分析和实体关联查询。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-087", "category": "知识整合与 RAG", "term": "Entity", "englishFullName": "Entity", "chineseFullName": "实体", "explanation": "知识图谱中的对象，例如人、机构、论文、模型、数据集、疾病、工具或项目。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-088", "category": "知识整合与 RAG", "term": "Relation", "englishFullName": "Relation", "chineseFullName": "关系", "explanation": "知识图谱中连接实体的边，例如“作者属于机构”“论文使用数据集”“工具依赖服务”。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-089", "category": "知识整合与 RAG", "term": "Graph Traversal", "englishFullName": "Graph Traversal", "chineseFullName": "图遍历", "explanation": "沿着知识图谱中的实体和关系进行查询，用于发现间接关系、路径和依赖。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-090", "category": "评估与调优", "term": "Evaluation", "englishFullName": "Evaluation", "chineseFullName": "评估", "explanation": "用标准化任务、指标和测试集衡量智能体的准确性、稳定性、安全性、成本和用户体验。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-091", "category": "评估与调优", "term": "Benchmark", "englishFullName": "Benchmark", "chineseFullName": "基准测试", "explanation": "用于比较不同模型、提示词、工具链或系统版本表现的一组标准任务和指标。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-092", "category": "评估与调优", "term": "Task Success Rate", "englishFullName": "Task Success Rate", "chineseFullName": "任务成功率", "explanation": "智能体完成用户目标的比例，是衡量端到端能力的重要指标。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-093", "category": "评估与调优", "term": "Accuracy", "englishFullName": "Accuracy", "chineseFullName": "准确率", "explanation": "正确结果占所有结果的比例，适合有明确标准答案的任务。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-094", "category": "评估与调优", "term": "Precision", "englishFullName": "Precision", "chineseFullName": "精确率", "explanation": "系统返回结果中真正相关或正确的比例，适合衡量误报情况。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-095", "category": "评估与调优", "term": "Recall", "englishFullName": "Recall", "chineseFullName": "召回率", "explanation": "所有相关结果中被系统成功找到的比例，适合衡量漏报情况。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-096", "category": "评估与调优", "term": "F1 Score", "englishFullName": "F1 Score", "chineseFullName": "F1 分数", "explanation": "精确率和召回率的调和平均，用于平衡误报与漏报。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-097", "category": "评估与调优", "term": "MRR", "englishFullName": "Mean Reciprocal Rank", "chineseFullName": "平均倒数排名", "explanation": "衡量第一个正确检索结果排名位置的指标，常用于检索系统评估。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-098", "category": "评估与调优", "term": "NDCG", "englishFullName": "Normalized Discounted Cumulative Gain", "chineseFullName": "归一化折损累计增益", "explanation": "衡量排序结果质量的指标，越相关的结果排在越前面得分越高。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-099", "category": "评估与调优", "term": "Hallucination Rate", "englishFullName": "Hallucination Rate", "chineseFullName": "幻觉率", "explanation": "模型生成无依据、与证据冲突或事实错误内容的比例。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-100", "category": "评估与调优", "term": "Latency", "englishFullName": "Latency", "chineseFullName": "延迟", "explanation": "用户发起请求到系统返回结果所需时间，常分为首 token 延迟和总响应时间。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-101", "category": "评估与调优", "term": "Throughput", "englishFullName": "Throughput", "chineseFullName": "吞吐量", "explanation": "系统单位时间内可处理的请求数或 token 数。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-102", "category": "评估与调优", "term": "QPS", "englishFullName": "Queries Per Second", "chineseFullName": "每秒查询数", "explanation": "系统每秒可处理的请求数量，是衡量服务承载能力的常用指标。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-103", "category": "评估与调优", "term": "Tokens per Second", "englishFullName": "Tokens per Second", "chineseFullName": "每秒生成词元数", "explanation": "模型推理速度指标，用于衡量大模型输出性能。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-104", "category": "评估与调优", "term": "Cost per Query", "englishFullName": "Cost per Query", "chineseFullName": "单次查询成本", "explanation": "一次用户请求消耗的 token、GPU、工具调用或云资源成本。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-105", "category": "评估与调优", "term": "A/B Testing", "englishFullName": "A/B Testing", "chineseFullName": "A/B 测试", "explanation": "把用户流量分配给不同系统版本，比较真实使用场景下的表现差异。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-106", "category": "评估与调优", "term": "Regression Testing", "englishFullName": "Regression Testing", "chineseFullName": "回归测试", "explanation": "更新模型、提示词、检索或工具后，验证历史能力没有退化的测试流程。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-107", "category": "评估与调优", "term": "Eval Dataset", "englishFullName": "Evaluation Dataset", "chineseFullName": "评估数据集", "explanation": "用于测试智能体能力的代表性样本集合，应覆盖正常任务、边界条件、失败场景和安全场景。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-108", "category": "评估与调优", "term": "Human Evaluation", "englishFullName": "Human Evaluation", "chineseFullName": "人工评估", "explanation": "由领域专家或用户根据标准对智能体输出进行评分、审查或标注。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-109", "category": "评估与调优", "term": "LLM-as-a-Judge", "englishFullName": "Large Language Model as a Judge", "chineseFullName": "大模型作为评审器", "explanation": "用另一个模型辅助评估输出质量的方法，适合规模化评测，但仍需要抽样人工校准。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-110", "category": "部署与扩展", "term": "Deployment", "englishFullName": "Deployment", "chineseFullName": "部署", "explanation": "把智能体系统从开发环境发布到可供真实用户访问的生产环境。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-111", "category": "部署与扩展", "term": "Docker", "englishFullName": "Docker", "chineseFullName": "Docker 容器平台", "explanation": "用于把应用及其依赖封装为容器，保证不同环境中的运行一致性。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-112", "category": "部署与扩展", "term": "Container", "englishFullName": "Container", "chineseFullName": "容器", "explanation": "轻量级运行环境，封装代码、依赖和配置，便于部署、迁移和扩展。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-113", "category": "部署与扩展", "term": "Kubernetes", "englishFullName": "Kubernetes", "chineseFullName": "Kubernetes 容器编排系统", "explanation": "用于管理容器集群，支持服务发现、弹性伸缩、滚动更新和故障恢复。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-114", "category": "部署与扩展", "term": "Pod", "englishFullName": "Pod", "chineseFullName": "Pod", "explanation": "Kubernetes 中最小调度单元，可包含一个或多个紧密关联的容器。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-115", "category": "部署与扩展", "term": "Service", "englishFullName": "Service", "chineseFullName": "服务", "explanation": "在 Kubernetes 中为一组 Pod 提供稳定访问入口和负载分发。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-116", "category": "部署与扩展", "term": "Ingress", "englishFullName": "Ingress", "chineseFullName": "入口路由", "explanation": "管理外部流量进入 Kubernetes 集群的规则，常用于域名、路径和 TLS 配置。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-117", "category": "部署与扩展", "term": "Load Balancer", "englishFullName": "Load Balancer", "chineseFullName": "负载均衡器", "explanation": "把请求分配到多个服务实例，提高系统吞吐、可用性和容错能力。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-118", "category": "部署与扩展", "term": "Autoscaling", "englishFullName": "Autoscaling", "chineseFullName": "自动扩缩容", "explanation": "根据流量、CPU、GPU、队列长度等指标自动增加或减少服务副本。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-119", "category": "部署与扩展", "term": "Horizontal Scaling", "englishFullName": "Horizontal Scaling", "chineseFullName": "水平扩展", "explanation": "通过增加服务实例数量提升系统处理能力。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-120", "category": "部署与扩展", "term": "CI/CD", "englishFullName": "Continuous Integration / Continuous Delivery", "chineseFullName": "持续集成/持续交付", "explanation": "通过自动测试、构建和部署流水线加快迭代并降低发布风险。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-121", "category": "部署与扩展", "term": "MLOps", "englishFullName": "Machine Learning Operations", "chineseFullName": "机器学习运维", "explanation": "围绕模型训练、部署、监控、版本管理和持续改进的工程实践。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-122", "category": "部署与扩展", "term": "AgentOps", "englishFullName": "Agent Operations", "chineseFullName": "智能体运维", "explanation": "专门面向智能体系统的运维实践，关注规划轨迹、工具调用、记忆、检索、安全和任务成功率。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-123", "category": "部署与扩展", "term": "Model Registry", "englishFullName": "Model Registry", "chineseFullName": "模型注册库", "explanation": "集中管理模型版本、元数据、部署状态和回滚信息的系统。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-124", "category": "部署与扩展", "term": "Version Control", "englishFullName": "Version Control", "chineseFullName": "版本控制", "explanation": "记录代码、提示词、模型、检索配置和工具 schema 变化，支持审计、回滚和协作。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-125", "category": "部署与扩展", "term": "Blue-Green Deployment", "englishFullName": "Blue-Green Deployment", "chineseFullName": "蓝绿部署", "explanation": "同时维护两个生产环境，通过切换流量实现低风险发布和快速回滚。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-126", "category": "部署与扩展", "term": "Canary Release", "englishFullName": "Canary Release", "chineseFullName": "金丝雀发布/灰度发布", "explanation": "先让少量用户使用新版本，观察指标稳定后再逐步扩大流量。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-127", "category": "部署与扩展", "term": "Rollback", "englishFullName": "Rollback", "chineseFullName": "回滚", "explanation": "当新版本出现问题时快速恢复到稳定旧版本的操作。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-128", "category": "部署与扩展", "term": "High Availability", "englishFullName": "High Availability", "chineseFullName": "高可用", "explanation": "通过冗余、负载均衡、故障恢复和监控保证系统持续可用。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-129", "category": "部署与扩展", "term": "Fault Tolerance", "englishFullName": "Fault Tolerance", "chineseFullName": "容错能力", "explanation": "系统在部分组件失败时仍能继续提供服务或优雅降级的能力。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-130", "category": "NVIDIA 平台", "term": "NIM", "englishFullName": "NVIDIA Inference Microservices", "chineseFullName": "NVIDIA 推理微服务", "explanation": "NVIDIA 用于部署生成式 AI 模型的微服务方案，提供标准 API、优化推理运行时和生产级部署能力。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-131", "category": "NVIDIA 平台", "term": "NeMo", "englishFullName": "NVIDIA NeMo", "chineseFullName": "NVIDIA NeMo 框架", "explanation": "NVIDIA 面向生成式 AI 和大模型训练、定制、评估、部署相关工作流的工具生态。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-132", "category": "NVIDIA 平台", "term": "NeMo Guardrails", "englishFullName": "NVIDIA NeMo Guardrails", "chineseFullName": "NVIDIA NeMo 护栏", "explanation": "用于为 LLM 应用定义输入、输出、对话、检索和执行规则的安全与控制框架。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-133", "category": "NVIDIA 平台", "term": "Input Rail", "englishFullName": "Input Rail", "chineseFullName": "输入护栏", "explanation": "在用户输入进入模型前检查越狱、恶意请求、敏感信息或不合规内容。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-134", "category": "NVIDIA 平台", "term": "Output Rail", "englishFullName": "Output Rail", "chineseFullName": "输出护栏", "explanation": "在模型输出给用户前检查幻觉、有害内容、隐私泄露或格式违规。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-135", "category": "NVIDIA 平台", "term": "Dialog Rail", "englishFullName": "Dialog Rail", "chineseFullName": "对话护栏", "explanation": "控制对话流程、意图路由、状态转移和下一步动作的规则。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-136", "category": "NVIDIA 平台", "term": "Retrieval Rail", "englishFullName": "Retrieval Rail", "chineseFullName": "检索护栏", "explanation": "控制和检查检索阶段的 query、结果来源、权限和内容合规性。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-137", "category": "NVIDIA 平台", "term": "Execution Rail", "englishFullName": "Execution Rail", "chineseFullName": "执行护栏", "explanation": "在工具调用或行动执行前后检查权限、参数、安全风险和审批条件。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-138", "category": "NVIDIA 平台", "term": "Triton", "englishFullName": "NVIDIA Triton Inference Server", "chineseFullName": "NVIDIA Triton 推理服务器", "explanation": "NVIDIA 的推理服务软件，可统一部署和服务多框架 AI 模型，支持高性能生产推理。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-139", "category": "NVIDIA 平台", "term": "TensorRT-LLM", "englishFullName": "NVIDIA TensorRT-LLM", "chineseFullName": "NVIDIA TensorRT-LLM", "explanation": "用于在 NVIDIA GPU 上优化大语言模型推理性能的库，关注低延迟和高吞吐。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-140", "category": "NVIDIA 平台", "term": "GPU", "englishFullName": "Graphics Processing Unit", "chineseFullName": "图形处理器", "explanation": "适合大规模并行计算的加速硬件，是大模型训练和推理的重要基础。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-141", "category": "NVIDIA 平台", "term": "CUDA", "englishFullName": "Compute Unified Device Architecture", "chineseFullName": "统一计算设备架构", "explanation": "NVIDIA 的并行计算平台和编程模型，使软件能利用 GPU 加速计算。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-142", "category": "NVIDIA 平台", "term": "Inference Microservice", "englishFullName": "Inference Microservice", "chineseFullName": "推理微服务", "explanation": "把模型推理能力封装为可通过 API 调用的独立服务，便于扩展、监控和集成。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-143", "category": "运行、监控与维护", "term": "Observability", "englishFullName": "Observability", "chineseFullName": "可观测性", "explanation": "通过日志、指标、链路追踪和事件记录理解系统内部状态并快速定位问题的能力。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-144", "category": "运行、监控与维护", "term": "Logging", "englishFullName": "Logging", "chineseFullName": "日志记录", "explanation": "记录请求、工具调用、错误、输出和安全事件，支持调试、审计和根因分析。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-145", "category": "运行、监控与维护", "term": "Trace", "englishFullName": "Trace", "chineseFullName": "链路追踪", "explanation": "记录一次请求经过的多个步骤、服务和工具调用路径，帮助定位失败发生的位置。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-146", "category": "运行、监控与维护", "term": "Telemetry", "englishFullName": "Telemetry", "chineseFullName": "遥测数据", "explanation": "系统自动收集的运行指标、事件和行为数据，用于监控、评估和优化。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-147", "category": "运行、监控与维护", "term": "Dashboard", "englishFullName": "Dashboard", "chineseFullName": "监控仪表板", "explanation": "集中展示延迟、错误率、成本、工具调用、任务成功率和安全拦截等指标的界面。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-148", "category": "运行、监控与维护", "term": "RCA", "englishFullName": "Root Cause Analysis", "chineseFullName": "根因分析", "explanation": "系统性追踪问题产生的真正原因，而不是只处理表面错误。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-149", "category": "运行、监控与维护", "term": "Alerting", "englishFullName": "Alerting", "chineseFullName": "告警", "explanation": "当错误率、延迟、成本、安全事件或任务失败率超过阈值时自动通知相关人员。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-150", "category": "运行、监控与维护", "term": "SLA", "englishFullName": "Service Level Agreement", "chineseFullName": "服务等级协议", "explanation": "对可用性、响应时间等服务质量作出的正式承诺。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-151", "category": "运行、监控与维护", "term": "SLO", "englishFullName": "Service Level Objective", "chineseFullName": "服务等级目标", "explanation": "内部或外部定义的可量化服务目标，例如 99.9% 可用性或 2 秒内响应。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-152", "category": "运行、监控与维护", "term": "Incident Response", "englishFullName": "Incident Response", "chineseFullName": "故障响应", "explanation": "发现生产问题后进行告警、分级、止损、修复、复盘和改进的流程。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-153", "category": "运行、监控与维护", "term": "Drift", "englishFullName": "Drift", "chineseFullName": "漂移", "explanation": "模型输入、用户行为、数据分布或任务类型随时间变化，导致系统表现下降的现象。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-154", "category": "运行、监控与维护", "term": "Prompt Versioning", "englishFullName": "Prompt Versioning", "chineseFullName": "提示词版本管理", "explanation": "记录和管理提示词变更，确保可以比较、回滚和审计不同版本效果。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-155", "category": "安全、伦理与合规", "term": "Guardrails", "englishFullName": "Guardrails", "chineseFullName": "安全护栏", "explanation": "限制智能体输入、输出、检索和工具执行行为的规则与检测机制，用于降低安全、合规和质量风险。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-156", "category": "安全、伦理与合规", "term": "RBAC", "englishFullName": "Role-Based Access Control", "chineseFullName": "基于角色的访问控制", "explanation": "根据用户角色授予不同资源、工具和数据权限，避免越权访问。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-157", "category": "安全、伦理与合规", "term": "Least Privilege", "englishFullName": "Principle of Least Privilege", "chineseFullName": "最小权限原则", "explanation": "只给用户或智能体完成任务所需的最低权限，减少误操作和攻击面。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-158", "category": "安全、伦理与合规", "term": "Audit Trail", "englishFullName": "Audit Trail", "chineseFullName": "审计轨迹", "explanation": "记录谁在何时因什么请求执行了什么操作，便于追责、合规和安全调查。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-159", "category": "安全、伦理与合规", "term": "PII", "englishFullName": "Personally Identifiable Information", "chineseFullName": "个人可识别信息", "explanation": "可直接或间接识别个人身份的信息，例如姓名、邮箱、身份证号、地址或电话。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-160", "category": "安全、伦理与合规", "term": "Data Masking", "englishFullName": "Data Masking", "chineseFullName": "数据脱敏", "explanation": "隐藏或替换敏感信息，使系统在处理数据时降低隐私泄露风险。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-161", "category": "安全、伦理与合规", "term": "Content Moderation", "englishFullName": "Content Moderation", "chineseFullName": "内容审核", "explanation": "检测和处理有害、违法、歧视、暴力、隐私泄露或不适当内容的机制。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-162", "category": "安全、伦理与合规", "term": "Jailbreak", "englishFullName": "Jailbreak", "chineseFullName": "越狱攻击", "explanation": "诱导模型违反系统规则或安全边界的提示攻击方式。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-163", "category": "安全、伦理与合规", "term": "Prompt Injection", "englishFullName": "Prompt Injection", "chineseFullName": "提示注入", "explanation": "把恶意指令嵌入用户输入、网页或文档，诱导智能体忽略原规则或执行越权操作的攻击。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-164", "category": "安全、伦理与合规", "term": "Tool Permission", "englishFullName": "Tool Permission", "chineseFullName": "工具权限", "explanation": "控制智能体是否能调用某个工具、调用哪些参数以及是否需要人工确认的权限机制。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-165", "category": "安全、伦理与合规", "term": "Approval Workflow", "englishFullName": "Approval Workflow", "chineseFullName": "审批流程", "explanation": "在高风险操作执行前引入人工确认或多级审批，降低误操作和合规风险。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-166", "category": "安全、伦理与合规", "term": "Bias Mitigation", "englishFullName": "Bias Mitigation", "chineseFullName": "偏见缓解", "explanation": "通过数据、评估、规则和人工审查减少模型对群体或个体产生不公平输出的措施。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-167", "category": "安全、伦理与合规", "term": "Compliance", "englishFullName": "Compliance", "chineseFullName": "合规", "explanation": "系统遵守法律法规、行业标准、企业政策、隐私要求和数据使用许可的状态。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-168", "category": "安全、伦理与合规", "term": "License Compliance", "englishFullName": "License Compliance", "chineseFullName": "许可证合规", "explanation": "确认模型、数据、代码和第三方服务的使用方式符合其许可证和使用条款。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-169", "category": "人机交互与监督", "term": "HITL", "englishFullName": "Human-in-the-Loop", "chineseFullName": "人在回路/人工参与", "explanation": "在关键节点让人类参与审批、纠正、评估或接管，适合高风险、高价值或不确定任务。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-170", "category": "人机交互与监督", "term": "User Feedback", "englishFullName": "User Feedback", "chineseFullName": "用户反馈", "explanation": "用户对智能体输出的评分、修改、投诉或行为信号，可用于评估和持续改进。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-171", "category": "人机交互与监督", "term": "Feedback Loop", "englishFullName": "Feedback Loop", "chineseFullName": "反馈闭环", "explanation": "把用户反馈、人工评审和运行数据转化为系统改进的持续流程。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-172", "category": "人机交互与监督", "term": "Explainability", "englishFullName": "Explainability", "chineseFullName": "可解释性", "explanation": "让用户理解系统依据什么信息、采取了哪些步骤、为何给出某个结论的能力。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-173", "category": "人机交互与监督", "term": "Transparency", "englishFullName": "Transparency", "chineseFullName": "透明性", "explanation": "向用户展示关键证据、数据来源、工具调用、限制条件和置信信息，以增强信任。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-174", "category": "人机交互与监督", "term": "Accountability", "englishFullName": "Accountability", "chineseFullName": "问责性", "explanation": "明确系统行为、人工决策、数据来源和操作记录的责任归属。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-175", "category": "人机交互与监督", "term": "Human Override", "englishFullName": "Human Override", "chineseFullName": "人工覆盖/人工接管", "explanation": "当智能体不确定、出错或遇到高风险情况时，人类可以中断、修改或接管流程。", "source": "NCP-AAI 讲义核心知识点"}, {"id": "AAI-176", "category": "人机交互与监督", "term": "Confirmation UI", "englishFullName": "Confirmation User Interface", "chineseFullName": "确认界面", "explanation": "在发送邮件、删除数据、写入系统等高风险操作前让用户确认具体内容和后果的界面。", "source": "NCP-AAI 讲义核心知识点"}];
-    const STORE_KEY = 'ncp_aai_flashcards_progress_v1';
-    let progress = loadProgress();
-    let activeCategory = '全部';
-    let onlyStar = false;
-    let dueOnly = false;
-    let filtered = [];
-    let currentIndex = 0;
-    let flipped = false;
-    let quizCurrent = null;
-    let quizMode = 'zh';
-
-    const $ = (id) => document.getElementById(id);
-    function loadProgress() {
-      try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e) { return {}; }
-    }
-    function saveProgress() { localStorage.setItem(STORE_KEY, JSON.stringify(progress)); updateStats(); }
-    function p(id) {
-      if (!progress[id]) progress[id] = {level:0, correct:0, wrong:0, starred:false, updatedAt:0};
-      return progress[id];
-    }
-    function categories() {
-      const map = new Map();
-      CARDS.forEach(c => map.set(c.category, (map.get(c.category)||0)+1));
-      return [['全部', CARDS.length], ...Array.from(map.entries())];
-    }
-    function buildCategories() {
-      $('categoryList').innerHTML = categories().map(([name,count]) => `<button class="cat-btn ${name===activeCategory?'active':''}" data-cat="${name}"><span>${name}</span><span>${count}</span></button>`).join('');
-      document.querySelectorAll('.cat-btn').forEach(btn => btn.addEventListener('click', () => { activeCategory = btn.dataset.cat; applyFilter(); }));
-    }
-    function applyFilter() {
-      const q = $('searchBox').value.trim().toLowerCase();
-      filtered = CARDS.filter(c => {
-        const okCat = activeCategory === '全部' || c.category === activeCategory;
-        const text = [c.term, c.englishFullName, c.chineseFullName, c.explanation, c.category].join(' ').toLowerCase();
-        const okSearch = !q || text.includes(q);
-        const pr = p(c.id);
-        const okStar = !onlyStar || pr.starred;
-        const okDue = !dueOnly || pr.level < 3;
-        return okCat && okSearch && okStar && okDue;
-      });
-      if (currentIndex >= filtered.length) currentIndex = 0;
-      buildCategories();
-      renderCard();
-      renderTable();
-      updateStats();
-    }
-    function renderCard() {
-      if (!filtered.length) {
-        $('termFront').textContent = '无卡片';
-        $('catFront').textContent = '请清除筛选条件';
-        ['cardIdFront','termBack','englishBack','chineseBack','explainBack','metaId','metaCategory','metaStatus'].forEach(id => $(id).textContent='');
-        $('positionText').textContent = '0 / 0';
-        $('rangeCount').textContent = '0';
-        $('levelText').textContent = '0';
-        return;
-      }
-      const c = filtered[currentIndex];
-      const pr = p(c.id);
-      $('flashcard').classList.toggle('flipped', flipped);
-      $('cardIdFront').textContent = c.id;
-      $('termFront').textContent = c.term;
-      $('catFront').textContent = c.category;
-      $('termBack').textContent = c.term;
-      $('englishBack').textContent = c.englishFullName;
-      $('chineseBack').textContent = c.chineseFullName;
-      $('explainBack').textContent = c.explanation;
-      $('positionText').textContent = `${currentIndex+1} / ${filtered.length}`;
-      $('rangeCount').textContent = filtered.length;
-      $('levelText').textContent = pr.level;
-      $('metaId').textContent = c.id;
-      $('metaCategory').textContent = c.category;
-      $('metaStatus').textContent = pr.level >= 4 ? '熟悉' : (pr.level >= 2 ? '基本掌握' : '需要复习');
-      $('starBtn').textContent = pr.starred ? '★ 已收藏' : '☆ 收藏';
-      $('progressFill').style.width = `${Math.round(knownInFiltered()/Math.max(filtered.length,1)*100)}%`;
-    }
-    function knownInFiltered() { return filtered.filter(c => p(c.id).level >= 4).length; }
-    function updateStats() {
-      $('totalCards').textContent = CARDS.length;
-      $('knownCards').textContent = CARDS.filter(c => p(c.id).level >= 4).length;
-      $('starCards').textContent = CARDS.filter(c => p(c.id).starred).length;
-    }
-    function nextCard() { if (!filtered.length) return; currentIndex = (currentIndex + 1) % filtered.length; flipped = false; renderCard(); }
-    function prevCard() { if (!filtered.length) return; currentIndex = (currentIndex - 1 + filtered.length) % filtered.length; flipped = false; renderCard(); }
-    function mark(delta) {
-      if (!filtered.length) return;
-      const c = filtered[currentIndex]; const pr = p(c.id);
-      if (delta > 0) { pr.level = Math.min(5, pr.level + 1); pr.correct++; }
-      else { pr.level = Math.max(0, pr.level - 1); pr.wrong++; }
-      pr.updatedAt = Date.now(); saveProgress(); renderCard();
-      setTimeout(nextCard, 220);
-    }
-    function toggleStar() {
-      if (!filtered.length) return;
-      const pr = p(filtered[currentIndex].id); pr.starred = !pr.starred; pr.updatedAt = Date.now(); saveProgress(); renderCard();
-    }
-    function shuffle(arr) {
-      for (let i=arr.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
-    }
-    function renderTable() {
-      const rows = filtered.map(c => `<tr><td>${c.id}</td><td><b>${escapeHtml(c.term)}</b></td><td>${escapeHtml(c.category)}</td><td>${escapeHtml(c.englishFullName)}</td><td>${escapeHtml(c.chineseFullName)}</td><td>${escapeHtml(c.explanation)}</td></tr>`).join('');
-      $('cardsTable').innerHTML = `<thead><tr><th>ID</th><th>术语/缩写</th><th>分类</th><th>英文全称</th><th>中文全称</th><th>中文解释</th></tr></thead><tbody>${rows}</tbody>`;
-    }
-    function escapeHtml(s) { return String(s).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
-    function setTab(name) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===name));
-      ['study','quiz','browse','export'].forEach(n => $(n+'Panel').classList.toggle('hidden', n!==name));
-      if (name === 'quiz') newQuiz();
-    }
-    function newQuiz() {
-      const pool = filtered.length ? filtered : CARDS;
-      quizCurrent = pool[Math.floor(Math.random()*pool.length)];
-      quizMode = Math.random() < 0.5 ? 'zh' : 'en';
-      $('quizCat').textContent = quizCurrent.category + ' · ' + quizCurrent.id;
-      $('quizTerm').textContent = quizCurrent.term;
-      $('quizPrompt').textContent = quizMode === 'zh' ? '请选择对应的中文全称：' : '请选择对应的英文全称：';
-      $('quizExplain').classList.add('hidden');
-      const key = quizMode === 'zh' ? 'chineseFullName' : 'englishFullName';
-      const options = [quizCurrent];
-      const candidates = CARDS.filter(c => c.id !== quizCurrent.id);
-      shuffle(candidates);
-      options.push(...candidates.slice(0,3));
-      shuffle(options);
-      $('quizOptions').innerHTML = options.map(c => `<button class="option" data-id="${c.id}">${escapeHtml(c[key])}</button>`).join('');
-      document.querySelectorAll('.option').forEach(btn => btn.addEventListener('click', () => answerQuiz(btn)));
-    }
-    function answerQuiz(btn) {
-      if (!quizCurrent) return;
-      const correct = btn.dataset.id === quizCurrent.id;
-      document.querySelectorAll('.option').forEach(o => {
-        o.disabled = true;
-        if (o.dataset.id === quizCurrent.id) o.classList.add('correct');
-      });
-      if (!correct) btn.classList.add('wrong');
-      const pr = p(quizCurrent.id);
-      if (correct) { pr.correct++; pr.level = Math.min(5, pr.level + 1); } else { pr.wrong++; pr.level = Math.max(0, pr.level - 1); }
-      pr.updatedAt = Date.now(); saveProgress();
-      $('quizExplain').innerHTML = `<label>答案解析</label><p><b>${quizCurrent.term}</b><br>英文全称：${escapeHtml(quizCurrent.englishFullName)}<br>中文全称：${escapeHtml(quizCurrent.chineseFullName)}<br>中文解释：${escapeHtml(quizCurrent.explanation)}</p>`;
-      $('quizExplain').classList.remove('hidden');
-    }
-    function download(filename, text, type='text/plain;charset=utf-8') {
-      const blob = new Blob([text], {type}); const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
-    }
-    function toCsv() {
-      const headers = ['ID','Category','Front_Term','English_Full_Name','Chinese_Full_Name','Chinese_Explanation'];
-      const rows = CARDS.map(c => [c.id,c.category,c.term,c.englishFullName,c.chineseFullName,c.explanation]);
-      return [headers, ...rows].map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-    }
-    function toAnki() {
-      const rows = [['Front','Back','Tags']];
-      CARDS.forEach(c => rows.push([c.term, `<b>英文全称：</b> ${c.englishFullName}<br><b>中文全称：</b> ${c.chineseFullName}<br><b>中文解释：</b> ${c.explanation}`, 'AAI::'+c.category.replace(/\s+/g,'_')]));
-      return rows.map(r => r.map(v => String(v).replace(/\t/g,' ').replace(/\n/g,' ')).join('\t')).join('\n');
-    }
-
-    $('flashcard').addEventListener('click', () => { flipped = !flipped; renderCard(); });
-    $('flipBtn').addEventListener('click', () => { flipped = !flipped; renderCard(); });
-    $('nextBtn').addEventListener('click', nextCard);
-    $('prevBtn').addEventListener('click', prevCard);
-    $('knownBtn').addEventListener('click', () => mark(1));
-    $('unknownBtn').addEventListener('click', () => mark(-1));
-    $('starBtn').addEventListener('click', toggleStar);
-    $('searchBox').addEventListener('input', () => { currentIndex=0; applyFilter(); });
-    $('onlyStarBtn').addEventListener('click', () => { onlyStar=!onlyStar; $('onlyStarBtn').classList.toggle('good', onlyStar); applyFilter(); });
-    $('dueBtn').addEventListener('click', () => { dueOnly=!dueOnly; $('dueBtn').classList.toggle('warn', dueOnly); applyFilter(); });
-    $('shuffleBtn').addEventListener('click', () => { shuffle(filtered); currentIndex=0; renderCard(); renderTable(); });
-    $('resetFilterBtn').addEventListener('click', () => { activeCategory='全部'; onlyStar=false; dueOnly=false; $('searchBox').value=''; document.querySelectorAll('.side-actions .btn').forEach(b => b.classList.remove('good','warn')); applyFilter(); });
-    document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => setTab(t.dataset.tab)));
-    $('nextQuizBtn').addEventListener('click', newQuiz);
-    $('downloadJsonBtn').addEventListener('click', () => download('ncp_aai_flashcards.json', JSON.stringify(CARDS,null,2), 'application/json;charset=utf-8'));
-    $('downloadCsvBtn').addEventListener('click', () => download('ncp_aai_flashcards.csv', '﻿'+toCsv(), 'text/csv;charset=utf-8'));
-    $('downloadAnkiBtn').addEventListener('click', () => download('ncp_aai_flashcards_anki.tsv', toAnki(), 'text/tab-separated-values;charset=utf-8'));
-    $('resetProgressBtn').addEventListener('click', () => { if(confirm('确定清空本地学习进度吗？')) { localStorage.removeItem(STORE_KEY); progress={}; applyFilter(); } });
-    document.addEventListener('keydown', (e) => {
-      if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
-      if (e.code === 'Space') { e.preventDefault(); flipped=!flipped; renderCard(); }
-      if (e.code === 'ArrowRight') nextCard();
-      if (e.code === 'ArrowLeft') prevCard();
-      if (e.key === '1') mark(-1);
-      if (e.key === '2') mark(1);
-      if (e.key.toLowerCase() === 's') toggleStar();
-    });
-
-    buildCategories(); applyFilter(); updateStats();
-  </script>
+  <section id="guide" class="tabpage hidden">
+    <div class="panel guide">
+      <h2>使用说明</h2>
+      <ul>
+        <li>直接双击 <b>index.html</b> 即可离线使用；也可以把整个文件夹上传到 GitHub Pages、内网 Nginx、Apache 或任意静态网站空间。</li>
+        <li>“章节刷题”会即时给出答案解析，适合学习；“模拟考试”默认 60 题、120 分钟，适合考前训练。</li>
+        <li>错题、收藏和正确率保存在当前浏览器的 localStorage，不会上传到服务器。</li>
+        <li>如需扩展题库，可编辑 <b>question_bank.json</b>，也可在 index.html 中搜索 <code>QUESTION_BANK</code> 替换嵌入数据。</li>
+      </ul>
+      <h3>静态部署模板：GitHub Pages</h3>
+      <pre class="code">1. 新建 GitHub repository
+2. 上传 index.html、question_bank.json、metadata.json
+3. Settings → Pages → Deploy from branch → main / root
+4. 打开生成的 Pages URL 即可在线访问</pre>
+      <h3>内网部署模板：Python 简易服务器</h3>
+      <pre class="code">cd NCP_AAI_Online_Quiz_System
+python -m http.server 8080
+# 浏览器访问：http://你的电脑IP:8080</pre>
+      <h3>内网部署模板：Nginx</h3>
+      <pre class="code">server {
+    listen 80;
+    server_name aai-quiz.local;
+    root /var/www/NCP_AAI_Online_Quiz_System;
+    index index.html;
+    location / { try_files $uri $uri/ /index.html; }
+}</pre>
+      <h3>题库 JSON 格式</h3>
+      <pre class="code">{
+  "id": "Q001",
+  "chapter": "第1章 智能体架构和设计",
+  "type": "single",  // single 或 multi
+  "difficulty": "基础",
+  "stem": "题干",
+  "options": ["A选项", "B选项", "C选项", "D选项"],
+  "answer": ["B"],
+  "explanation": "答案解析",
+  "tags": ["Agentic AI", "架构"]
+}</pre>
+    </div>
+  </section>
+</main>
+<div class="footer">NCP-AAI Agentic AI Professional 在线刷题系统 · 生成题库仅用于复习训练，请以官方考试指南为最终准绳。</div>
+<script>
+const QUESTION_BANK = [{"id": "Q001", "chapter": "第1章 智能体架构和设计", "type": "single", "difficulty": "基础", "stem": "Agentic AI 与普通聊天机器人最核心的区别是什么？", "options": ["Agentic AI 只能回答封闭式问题", "Agentic AI 能围绕目标进行规划、调用工具、维护状态并持续行动", "Agentic AI 不需要大语言模型", "Agentic AI 只能运行在本地 GPU 上"], "answer": ["B"], "explanation": "Agentic AI 的核心是目标导向、行动能力、工具使用、记忆和状态管理，而不是一次性文本回复。", "tags": ["Agentic AI", "架构"]}, {"id": "Q002", "chapter": "第1章 智能体架构和设计", "type": "single", "difficulty": "基础", "stem": "在生产级智能体架构中，Tools 层的主要作用是：", "options": ["替代所有模型推理", "让智能体访问外部系统、API、数据库或执行代码", "保存用户头像", "只负责美化 UI"], "answer": ["B"], "explanation": "工具层让智能体从“生成文本”扩展到“执行动作”，如查询数据库、调用 API、读写文件等。", "tags": ["工具调用"]}, {"id": "Q003", "chapter": "第1章 智能体架构和设计", "type": "single", "difficulty": "进阶", "stem": "一个智能体频繁“忘记”本轮任务当前执行到哪一步，最应优先补强哪一层？", "options": ["有状态编排与短期记忆", "图片生成模块", "模型许可证", "负载均衡器"], "answer": ["A"], "explanation": "当前步骤、工具返回、未完成子任务属于短期状态，应通过 session state、workflow state 或有状态编排管理。", "tags": ["记忆", "状态管理"]}, {"id": "Q004", "chapter": "第1章 智能体架构和设计", "type": "single", "difficulty": "基础", "stem": "ReAct 框架中的 Act 主要指什么？", "options": ["输出最终答案", "调用工具或采取外部行动", "训练模型参数", "删除历史上下文"], "answer": ["B"], "explanation": "ReAct = Reasoning + Acting，其中 Acting 指基于推理结果调用工具、查询环境或执行动作。", "tags": ["ReAct"]}, {"id": "Q005", "chapter": "第1章 智能体架构和设计", "type": "single", "difficulty": "进阶", "stem": "多智能体系统最容易出现的工程问题是：", "options": ["颜色不统一", "没有通信协议、角色边界和终止条件导致混乱或循环", "无法使用任何模型", "无法部署在浏览器中"], "answer": ["B"], "explanation": "多智能体系统的难点在于任务边界、通信、共享状态、冲突解决和终止条件，而不仅是增加更多 LLM。", "tags": ["多智能体"]}, {"id": "Q006", "chapter": "第1章 智能体架构和设计", "type": "single", "difficulty": "基础", "stem": "哪种架构最适合“一个监督者拆解任务，多个专业智能体执行”的场景？", "options": ["Supervisor-Worker", "单轮 FAQ", "纯关键词检索", "静态网页"], "answer": ["A"], "explanation": "Supervisor-Worker 架构中 supervisor 负责规划与分配，worker 执行具体子任务。", "tags": ["多智能体"]}, {"id": "Q007", "chapter": "第1章 智能体架构和设计", "type": "single", "difficulty": "进阶", "stem": "知识图谱相比普通向量检索更擅长处理哪类问题？", "options": ["实体关系和路径推理", "纯图片像素压缩", "浏览器样式布局", "GPU 温度控制"], "answer": ["A"], "explanation": "知识图谱以实体和关系为核心，适合“谁与谁相关”“依赖关系”“作者-机构-论文”等关系型问题。", "tags": ["知识图谱"]}, {"id": "Q008", "chapter": "第1章 智能体架构和设计", "type": "multi", "difficulty": "基础", "stem": "生产级智能体通常包含哪些核心组件？", "options": ["LLM 推理核心", "工具层", "记忆与状态管理", "安全护栏", "只包含一个固定回复模板"], "answer": ["A", "B", "C", "D"], "explanation": "生产级智能体通常由模型、工具、记忆、状态、监控、安全护栏等组成，而非静态模板。", "tags": ["架构"]}, {"id": "Q009", "chapter": "第1章 智能体架构和设计", "type": "multi", "difficulty": "进阶", "stem": "以下哪些属于多智能体系统设计时必须明确的内容？", "options": ["每个智能体的角色边界", "通信协议", "共享状态和冲突解决方式", "任务终止条件", "所有智能体使用不同字体"], "answer": ["A", "B", "C", "D"], "explanation": "多智能体的关键是角色、通信、状态、冲突解决、终止条件和成本控制。", "tags": ["多智能体"]}, {"id": "Q010", "chapter": "第1章 智能体架构和设计", "type": "multi", "difficulty": "基础", "stem": "下列哪些可以视为长期记忆的实现方式？", "options": ["向量数据库", "结构化数据库", "知识图谱", "历史任务日志", "当前回答中的一个逗号"], "answer": ["A", "B", "C", "D"], "explanation": "长期记忆可以通过向量库、数据库、知识图谱、事件日志等实现。", "tags": ["记忆"]}, {"id": "Q011", "chapter": "第1章 智能体架构和设计", "type": "multi", "difficulty": "进阶", "stem": "ReAct 循环中通常会包含哪些环节？", "options": ["推理下一步", "调用工具", "观察工具返回结果", "更新状态", "无条件结束任务"], "answer": ["A", "B", "C", "D"], "explanation": "ReAct 是推理、行动、观察和状态更新的循环，直到满足终止条件。", "tags": ["ReAct"]}, {"id": "Q012", "chapter": "第1章 智能体架构和设计", "type": "multi", "difficulty": "进阶", "stem": "为了让智能体架构具备可扩展性，通常应考虑：", "options": ["模块化组件", "标准化接口", "横向扩展能力", "监控与日志", "把所有逻辑写进一个不可维护的超长 prompt"], "answer": ["A", "B", "C", "D"], "explanation": "可扩展架构需要模块化、标准接口、可观测性和可水平扩展。", "tags": ["架构", "扩展性"]}, {"id": "Q013", "chapter": "第2章 智能体开发", "type": "single", "difficulty": "基础", "stem": "生产级 Prompt 最重要的目标之一是：", "options": ["让输出更随意", "提高稳定性、可控性和机器可解析性", "尽量不说明任务边界", "永远不使用示例"], "answer": ["B"], "explanation": "生产 Prompt 需要明确角色、输入输出格式、工具规则、约束和异常处理，从而便于系统集成。", "tags": ["Prompt"]}, {"id": "Q014", "chapter": "第2章 智能体开发", "type": "single", "difficulty": "基础", "stem": "结构化输出 JSON schema 的主要价值是：", "options": ["让回答更长", "让下游系统可以稳定解析和调用", "让模型无法生成文字", "替代所有安全机制"], "answer": ["B"], "explanation": "结构化输出使模型结果可被程序解析，适合函数调用、API 集成和自动化流程。", "tags": ["结构化输出"]}, {"id": "Q015", "chapter": "第2章 智能体开发", "type": "single", "difficulty": "进阶", "stem": "动态提示链与固定提示链的主要区别是：", "options": ["动态提示链会根据状态选择不同路径", "动态提示链不能使用工具", "固定提示链一定更安全", "动态提示链只能用于翻译"], "answer": ["A"], "explanation": "动态提示链根据任务类型、权限、工具结果和风险等级选择不同分支。", "tags": ["提示链"]}, {"id": "Q016", "chapter": "第2章 智能体开发", "type": "single", "difficulty": "进阶", "stem": "工具调用设计中，“幂等性”的含义是：", "options": ["调用越多越准确", "重复执行同一请求不会产生重复副作用", "工具必须无参数", "工具只能返回自然语言"], "answer": ["B"], "explanation": "幂等性可避免重试导致重复下单、重复发邮件或重复写数据库。", "tags": ["工具调用", "幂等性"]}, {"id": "Q017", "chapter": "第2章 智能体开发", "type": "single", "difficulty": "基础", "stem": "当工具出现临时网络错误时，最合适的初步处理策略通常是：", "options": ["立即删除用户数据", "带退避的重试", "忽略错误并编造结果", "永久禁用系统"], "answer": ["B"], "explanation": "临时错误可以采用指数退避重试；权限错误或高风险错误则不应盲目重试。", "tags": ["错误处理"]}, {"id": "Q018", "chapter": "第2章 智能体开发", "type": "single", "difficulty": "进阶", "stem": "多模态智能体相比纯文本智能体额外需要关注：", "options": ["模态预处理、对齐、隐私与置信度", "只关注输出字体", "完全不需要安全检查", "不需要评估"], "answer": ["A"], "explanation": "图像、音频、视频等模态会带来预处理、识别错误、隐私泄露和跨模态对齐问题。", "tags": ["多模态"]}, {"id": "Q019", "chapter": "第2章 智能体开发", "type": "single", "difficulty": "进阶", "stem": "函数调用参数 schema 设计不清晰最可能导致：", "options": ["工具参数错误或不可解析", "GPU 自动升级", "浏览器无法显示颜色", "用户满意度必然提高"], "answer": ["A"], "explanation": "参数类型、必填字段、枚举值和返回格式不明确，会造成工具调用不稳定。", "tags": ["函数调用"]}, {"id": "Q020", "chapter": "第2章 智能体开发", "type": "multi", "difficulty": "基础", "stem": "高质量 Prompt 通常包括哪些内容？", "options": ["角色与任务目标", "输入/输出格式", "工具使用规则", "约束条件和示例", "不允许任何异常处理说明"], "answer": ["A", "B", "C", "D"], "explanation": "Prompt 应明确角色、格式、工具、约束、示例和异常处理规则。", "tags": ["Prompt"]}, {"id": "Q021", "chapter": "第2章 智能体开发", "type": "multi", "difficulty": "进阶", "stem": "工具调用层应具备哪些工程能力？", "options": ["参数校验", "超时控制", "权限隔离", "审计日志", "高风险操作人工确认"], "answer": ["A", "B", "C", "D", "E"], "explanation": "工具层涉及真实外部动作，需要参数、权限、超时、审计和人工确认等机制。", "tags": ["工具调用"]}, {"id": "Q022", "chapter": "第2章 智能体开发", "type": "multi", "difficulty": "进阶", "stem": "以下哪些属于故障恢复策略？", "options": ["指数退避重试", "fallback 路径", "熔断 circuit breaker", "最大重试次数", "无限循环直到成功"], "answer": ["A", "B", "C", "D"], "explanation": "故障恢复需要受控重试、降级、熔断和终止条件，不能无限循环。", "tags": ["错误处理"]}, {"id": "Q023", "chapter": "第2章 智能体开发", "type": "multi", "difficulty": "基础", "stem": "哪些场景适合使用人工确认后再执行工具？", "options": ["发送正式邮件", "删除文件", "修改数据库记录", "财务付款", "普通天气查询"], "answer": ["A", "B", "C", "D"], "explanation": "高风险写操作或不可逆操作应使用人工确认；普通低风险查询一般不需要。", "tags": ["HITL", "工具调用"]}, {"id": "Q024", "chapter": "第2章 智能体开发", "type": "multi", "difficulty": "进阶", "stem": "动态对话流中需要维护哪些状态？", "options": ["用户目标", "已完成步骤", "工具返回结果", "待确认事项", "系统错误和恢复路径"], "answer": ["A", "B", "C", "D", "E"], "explanation": "动态对话流必须维护任务状态、工具结果、确认节点和异常路径。", "tags": ["状态管理"]}, {"id": "Q025", "chapter": "第3章 评估和调优", "type": "single", "difficulty": "基础", "stem": "评估智能体时，只看回答是否流畅为什么不够？", "options": ["流畅性不能保证任务成功、事实准确、工具正确和安全合规", "流畅性完全没有意义", "流畅性会降低延迟", "考试不考流畅性"], "answer": ["A"], "explanation": "智能体评估应包含任务成功率、事实性、工具调用、检索、安全、成本和用户反馈等维度。", "tags": ["评估"]}, {"id": "Q026", "chapter": "第3章 评估和调优", "type": "single", "difficulty": "基础", "stem": "比较两个智能体版本时，最合理的方法是：", "options": ["凭个人感觉选择", "使用相同测试集、指标和评估流程进行对比", "只比较界面颜色", "只看哪个回答更长"], "answer": ["B"], "explanation": "版本比较需要控制变量，使用统一 benchmark、回放集或 A/B 测试。", "tags": ["评估", "A/B测试"]}, {"id": "Q027", "chapter": "第3章 评估和调优", "type": "single", "difficulty": "进阶", "stem": "RAG 系统中 NDCG、MRR 等指标主要评估：", "options": ["检索排序质量", "网页字体大小", "用户登录速度", "Docker 镜像大小"], "answer": ["A"], "explanation": "NDCG、MRR 常用于衡量检索结果排序质量。", "tags": ["RAG", "检索评估"]}, {"id": "Q028", "chapter": "第3章 评估和调优", "type": "single", "difficulty": "进阶", "stem": "当新 prompt 上线后旧任务能力下降，最需要的是：", "options": ["回归测试", "重新安装浏览器", "换一张封面图", "关闭所有日志"], "answer": ["A"], "explanation": "回归测试用于发现新版本对已有能力造成的退化。", "tags": ["回归测试"]}, {"id": "Q029", "chapter": "第3章 评估和调优", "type": "single", "difficulty": "基础", "stem": "任务成功率主要衡量：", "options": ["是否完成用户目标", "是否使用了最大模型", "输出字数是否最多", "是否没有任何引用"], "answer": ["A"], "explanation": "智能体最终应完成任务目标，任务成功率是核心业务指标。", "tags": ["评估"]}, {"id": "Q030", "chapter": "第3章 评估和调优", "type": "single", "difficulty": "进阶", "stem": "如果智能体工具调用准确但总成本过高，优先考虑：", "options": ["模型路由、缓存、批处理、减少无效调用", "增加无限重试", "删除所有安全检查", "只使用最大模型"], "answer": ["A"], "explanation": "成本优化可通过模型分层、缓存、减少无效调用、批处理和检索优化实现。", "tags": ["成本优化"]}, {"id": "Q031", "chapter": "第3章 评估和调优", "type": "single", "difficulty": "进阶", "stem": "结构化用户反馈最适合用于：", "options": ["持续改进评估集和优化策略", "隐藏所有错误", "替代日志", "保证模型永不出错"], "answer": ["A"], "explanation": "反馈可转化为标注数据、错误分类、回归用例和优化目标。", "tags": ["反馈闭环"]}, {"id": "Q032", "chapter": "第3章 评估和调优", "type": "multi", "difficulty": "基础", "stem": "智能体评估通常应包含哪些维度？", "options": ["任务成功率", "事实准确性", "工具调用正确率", "安全性", "延迟和成本"], "answer": ["A", "B", "C", "D", "E"], "explanation": "生产级评估需要质量、安全、性能、成本和用户体验多维度指标。", "tags": ["评估"]}, {"id": "Q033", "chapter": "第3章 评估和调优", "type": "multi", "difficulty": "进阶", "stem": "一个覆盖较好的智能体测试集应包括：", "options": ["简单问答", "多轮上下文任务", "工具失败场景", "安全边界场景", "长上下文场景"], "answer": ["A", "B", "C", "D", "E"], "explanation": "测试集应覆盖真实任务和边界场景，不能只包含简单样例。", "tags": ["测试集"]}, {"id": "Q034", "chapter": "第3章 评估和调优", "type": "multi", "difficulty": "进阶", "stem": "可调优的对象包括哪些？", "options": ["Prompt", "检索参数", "模型参数", "工具 schema", "记忆策略"], "answer": ["A", "B", "C", "D", "E"], "explanation": "智能体调优是系统工程，模型只是其中一部分。", "tags": ["调优"]}, {"id": "Q035", "chapter": "第3章 评估和调优", "type": "multi", "difficulty": "进阶", "stem": "上线后持续评估可采用哪些方法？", "options": ["离线回放", "A/B 测试", "人工审核", "用户反馈分析", "生产日志分析"], "answer": ["A", "B", "C", "D", "E"], "explanation": "持续评估通常结合离线、在线和人工评估。", "tags": ["评估"]}, {"id": "Q036", "chapter": "第3章 评估和调优", "type": "multi", "difficulty": "基础", "stem": "以下哪些属于性能/成本指标？", "options": ["首 token 延迟", "总响应时间", "token 成本", "GPU 利用率", "工具调用次数"], "answer": ["A", "B", "C", "D", "E"], "explanation": "性能与成本既包括模型推理，也包括工具和基础设施。", "tags": ["性能", "成本"]}, {"id": "Q037", "chapter": "第4章 部署和扩展", "type": "single", "difficulty": "基础", "stem": "从原型系统到生产系统，最重要的变化是：", "options": ["只把 Notebook 改名", "增加认证、日志、监控、回滚、扩展和安全机制", "删除所有测试", "只换更大的字体"], "answer": ["B"], "explanation": "生产系统需要工程化：认证、权限、监控、CI/CD、回滚、可扩展性和安全。", "tags": ["部署"]}, {"id": "Q038", "chapter": "第4章 部署和扩展", "type": "single", "difficulty": "基础", "stem": "Docker 在智能体部署中的主要作用是：", "options": ["封装运行环境和依赖", "替代 Kubernetes 的所有能力", "自动生成题库", "存储用户密码明文"], "answer": ["A"], "explanation": "Docker 通过容器封装依赖，使部署更一致。", "tags": ["Docker"]}, {"id": "Q039", "chapter": "第4章 部署和扩展", "type": "single", "difficulty": "基础", "stem": "Kubernetes 主要解决什么问题？", "options": ["容器编排、扩缩容、服务发现和故障恢复", "只负责写 Prompt", "只用于图片压缩", "只能运行 Word 文档"], "answer": ["A"], "explanation": "Kubernetes 管理容器化服务的部署、扩展、服务发现和恢复。", "tags": ["Kubernetes"]}, {"id": "Q040", "chapter": "第4章 部署和扩展", "type": "single", "difficulty": "进阶", "stem": "智能体系统中 API Gateway 的常见作用是：", "options": ["统一入口、鉴权、限流和路由", "训练 embedding 模型", "清空向量库", "替代所有模型"], "answer": ["A"], "explanation": "API Gateway 常用于统一入口、认证、限流、路由和观测。", "tags": ["API Gateway"]}, {"id": "Q041", "chapter": "第4章 部署和扩展", "type": "single", "difficulty": "进阶", "stem": "蓝绿部署或灰度发布的主要价值是：", "options": ["降低新版本上线风险并支持回滚", "让系统颜色更好看", "增加模型幻觉", "关闭监控"], "answer": ["A"], "explanation": "蓝绿和灰度发布可让新版本逐步上线并在出问题时快速回滚。", "tags": ["CI/CD"]}, {"id": "Q042", "chapter": "第4章 部署和扩展", "type": "single", "difficulty": "进阶", "stem": "高并发下智能体服务延迟升高，首先应观察：", "options": ["QPS、队列、GPU 利用率、模型吞吐、外部工具延迟", "封面图片分辨率", "题目编号样式", "用户昵称长度"], "answer": ["A"], "explanation": "高并发性能问题可能来自推理服务、队列、外部工具、数据库或网络。", "tags": ["性能"]}, {"id": "Q043", "chapter": "第4章 部署和扩展", "type": "single", "difficulty": "基础", "stem": "CI/CD 在智能体项目中的作用是：", "options": ["自动化构建、测试、部署和回滚", "只用于聊天截图", "完全避免测试", "只改变网页颜色"], "answer": ["A"], "explanation": "CI/CD 是生产化部署的重要流程。", "tags": ["MLOps"]}, {"id": "Q044", "chapter": "第4章 部署和扩展", "type": "multi", "difficulty": "基础", "stem": "生产级智能体部署通常需要哪些组件？", "options": ["API 服务", "LLM 推理服务", "向量数据库", "日志与监控系统", "安全与权限系统"], "answer": ["A", "B", "C", "D", "E"], "explanation": "生产级智能体通常是多服务系统，而非一个脚本。", "tags": ["部署"]}, {"id": "Q045", "chapter": "第4章 部署和扩展", "type": "multi", "difficulty": "进阶", "stem": "Kubernetes 中常见的资源或能力包括：", "options": ["Pod", "Deployment", "Service", "HPA", "ConfigMap/Secret"], "answer": ["A", "B", "C", "D", "E"], "explanation": "这些都是 Kubernetes 部署和运维常用概念。", "tags": ["Kubernetes"]}, {"id": "Q046", "chapter": "第4章 部署和扩展", "type": "multi", "difficulty": "进阶", "stem": "AgentOps 相比传统 MLOps 还需要记录：", "options": ["工具调用轨迹", "规划步骤", "检索 query 和返回文档", "记忆写入行为", "安全拦截事件"], "answer": ["A", "B", "C", "D", "E"], "explanation": "智能体系统不仅有模型，还有工具、规划、检索、记忆和安全轨迹。", "tags": ["AgentOps"]}, {"id": "Q047", "chapter": "第4章 部署和扩展", "type": "multi", "difficulty": "基础", "stem": "提高系统可用性的常见做法包括：", "options": ["负载均衡", "健康检查", "自动重启", "多副本部署", "故障告警"], "answer": ["A", "B", "C", "D", "E"], "explanation": "高可用需要多副本、健康检查、负载均衡和告警。", "tags": ["高可用"]}, {"id": "Q048", "chapter": "第4章 部署和扩展", "type": "multi", "difficulty": "进阶", "stem": "以下哪些属于成本优化手段？", "options": ["缓存高频请求", "按任务选择不同大小模型", "减少无效工具调用", "批处理推理请求", "无条件使用最大模型"], "answer": ["A", "B", "C", "D"], "explanation": "成本优化应避免不必要的大模型和重复调用。", "tags": ["成本优化"]}, {"id": "Q049", "chapter": "第5章 认知、规划和记忆", "type": "single", "difficulty": "基础", "stem": "任务分解的核心价值是：", "options": ["降低复杂度、减少遗漏、便于监控和恢复", "让任务更难理解", "删除中间步骤", "避免任何工具调用"], "answer": ["A"], "explanation": "复杂任务拆解后更容易执行、监控、评估和恢复。", "tags": ["任务分解"]}, {"id": "Q050", "chapter": "第5章 认知、规划和记忆", "type": "single", "difficulty": "基础", "stem": "短期记忆通常保存：", "options": ["当前会话上下文、当前任务状态和近期工具结果", "模型许可证原文", "所有互联网内容", "永久不变的用户身份"], "answer": ["A"], "explanation": "短期记忆用于当前会话和任务执行状态。", "tags": ["记忆"]}, {"id": "Q051", "chapter": "第5章 认知、规划和记忆", "type": "single", "difficulty": "进阶", "stem": "长期记忆写入策略最应避免：", "options": ["保存未经确认、错误或敏感的信息导致记忆污染", "设置过期时间", "使用权限隔离", "记录来源"], "answer": ["A"], "explanation": "长期记忆需要质量控制、确认机制、来源和权限管理，避免污染。", "tags": ["记忆污染"]}, {"id": "Q052", "chapter": "第5章 认知、规划和记忆", "type": "single", "difficulty": "进阶", "stem": "复杂任务执行中工具失败后，好的规划器应：", "options": ["重新规划或选择 fallback，而不是继续原错误路径", "假装成功", "直接输出无根据结论", "清空所有历史记录"], "answer": ["A"], "explanation": "智能体应根据环境反馈重新规划。", "tags": ["规划"]}, {"id": "Q053", "chapter": "第5章 认知、规划和记忆", "type": "single", "difficulty": "基础", "stem": "没有终止条件的智能体最可能出现：", "options": ["无限循环或成本失控", "自动变得更准确", "完全无需监控", "不会调用工具"], "answer": ["A"], "explanation": "终止条件和最大步数是防止循环与成本失控的关键。", "tags": ["终止条件"]}, {"id": "Q054", "chapter": "第5章 认知、规划和记忆", "type": "single", "difficulty": "进阶", "stem": "程序性记忆最接近下面哪一项？", "options": ["固定 SOP、工作流和操作步骤", "当前聊天的最后一句话", "随机图片", "一次性验证码"], "answer": ["A"], "explanation": "程序性记忆保存“如何做事”的流程和策略。", "tags": ["记忆"]}, {"id": "Q055", "chapter": "第5章 认知、规划和记忆", "type": "single", "difficulty": "进阶", "stem": "反思式规划主要强调：", "options": ["执行后检查结果并修正计划", "永远不检查输出", "只输出第一步", "禁止用户反馈"], "answer": ["A"], "explanation": "反思式规划通过自检和反馈修正结果。", "tags": ["规划"]}, {"id": "Q056", "chapter": "第5章 认知、规划和记忆", "type": "multi", "difficulty": "基础", "stem": "规划策略可能包括：", "options": ["顺序规划", "条件分支", "层级规划", "重新规划", "反思式规划"], "answer": ["A", "B", "C", "D", "E"], "explanation": "复杂任务可采用多种规划策略组合。", "tags": ["规划"]}, {"id": "Q057", "chapter": "第5章 认知、规划和记忆", "type": "multi", "difficulty": "进阶", "stem": "良好的记忆管理需要回答哪些问题？", "options": ["存什么", "何时存", "如何检索", "何时遗忘", "谁有权限访问"], "answer": ["A", "B", "C", "D", "E"], "explanation": "记忆管理涉及写入、检索、过期、权限和质量。", "tags": ["记忆"]}, {"id": "Q058", "chapter": "第5章 认知、规划和记忆", "type": "multi", "difficulty": "进阶", "stem": "以下哪些有助于避免记忆污染？", "options": ["只保存经过确认的信息", "记录来源和时间", "设置过期或更新机制", "允许用户纠正记忆", "无条件保存所有输入"], "answer": ["A", "B", "C", "D"], "explanation": "记忆污染来自错误、过期、敏感或未经确认的信息。", "tags": ["记忆污染"]}, {"id": "Q059", "chapter": "第5章 认知、规划和记忆", "type": "multi", "difficulty": "基础", "stem": "任务分解后的子任务通常应具备：", "options": ["明确输入", "明确输出", "可验证完成条件", "可恢复状态", "完全不需要顺序关系"], "answer": ["A", "B", "C", "D"], "explanation": "子任务应可执行、可验证、可恢复，并根据依赖关系排序。", "tags": ["任务分解"]}, {"id": "Q060", "chapter": "第5章 认知、规划和记忆", "type": "multi", "difficulty": "进阶", "stem": "智能体进行长期任务时应维护哪些状态？", "options": ["已完成步骤", "未完成步骤", "外部工具结果", "错误与重试记录", "用户确认记录"], "answer": ["A", "B", "C", "D", "E"], "explanation": "长期任务需要可追踪的任务状态与决策记录。", "tags": ["状态管理"]}, {"id": "Q061", "chapter": "第6章 知识整合和数据处理", "type": "single", "difficulty": "基础", "stem": "RAG 的核心思想是：", "options": ["检索外部知识并增强生成", "只靠模型记忆回答", "完全不使用数据", "只训练视觉模型"], "answer": ["A"], "explanation": "RAG 通过检索外部文档，将相关证据加入上下文，以减少幻觉并提升领域知识覆盖。", "tags": ["RAG"]}, {"id": "Q062", "chapter": "第6章 知识整合和数据处理", "type": "single", "difficulty": "基础", "stem": "Chunking 的主要目的是：", "options": ["把文档切成适合检索和上下文使用的片段", "删除所有标题", "压缩成图片", "隐藏文档来源"], "answer": ["A"], "explanation": "合理切分能改善召回、上下文组织和引用定位。", "tags": ["Chunking"]}, {"id": "Q063", "chapter": "第6章 知识整合和数据处理", "type": "single", "difficulty": "进阶", "stem": "关键词检索相比向量检索的优势是：", "options": ["精确匹配术语、编号、缩写通常更稳定", "语义泛化一定最强", "永远不需要索引", "不能用于企业文档"], "answer": ["A"], "explanation": "关键词检索适合精确术语、编号、缩写和唯一标识符。", "tags": ["检索"]}, {"id": "Q064", "chapter": "第6章 知识整合和数据处理", "type": "single", "difficulty": "进阶", "stem": "混合检索的主要优势是：", "options": ["兼顾语义匹配与精确匹配", "完全不需要 reranking", "一定比任何系统都便宜", "只支持图片"], "answer": ["A"], "explanation": "混合检索结合向量检索和关键词检索，适合专业文档和企业知识库。", "tags": ["混合检索"]}, {"id": "Q065", "chapter": "第6章 知识整合和数据处理", "type": "single", "difficulty": "基础", "stem": "ETL 中 Transform 指的是：", "options": ["数据转换、清洗、标准化和增强", "只复制文件名", "删除全部数据", "训练最终模型"], "answer": ["A"], "explanation": "Transform 包含清洗、标准化、去重、格式转换、脱敏等。", "tags": ["ETL"]}, {"id": "Q066", "chapter": "第6章 知识整合和数据处理", "type": "single", "difficulty": "进阶", "stem": "向量数据库中 metadata 的重要用途是：", "options": ["权限过滤、来源追踪、时间过滤和精确筛选", "改变浏览器背景色", "替代 embedding", "保证模型永远正确"], "answer": ["A"], "explanation": "metadata 可用于权限、来源、时间、类型、项目等过滤。", "tags": ["向量数据库"]}, {"id": "Q067", "chapter": "第6章 知识整合和数据处理", "type": "single", "difficulty": "进阶", "stem": "RAG 答案出现幻觉，可能原因不包括：", "options": ["检索召回差", "chunk 过大或过小", "缺少引用约束", "网页按钮颜色是蓝色"], "answer": ["D"], "explanation": "RAG 幻觉常来自数据、检索、上下文组织或生成约束问题。", "tags": ["RAG"]}, {"id": "Q068", "chapter": "第6章 知识整合和数据处理", "type": "multi", "difficulty": "基础", "stem": "标准 RAG 流程通常包括：", "options": ["文档清洗", "切分 chunk", "生成 embedding", "检索相关片段", "LLM 基于证据生成答案"], "answer": ["A", "B", "C", "D", "E"], "explanation": "RAG 包括离线索引流程和在线检索生成流程。", "tags": ["RAG"]}, {"id": "Q069", "chapter": "第6章 知识整合和数据处理", "type": "multi", "difficulty": "进阶", "stem": "数据质量检查应包括：", "options": ["重复数据", "缺失字段", "格式不一致", "过期内容", "权限标签缺失"], "answer": ["A", "B", "C", "D", "E"], "explanation": "数据质量直接影响检索和生成质量。", "tags": ["数据质量"]}, {"id": "Q070", "chapter": "第6章 知识整合和数据处理", "type": "multi", "difficulty": "进阶", "stem": "优化 RAG 检索质量可以调整：", "options": ["chunk size", "embedding 模型", "top-k", "reranker", "混合检索权重"], "answer": ["A", "B", "C", "D", "E"], "explanation": "RAG 检索质量依赖切分、向量化、召回、重排和融合策略。", "tags": ["RAG优化"]}, {"id": "Q071", "chapter": "第6章 知识整合和数据处理", "type": "multi", "difficulty": "基础", "stem": "结构化知识适合存放在：", "options": ["关系型数据库", "知识图谱", "带 metadata 的索引", "键值存储", "完全无格式纯文本且不可查询"], "answer": ["A", "B", "C", "D"], "explanation": "结构化知识通常适合数据库、图谱和可过滤索引。", "tags": ["知识整合"]}, {"id": "Q072", "chapter": "第6章 知识整合和数据处理", "type": "multi", "difficulty": "进阶", "stem": "企业 RAG 中必须考虑的数据治理问题包括：", "options": ["访问权限", "数据来源", "版本控制", "敏感信息脱敏", "审计日志"], "answer": ["A", "B", "C", "D", "E"], "explanation": "企业知识接入必须考虑权限、合规、版本和审计。", "tags": ["数据治理"]}, {"id": "Q073", "chapter": "第7章 NVIDIA 平台部署", "type": "single", "difficulty": "基础", "stem": "NVIDIA NIM 最接近下面哪种定位？", "options": ["用于部署和运行 AI 模型的微服务/推理服务组件", "纯文本编辑器", "浏览器插件", "数据标注公司"], "answer": ["A"], "explanation": "NIM 可理解为面向生产部署的模型微服务能力，便于标准化集成和高性能推理。", "tags": ["NIM"]}, {"id": "Q074", "chapter": "第7章 NVIDIA 平台部署", "type": "single", "difficulty": "基础", "stem": "NeMo Guardrails 的主要作用是：", "options": ["为 LLM 应用配置输入、输出、对话、检索和执行护栏", "替代所有 GPU", "生成 Kubernetes 集群", "管理财务发票"], "answer": ["A"], "explanation": "Guardrails 用于限制和控制 LLM 应用行为，提高安全性和合规性。", "tags": ["NeMo Guardrails"]}, {"id": "Q075", "chapter": "第7章 NVIDIA 平台部署", "type": "single", "difficulty": "进阶", "stem": "Execution rail 最关注：", "options": ["工具调用和外部执行是否安全", "网页字体", "用户头像", "模型文件名"], "answer": ["A"], "explanation": "Execution rail 可用于约束工具调用、权限和执行前后检查。", "tags": ["Guardrails"]}, {"id": "Q076", "chapter": "第7章 NVIDIA 平台部署", "type": "single", "difficulty": "基础", "stem": "Triton Inference Server 的核心定位是：", "options": ["推理服务化和多框架模型部署", "写 CSS 样式", "自动生成论文摘要", "存储浏览器 cookie"], "answer": ["A"], "explanation": "Triton 是 NVIDIA 推理服务器，可部署和服务化多种模型。", "tags": ["Triton"]}, {"id": "Q077", "chapter": "第7章 NVIDIA 平台部署", "type": "single", "difficulty": "进阶", "stem": "TensorRT-LLM 主要用于：", "options": ["优化 NVIDIA GPU 上的大语言模型推理性能", "替代所有训练数据", "做网页动画", "管理用户密码"], "answer": ["A"], "explanation": "TensorRT-LLM 关注 LLM 推理优化、低延迟和高吞吐。", "tags": ["TensorRT-LLM"]}, {"id": "Q078", "chapter": "第7章 NVIDIA 平台部署", "type": "single", "difficulty": "进阶", "stem": "需要降低 LLM 推理延迟和提升吞吐时，最相关的一组工具是：", "options": ["Triton 与 TensorRT-LLM", "纯手工表格", "图像滤镜", "邮箱客户端"], "answer": ["A"], "explanation": "Triton 负责推理服务化，TensorRT-LLM 负责 LLM 推理优化。", "tags": ["推理优化"]}, {"id": "Q079", "chapter": "第7章 NVIDIA 平台部署", "type": "single", "difficulty": "基础", "stem": "NVIDIA 平台相关题目中，“安全护栏、合规输出、控制工具执行”最可能对应：", "options": ["NeMo Guardrails", "Excel 宏", "操作系统主题", "PDF 阅读器"], "answer": ["A"], "explanation": "NeMo Guardrails 负责 LLM 应用护栏。", "tags": ["Guardrails"]}, {"id": "Q080", "chapter": "第7章 NVIDIA 平台部署", "type": "multi", "difficulty": "基础", "stem": "NeMo Guardrails 可覆盖哪些 rail 类型？", "options": ["Input rail", "Output rail", "Dialog rail", "Retrieval rail", "Execution rail"], "answer": ["A", "B", "C", "D", "E"], "explanation": "Guardrails 可从输入、输出、对话、检索和执行多个环节控制行为。", "tags": ["Guardrails"]}, {"id": "Q081", "chapter": "第7章 NVIDIA 平台部署", "type": "multi", "difficulty": "进阶", "stem": "NIM 的价值可能包括：", "options": ["标准化模型服务接口", "简化生产部署", "利用 NVIDIA 推理栈优化性能", "便于应用集成", "替代所有业务逻辑"], "answer": ["A", "B", "C", "D"], "explanation": "NIM 是模型服务与部署能力，不会替代业务逻辑和智能体编排。", "tags": ["NIM"]}, {"id": "Q082", "chapter": "第7章 NVIDIA 平台部署", "type": "multi", "difficulty": "进阶", "stem": "在 NVIDIA 加速环境中部署多模态智能体，应关注：", "options": ["模型推理吞吐", "显存占用", "输入预处理管线", "多模态模型服务化", "监控与扩展"], "answer": ["A", "B", "C", "D", "E"], "explanation": "多模态推理需要处理模型、资源、预处理、服务化和监控。", "tags": ["多模态", "NVIDIA"]}, {"id": "Q083", "chapter": "第7章 NVIDIA 平台部署", "type": "multi", "difficulty": "基础", "stem": "下列工具与关键词匹配正确的是：", "options": ["NIM：模型微服务", "NeMo Guardrails：安全护栏", "Triton：推理服务", "TensorRT-LLM：LLM 推理优化", "Kubernetes：容器编排"], "answer": ["A", "B", "C", "D", "E"], "explanation": "这些是考试中常见的工具定位匹配。", "tags": ["NVIDIA平台"]}, {"id": "Q084", "chapter": "第7章 NVIDIA 平台部署", "type": "multi", "difficulty": "进阶", "stem": "在生产系统中选择 NVIDIA 推理工具链时，需要考虑：", "options": ["延迟", "吞吐", "模型兼容性", "部署环境", "运维监控"], "answer": ["A", "B", "C", "D", "E"], "explanation": "推理工具选择要综合性能、兼容性、环境和运维需求。", "tags": ["推理部署"]}, {"id": "Q085", "chapter": "第8章 运行、监控和维护", "type": "single", "difficulty": "基础", "stem": "智能体监控不应只监控服务器状态，还应监控：", "options": ["任务质量、工具调用、检索、安全和用户反馈", "按钮圆角", "网页主题色", "用户名长度"], "answer": ["A"], "explanation": "智能体系统质量取决于模型、检索、工具、状态和安全，不只是机器是否在线。", "tags": ["监控"]}, {"id": "Q086", "chapter": "第8章 运行、监控和维护", "type": "single", "difficulty": "基础", "stem": "Trace 对智能体系统的重要性在于：", "options": ["记录一次任务从输入、检索、工具调用到输出的全过程", "让界面更漂亮", "提高答案字数", "取消权限控制"], "answer": ["A"], "explanation": "Trace 有助于定位错误发生在哪一步。", "tags": ["可观测性"]}, {"id": "Q087", "chapter": "第8章 运行、监控和维护", "type": "single", "difficulty": "进阶", "stem": "如果最终答案错误，trace 显示检索没有召回正确文档，根因更可能在：", "options": ["RAG 索引、query、chunking 或检索参数", "输出字体", "用户头像", "封面颜色"], "answer": ["A"], "explanation": "检索失败导致模型缺少证据，应优化 RAG 流程。", "tags": ["RAG", "RCA"]}, {"id": "Q088", "chapter": "第8章 运行、监控和维护", "type": "single", "difficulty": "进阶", "stem": "自动告警最适合针对：", "options": ["错误率异常、延迟异常、安全拦截异常、成本异常", "标题是否加粗", "用户是否喜欢蓝色", "代码注释长度"], "answer": ["A"], "explanation": "告警应关注质量、性能、安全和成本异常。", "tags": ["告警"]}, {"id": "Q089", "chapter": "第8章 运行、监控和维护", "type": "single", "difficulty": "基础", "stem": "版本控制应覆盖：", "options": ["模型、Prompt、工具 schema、检索参数和 Guardrail 规则", "只覆盖 logo", "只覆盖浏览器缓存", "只覆盖用户昵称"], "answer": ["A"], "explanation": "智能体质量受多个组件影响，都应版本化以便回滚和追踪。", "tags": ["版本控制"]}, {"id": "Q090", "chapter": "第8章 运行、监控和维护", "type": "single", "difficulty": "进阶", "stem": "根因分析中发现 Guardrail 误拦截大量正常请求，应：", "options": ["分析规则阈值、样本和日志，调整并回归测试", "立即删除所有护栏", "忽略用户反馈", "关闭监控"], "answer": ["A"], "explanation": "误拦截需要基于日志和测试集调优，而不是简单删除安全机制。", "tags": ["Guardrails", "RCA"]}, {"id": "Q091", "chapter": "第8章 运行、监控和维护", "type": "single", "difficulty": "进阶", "stem": "生产智能体的“人工接管率”可以反映：", "options": ["系统无法自动完成或高风险升级的比例", "字体加载速度", "用户设备型号", "题库数量"], "answer": ["A"], "explanation": "人工接管率是质量、风险和可用性的一个重要指标。", "tags": ["监控指标"]}, {"id": "Q092", "chapter": "第8章 运行、监控和维护", "type": "multi", "difficulty": "基础", "stem": "智能体 dashboard 可包含哪些指标？", "options": ["任务成功率", "工具调用成功率", "检索空结果率", "延迟与吞吐", "安全拦截次数"], "answer": ["A", "B", "C", "D", "E"], "explanation": "生产 dashboard 应综合质量、工具、检索、性能和安全。", "tags": ["监控"]}, {"id": "Q093", "chapter": "第8章 运行、监控和维护", "type": "multi", "difficulty": "进阶", "stem": "一次完整 trace 通常应记录：", "options": ["用户请求", "Prompt 版本", "检索 query 与文档", "工具调用参数和结果", "最终输出与安全检查"], "answer": ["A", "B", "C", "D", "E"], "explanation": "Trace 需要覆盖从输入到输出的关键链路。", "tags": ["Trace"]}, {"id": "Q094", "chapter": "第8章 运行、监控和维护", "type": "multi", "difficulty": "进阶", "stem": "持续维护智能体系统包括：", "options": ["回归测试", "监控告警", "版本回滚", "错误样本分析", "评估集更新"], "answer": ["A", "B", "C", "D", "E"], "explanation": "维护是持续过程，包含监控、评估、回滚和数据改进。", "tags": ["维护"]}, {"id": "Q095", "chapter": "第8章 运行、监控和维护", "type": "multi", "difficulty": "基础", "stem": "以下哪些可能导致生产质量下降？", "options": ["Prompt 改动", "模型版本变更", "向量库更新", "工具 API 变更", "Guardrail 规则变更"], "answer": ["A", "B", "C", "D", "E"], "explanation": "这些组件变更都可能引入回归风险。", "tags": ["版本控制"]}, {"id": "Q096", "chapter": "第8章 运行、监控和维护", "type": "multi", "difficulty": "进阶", "stem": "根因分析时应检查：", "options": ["用户输入是否模糊", "检索是否正确", "工具是否成功", "LLM 是否误解工具结果", "输出是否被安全策略影响"], "answer": ["A", "B", "C", "D", "E"], "explanation": "错误可能发生在链路中的任意阶段，需要逐步排查。", "tags": ["RCA"]}, {"id": "Q097", "chapter": "第9章 安全、道德与合规", "type": "single", "difficulty": "基础", "stem": "最小权限原则指的是：", "options": ["只授予完成任务所需的最小访问权限", "给所有用户管理员权限", "禁止所有用户登录", "删除所有日志"], "answer": ["A"], "explanation": "最小权限原则可减少越权访问和工具滥用风险。", "tags": ["安全"]}, {"id": "Q098", "chapter": "第9章 安全、道德与合规", "type": "single", "difficulty": "基础", "stem": "审计日志的主要价值是：", "options": ["追踪谁在何时因为什么调用了什么工具或访问了什么数据", "改变网页颜色", "提高题目数量", "替代权限控制"], "answer": ["A"], "explanation": "审计日志支持责任追踪、合规检查和安全调查。", "tags": ["审计"]}, {"id": "Q099", "chapter": "第9章 安全、道德与合规", "type": "single", "difficulty": "进阶", "stem": "企业内部 RAG 最需要避免的安全问题之一是：", "options": ["用户检索到无权限访问的文档", "答案太短", "按钮太多", "题目编号不连续"], "answer": ["A"], "explanation": "企业知识检索必须进行权限过滤和数据隔离。", "tags": ["RAG安全"]}, {"id": "Q100", "chapter": "第9章 安全、道德与合规", "type": "single", "difficulty": "进阶", "stem": "输出层脱敏主要用于：", "options": ["避免泄露个人信息、密钥或敏感字段", "提高图片清晰度", "替代所有评估", "让答案更长"], "answer": ["A"], "explanation": "输出脱敏可防止敏感信息在最终回答中泄露。", "tags": ["隐私"]}, {"id": "Q101", "chapter": "第9章 安全、道德与合规", "type": "single", "difficulty": "基础", "stem": "高风险工具调用前引入人工审批属于：", "options": ["安全护栏和人类监督", "模型压缩", "网页缓存", "数据增强"], "answer": ["A"], "explanation": "高风险操作需要人工确认、权限控制和审计。", "tags": ["HITL", "安全"]}, {"id": "Q102", "chapter": "第9章 安全、道德与合规", "type": "single", "difficulty": "进阶", "stem": "模型许可证和数据使用权属于哪类问题？", "options": ["合规与许可", "GPU 温度", "UI 设计", "浏览器缓存"], "answer": ["A"], "explanation": "上线前需确认模型、数据、第三方 API 的许可证和合规要求。", "tags": ["合规"]}, {"id": "Q103", "chapter": "第9章 安全、道德与合规", "type": "single", "difficulty": "进阶", "stem": "Prompt injection 最可能攻击：", "options": ["模型遵循系统/开发者约束和工具调用边界的能力", "显示器分辨率", "服务器电源", "CSS 变量"], "answer": ["A"], "explanation": "Prompt injection 试图绕过指令、泄露信息或诱导越权工具调用。", "tags": ["Prompt Injection"]}, {"id": "Q104", "chapter": "第9章 安全、道德与合规", "type": "multi", "difficulty": "基础", "stem": "分层安全框架通常包括：", "options": ["身份认证", "输入检查", "检索权限过滤", "工具执行控制", "输出脱敏和审计"], "answer": ["A", "B", "C", "D", "E"], "explanation": "安全应贯穿身份、输入、检索、工具、输出和审计。", "tags": ["安全"]}, {"id": "Q105", "chapter": "第9章 安全、道德与合规", "type": "multi", "difficulty": "进阶", "stem": "降低有害内容和偏见风险可采用：", "options": ["内容过滤", "安全评估集", "人工审核", "输出规则约束", "持续监控"], "answer": ["A", "B", "C", "D", "E"], "explanation": "偏见和有害内容需要数据、评估、规则、审核和监控共同治理。", "tags": ["AI伦理"]}, {"id": "Q106", "chapter": "第9章 安全、道德与合规", "type": "multi", "difficulty": "进阶", "stem": "哪些属于隐私保护措施？", "options": ["数据脱敏", "访问控制", "加密存储", "审计日志", "最小化数据收集"], "answer": ["A", "B", "C", "D", "E"], "explanation": "隐私保护需要减少收集、保护存储、控制访问和记录审计。", "tags": ["隐私"]}, {"id": "Q107", "chapter": "第9章 安全、道德与合规", "type": "multi", "difficulty": "基础", "stem": "以下哪些情况应触发人工升级？", "options": ["高风险决策", "用户请求越权访问", "模型置信度低且影响重大", "涉及法规或合规判断", "不可逆写操作"], "answer": ["A", "B", "C", "D", "E"], "explanation": "高风险、不确定、合规和不可逆操作适合人工升级。", "tags": ["HITL"]}, {"id": "Q108", "chapter": "第9章 安全、道德与合规", "type": "multi", "difficulty": "进阶", "stem": "安全审计中应关注：", "options": ["越权访问尝试", "敏感信息泄露", "危险工具调用", "Guardrail 拦截记录", "异常调用频率"], "answer": ["A", "B", "C", "D", "E"], "explanation": "安全审计需要覆盖访问、数据、工具、护栏和异常行为。", "tags": ["安全审计"]}, {"id": "Q109", "chapter": "第10章 人类-AI交互和监督", "type": "single", "difficulty": "基础", "stem": "好的 Agent UI 不应只显示最终答案，还应适度展示：", "options": ["目标、计划、工具状态、引用和确认节点", "模型全部隐藏参数", "用户所有隐私", "无关广告"], "answer": ["A"], "explanation": "透明 UI 可增强用户信任和可控性。", "tags": ["HCI"]}, {"id": "Q110", "chapter": "第10章 人类-AI交互和监督", "type": "single", "difficulty": "基础", "stem": "Human-in-the-loop 最适合用于：", "options": ["高风险、高价值或不确定任务", "普通问候语", "改变按钮颜色", "计算 1+1"], "answer": ["A"], "explanation": "HITL 用于风险高、影响大或不确定性高的决策与行动。", "tags": ["HITL"]}, {"id": "Q111", "chapter": "第10章 人类-AI交互和监督", "type": "single", "difficulty": "进阶", "stem": "可解释性在 Agent 系统中更合理的做法是：", "options": ["展示关键步骤、数据来源、工具调用和限制，而不是暴露完整内部推理链", "输出全部隐藏推理", "只显示一个笑脸", "不提供任何来源"], "answer": ["A"], "explanation": "可解释性可通过证据、步骤、来源、工具状态和限制说明实现。", "tags": ["透明性"]}, {"id": "Q112", "chapter": "第10章 人类-AI交互和监督", "type": "single", "difficulty": "进阶", "stem": "结构化反馈循环的价值是：", "options": ["把用户评价转化为可分析的改进数据", "让用户无法反馈", "替代所有测试", "只增加页面按钮"], "answer": ["A"], "explanation": "结构化反馈可用于错误分类、样本积累、评估集更新和版本优化。", "tags": ["反馈闭环"]}, {"id": "Q113", "chapter": "第10章 人类-AI交互和监督", "type": "single", "difficulty": "基础", "stem": "高风险操作前的确认按钮主要用于：", "options": ["让用户审查和授权即将执行的动作", "提高模型参数量", "隐藏系统状态", "减少所有日志"], "answer": ["A"], "explanation": "确认按钮是人类监督的一种 UI 机制。", "tags": ["HITL", "UI"]}, {"id": "Q114", "chapter": "第10章 人类-AI交互和监督", "type": "single", "difficulty": "进阶", "stem": "如果用户需要纠正智能体方向，系统最应提供：", "options": ["可编辑中间结果和反馈入口", "不可见执行流程", "固定不可改答案", "只显示广告"], "answer": ["A"], "explanation": "可编辑中间结果让用户在关键节点干预，提高任务成功率。", "tags": ["HCI"]}, {"id": "Q115", "chapter": "第10章 人类-AI交互和监督", "type": "single", "difficulty": "进阶", "stem": "透明机制的边界是：", "options": ["提供足够审查信息，同时不泄露敏感系统提示或安全细节", "公开所有密钥", "公开所有内部策略", "不显示任何信息"], "answer": ["A"], "explanation": "透明性需要平衡可理解性、安全性和隐私。", "tags": ["透明性", "安全"]}, {"id": "Q116", "chapter": "第10章 人类-AI交互和监督", "type": "multi", "difficulty": "基础", "stem": "Agent UI 中有助于用户监督的元素包括：", "options": ["当前目标", "计划步骤", "工具调用状态", "引用来源", "确认按钮"], "answer": ["A", "B", "C", "D", "E"], "explanation": "这些元素帮助用户理解、纠正和确认智能体行动。", "tags": ["UI"]}, {"id": "Q117", "chapter": "第10章 人类-AI交互和监督", "type": "multi", "difficulty": "进阶", "stem": "HITL 可采用哪些形式？", "options": ["人工审批", "人工选择候选答案", "人工纠正工具参数", "人工接管对话", "人工审核输出"], "answer": ["A", "B", "C", "D", "E"], "explanation": "人类监督可嵌入审批、选择、纠正、接管和审核等环节。", "tags": ["HITL"]}, {"id": "Q118", "chapter": "第10章 人类-AI交互和监督", "type": "multi", "difficulty": "进阶", "stem": "为了提升用户信任，系统可以提供：", "options": ["引用和证据", "工具调用摘要", "限制说明", "置信度或不确定性提示", "历史操作记录"], "answer": ["A", "B", "C", "D", "E"], "explanation": "信任来自透明、可追溯、可纠正和不确定性表达。", "tags": ["信任"]}, {"id": "Q119", "chapter": "第10章 人类-AI交互和监督", "type": "multi", "difficulty": "基础", "stem": "收集用户反馈时，适合记录：", "options": ["是否完成任务", "错误类型", "用户评分", "用户修改后的正确答案", "是否需要人工接管"], "answer": ["A", "B", "C", "D", "E"], "explanation": "结构化反馈越细，越有助于后续优化。", "tags": ["反馈"]}, {"id": "Q120", "chapter": "第10章 人类-AI交互和监督", "type": "multi", "difficulty": "进阶", "stem": "哪些场景应避免让智能体全自动执行？", "options": ["删除大量文件", "发送法律承诺邮件", "修改财务数据", "访问敏感文档", "医学高风险建议"], "answer": ["A", "B", "C", "D", "E"], "explanation": "这些场景具有高风险、合规或不可逆属性，应有人类监督。", "tags": ["HITL", "风险"]}];
+const CHAPTERS = ["第1章 智能体架构和设计", "第2章 智能体开发", "第3章 评估和调优", "第4章 部署和扩展", "第5章 认知、规划和记忆", "第6章 知识整合和数据处理", "第7章 NVIDIA 平台部署", "第8章 运行、监控和维护", "第9章 安全、道德与合规", "第10章 人类-AI交互和监督"];
+const letters = ['A','B','C','D','E','F'];
+let practiceList=[], practiceIndex=0, practiceChecked=false;
+let examList=[], examIndex=0, examAnswers={}, examSubmitted=false, examTimer=null, examEnd=0;
+let showBankAnswer=false;
+const storeKey='ncp_aai_quiz_v1';
+let stats = loadStats();
+function $(id){return document.getElementById(id)}
+function loadStats(){try{return JSON.parse(localStorage.getItem(storeKey))||{attempts:{},bookmarks:{},examHistory:[]}}catch(e){return {attempts:{},bookmarks:{},examHistory:[]}}}
+function saveStats(){localStorage.setItem(storeKey,JSON.stringify(stats))}
+function init(){
+ $('totalCount').textContent=QUESTION_BANK.length;
+ fillSelect('pChapter'); fillSelect('eChapter');
+ document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+ startPractice(); renderBank(); renderStats();
+}
+function fillSelect(id){const s=$(id); s.innerHTML='<option value="all">全部章节</option>'+CHAPTERS.map(c=>`<option>${c}</option>`).join('')}
+function switchTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.tabpage').forEach(p=>p.classList.toggle('hidden',p.id!==name)); if(name==='stats')renderStats(); if(name==='bank')renderBank();}
+function shuffle(a){return [...a].sort(()=>Math.random()-0.5)}
+function filterQuestions(prefix){
+ const chap=$(prefix+'Chapter')?.value||'all', typ=$(prefix+'Type')?.value||'all';
+ const diff=$(prefix+'Difficulty')?.value||'all', search=($(prefix+'Search')?.value||'').trim().toLowerCase();
+ const scope=$(prefix+'Scope')?.value||'all';
+ return QUESTION_BANK.filter(q=>{
+   if(chap!=='all'&&q.chapter!==chap)return false; if(typ!=='all'&&q.type!==typ)return false; if(diff!=='all'&&q.difficulty!==diff)return false;
+   if(search && !(q.stem+q.explanation+(q.tags||[]).join(' ')).toLowerCase().includes(search))return false;
+   const rec=stats.attempts[q.id]||{};
+   if(scope==='wrong' && !(rec.attempts>rec.correct))return false;
+   if(scope==='bookmarked' && !stats.bookmarks[q.id])return false;
+   return true;
+ })
+}
+function startPractice(){practiceList=filterQuestions('p'); practiceIndex=0; practiceChecked=false; renderPractice();}
+function shufflePractice(){practiceList=shuffle(practiceList); practiceIndex=0; practiceChecked=false; renderPractice();}
+function renderPractice(){
+ $('pTotal').textContent=practiceList.length; $('pIndex').textContent=practiceList.length?`${practiceIndex+1}/${practiceList.length}`:'0';
+ const att=Object.values(stats.attempts).reduce((s,r)=>s+(r.attempts||0),0), cor=Object.values(stats.attempts).reduce((s,r)=>s+(r.correct||0),0);
+ $('pAccuracy').textContent=att?Math.round(cor/att*100)+'%':'0%'; $('pWrongCount').textContent=Object.values(stats.attempts).filter(r=>(r.attempts||0)>(r.correct||0)).length;
+ $('pBar').style.width=practiceList.length?((practiceIndex+1)/practiceList.length*100)+'%':'0%';
+ $('pPalette').innerHTML=practiceList.map((q,i)=>`<button class="pill ${i===practiceIndex?'on':''}" onclick="jumpPractice(${i})">${i+1}</button>`).join('');
+ if(!practiceList.length){$('practiceCard').innerHTML='<div class="notice">没有符合条件的题目。请调整筛选条件。</div>';return}
+ const q=practiceList[practiceIndex]; renderQuestion('practiceCard',q,{mode:'practice',answerName:'pans'});
+}
+function renderQuestion(target,q,ctx){
+ const typeName=q.type==='single'?'单选题':'多选题'; const typeBadge=q.type==='single'?'blue':'orange';
+ const opts=q.options.map((o,i)=>`<label class="opt" data-letter="${letters[i]}"><input name="${ctx.answerName}" type="${q.type==='single'?'radio':'checkbox'}" value="${letters[i]}"><span class="letter">${letters[i]}.</span><span>${o}</span></label>`).join('');
+ const common=`<div class="qmeta"><span class="badge dark">${q.id}</span><span class="badge green">${q.chapter}</span><span class="badge ${typeBadge}">${typeName}</span><span class="badge">${q.difficulty}</span>${(q.tags||[]).map(t=>`<span class="badge">#${t}</span>`).join('')}</div><div class="stem">${escapeHtml(q.stem)}</div><div class="opts">${opts}</div>`;
+ if(ctx.mode==='practice'){
+  $(target).innerHTML=common+`<div class="explain" id="explainBox"><b>答案：${q.answer.join('、')}</b><br>${escapeHtml(q.explanation)}</div><div class="navline"><div class="row"><button class="btn primary" onclick="checkPractice()">提交本题</button><button class="btn ghost" onclick="toggleBookmark('${q.id}')">${stats.bookmarks[q.id]?'取消收藏':'收藏本题'}</button></div><div class="row"><button class="btn ghost" onclick="prevPractice()">上一题</button><button class="btn ghost" onclick="nextPractice()">下一题</button></div></div>`;
+ } else {
+  const saved=examAnswers[q.id]||[];
+  $(target).innerHTML=common+`<div class="navline"><div class="row"><button class="btn ghost" onclick="prevExam()">上一题</button><button class="btn ghost" onclick="nextExam()">下一题</button></div><div class="small">${examIndex+1}/${examList.length}</div></div>`;
+  document.querySelectorAll(`#${target} input`).forEach(inp=>{if(saved.includes(inp.value))inp.checked=true;inp.addEventListener('change',saveExamAnswer)});
+ }
+}
+function selected(name){return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(i=>i.value).sort()}
+function arraysEqual(a,b){a=[...a].sort();b=[...b].sort();return a.length===b.length&&a.every((v,i)=>v===b[i])}
+function checkPractice(){
+ if(!practiceList.length)return; const q=practiceList[practiceIndex]; const ans=selected('pans'); if(ans.length===0){alert('请先选择答案');return}
+ const ok=arraysEqual(ans,q.answer); stats.attempts[q.id]=stats.attempts[q.id]||{attempts:0,correct:0}; stats.attempts[q.id].attempts++; if(ok)stats.attempts[q.id].correct++; saveStats();
+ document.querySelectorAll('#practiceCard .opt').forEach(el=>{const l=el.dataset.letter;if(q.answer.includes(l))el.classList.add('correct'); if(ans.includes(l)&&!q.answer.includes(l))el.classList.add('wrong')});
+ $('explainBox').classList.add('show'); practiceChecked=true; renderPracticeMetricsOnly();
+}
+function renderPracticeMetricsOnly(){const att=Object.values(stats.attempts).reduce((s,r)=>s+(r.attempts||0),0),cor=Object.values(stats.attempts).reduce((s,r)=>s+(r.correct||0),0);$('pAccuracy').textContent=att?Math.round(cor/att*100)+'%':'0%';$('pWrongCount').textContent=Object.values(stats.attempts).filter(r=>(r.attempts||0)>(r.correct||0)).length;}
+function nextPractice(){if(practiceIndex<practiceList.length-1){practiceIndex++;practiceChecked=false;renderPractice()}}
+function prevPractice(){if(practiceIndex>0){practiceIndex--;practiceChecked=false;renderPractice()}}
+function jumpPractice(i){practiceIndex=i;practiceChecked=false;renderPractice()}
+function toggleBookmark(id){stats.bookmarks[id]=!stats.bookmarks[id]; if(!stats.bookmarks[id])delete stats.bookmarks[id]; saveStats(); renderPractice();}
+function startExam(){
+ let pool=filterQuestions('e'); if(!pool.length){alert('没有符合条件的题目');return}
+ const n=Math.min(parseInt($('eCount').value||60),pool.length); examList=shuffle(pool).slice(0,n); examIndex=0; examAnswers={}; examSubmitted=false; examEnd=Date.now()+parseInt($('eMinutes').value||120)*60000;
+ clearInterval(examTimer); examTimer=setInterval(tick,1000); tick(); renderExam();
+}
+function tick(){const remain=Math.max(0,examEnd-Date.now()); const m=Math.floor(remain/60000),s=Math.floor((remain%60000)/1000); $('timer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; if(remain<=0&&examList.length&&!examSubmitted)submitExam(true)}
+function renderExam(){
+ $('eTotal').textContent=examList.length; $('eAnswered').textContent=Object.keys(examAnswers).filter(k=>examAnswers[k].length).length;
+ $('ePalette').innerHTML=examList.map((q,i)=>`<button class="pill ${i===examIndex?'on':''} ${examAnswers[q.id]?.length?'done':''}" onclick="jumpExam(${i})">${i+1}</button>`).join('');
+ if(!examList.length){$('examCard').innerHTML='<div class="notice">请点击开始模拟考试。</div>';return}
+ if(examSubmitted){renderExamResult();return}
+ renderQuestion('examCard',examList[examIndex],{mode:'exam',answerName:'eans'});
+}
+function saveExamAnswer(){if(!examList.length)return; examAnswers[examList[examIndex].id]=selected('eans'); renderExamPaletteOnly()}
+function renderExamPaletteOnly(){ $('eAnswered').textContent=Object.keys(examAnswers).filter(k=>examAnswers[k].length).length; $('ePalette').innerHTML=examList.map((q,i)=>`<button class="pill ${i===examIndex?'on':''} ${examAnswers[q.id]?.length?'done':''}" onclick="jumpExam(${i})">${i+1}</button>`).join(''); }
+function nextExam(){saveExamAnswer(); if(examIndex<examList.length-1){examIndex++;renderExam()}}
+function prevExam(){saveExamAnswer(); if(examIndex>0){examIndex--;renderExam()}}
+function jumpExam(i){saveExamAnswer(); examIndex=i; renderExam()}
+function submitExam(auto=false){if(!examList.length)return; if(!auto&&!confirm('确认交卷？'))return; saveExamAnswer(); examSubmitted=true; clearInterval(examTimer); let correct=0; examList.forEach(q=>{const ans=examAnswers[q.id]||[]; const ok=arraysEqual(ans,q.answer); stats.attempts[q.id]=stats.attempts[q.id]||{attempts:0,correct:0}; stats.attempts[q.id].attempts++; if(ok){stats.attempts[q.id].correct++; correct++}}); stats.examHistory.push({time:new Date().toISOString(),total:examList.length,correct}); saveStats(); renderExamResult();}
+function renderExamResult(){
+ const rows=examList.map(q=>{const ans=examAnswers[q.id]||[]; const ok=arraysEqual(ans,q.answer); return {q,ans,ok}}); const correct=rows.filter(r=>r.ok).length; const rate=Math.round(correct/examList.length*100);
+ const byChap={}; rows.forEach(r=>{byChap[r.q.chapter]=byChap[r.q.chapter]||{t:0,c:0};byChap[r.q.chapter].t++; if(r.ok)byChap[r.q.chapter].c++});
+ const chapHtml=Object.entries(byChap).map(([c,v])=>`<div style="margin:10px 0"><b>${c}</b>：${v.c}/${v.t} (${Math.round(v.c/v.t*100)}%)<div class="progress"><div class="bar" style="width:${v.c/v.t*100}%"></div></div></div>`).join('');
+ const wrongHtml=rows.filter(r=>!r.ok).map(r=>`<details style="margin:10px 0"><summary><b>${r.q.id}</b> ${escapeHtml(r.q.stem)} <span class="badge orange">你的答案：${r.ans.join('、')||'未答'}</span> <span class="badge green">正确：${r.q.answer.join('、')}</span></summary><p>${escapeHtml(r.q.explanation)}</p></details>`).join('')||'<div class="notice">本次考试没有错题。</div>';
+ $('examCard').innerHTML=`<h2>考试结果：${correct}/${examList.length}，得分 ${rate}%</h2><div class="progress"><div class="bar" style="width:${rate}%"></div></div><h3>章节表现</h3>${chapHtml}<h3>错题解析</h3>${wrongHtml}<div class="row" style="margin-top:16px"><button class="btn primary" onclick="startExam()">再考一次</button><button class="btn ghost" onclick="window.print()">打印/保存成绩</button></div>`;
+ renderExamPaletteOnly(); renderStats();
+}
+function renderBank(){
+ const kw=($('bSearch')?.value||'').trim().toLowerCase(); const rows=QUESTION_BANK.filter(q=>!kw||(q.id+q.chapter+q.type+q.stem+q.explanation+(q.tags||[]).join(' ')).toLowerCase().includes(kw));
+ $('bankBody').innerHTML=rows.map(q=>`<tr><td>${q.id}</td><td>${q.chapter}</td><td>${q.type==='single'?'单选':'多选'}<br>${q.difficulty}</td><td>${escapeHtml(q.stem)}<br><span class="small">${(q.tags||[]).map(t=>'#'+t).join(' ')}</span></td><td>${showBankAnswer?q.answer.join('、'):'•••'}</td><td>${showBankAnswer?escapeHtml(q.explanation):'点击上方按钮显示解析'}</td></tr>`).join('')
+}
+function toggleBankAnswer(){showBankAnswer=!showBankAnswer; renderBank()}
+function renderStats(){
+ const att=Object.values(stats.attempts).reduce((s,r)=>s+(r.attempts||0),0),cor=Object.values(stats.attempts).reduce((s,r)=>s+(r.correct||0),0);
+ $('sAttempts').textContent=att; $('sCorrect').textContent=cor; $('sRate').textContent=att?Math.round(cor/att*100)+'%':'0%'; $('sBookmarks').textContent=Object.keys(stats.bookmarks).length;
+ const chap=CHAPTERS.map(c=>{const qs=QUESTION_BANK.filter(q=>q.chapter===c); let a=0,co=0; qs.forEach(q=>{const r=stats.attempts[q.id]||{}; a+=r.attempts||0; co+=r.correct||0}); return {c,a,co,rate:a?co/a:0}});
+ $('chapterStats').innerHTML=chap.map(x=>`<div style="margin:12px 0"><b>${x.c}</b>：作答 ${x.a}，正确 ${x.co}，正确率 ${x.a?Math.round(x.rate*100):0}%<div class="progress"><div class="bar" style="width:${x.rate*100}%"></div></div></div>`).join('');
+ const wrongQs=QUESTION_BANK.filter(q=>{const r=stats.attempts[q.id]||{};return (r.attempts||0)>(r.correct||0)});
+ $('wrongList').innerHTML=wrongQs.map(q=>`<details style="margin:10px 0"><summary><b>${q.id}</b> ${escapeHtml(q.stem)} <span class="badge">${q.chapter}</span></summary><p><b>答案：${q.answer.join('、')}</b><br>${escapeHtml(q.explanation)}</p></details>`).join('')||'<div class="notice">当前没有错题。</div>';
+}
+function exportStats(){download('aai_learning_stats.json',JSON.stringify(stats,null,2))}
+function downloadJSON(){download('aai_question_bank.json',JSON.stringify(QUESTION_BANK,null,2))}
+function download(name,content){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:'application/json'}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
+function resetStats(){if(confirm('确认清空学习记录、错题和收藏？')){localStorage.removeItem(storeKey);stats=loadStats();renderStats();renderPractice();}}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+init();
+</script>
 </body>
 </html>
