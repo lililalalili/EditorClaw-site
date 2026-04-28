@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>为大语言模型添加知识：题库与在线刷题/模拟考试系统</title>
+<style>
+:root {
+  --bg:#f6f7fb; --panel:#ffffff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+  --brand:#2563eb; --brand2:#0f766e; --soft:#eff6ff; --soft2:#ecfdf5; --warn:#fff7ed; --bad:#fef2f2; --good:#ecfdf5;
+}
+* { box-sizing: border-box; }
+body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif; background:var(--bg); color:var(--ink); }
+header { background:linear-gradient(135deg,#1e3a8a,#2563eb 48%,#0f766e); color:white; padding:28px 20px; }
+.header-inner { max-width:1180px; margin:0 auto; }
+h1 { margin:0 0 8px; font-size:28px; letter-spacing:.2px; }
+.subtitle { opacity:.92; line-height:1.6; max-width:900px; }
+.metrics { display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; }
+.metric { background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.25); border-radius:14px; padding:10px 14px; min-width:130px; }
+.metric b { display:block; font-size:24px; }
+nav { background:var(--panel); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; }
+.nav-inner { max-width:1180px; margin:0 auto; display:flex; gap:8px; padding:10px 16px; flex-wrap:wrap; }
+.tab { border:1px solid var(--line); background:#fff; color:var(--ink); padding:10px 14px; border-radius:999px; cursor:pointer; font-weight:600; }
+.tab.active { background:var(--brand); color:white; border-color:var(--brand); }
+main { max-width:1180px; margin:22px auto; padding:0 16px 40px; }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:18px; box-shadow:0 8px 24px rgba(15,23,42,.05); padding:20px; margin-bottom:18px; }
+.panel h2 { margin:0 0 14px; font-size:22px; }
+.panel h3 { margin:18px 0 10px; font-size:18px; }
+.row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.controls { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin:12px 0; }
+label { font-size:13px; color:var(--muted); display:block; margin-bottom:6px; }
+select,input[type="number"] { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:#fff; font-size:14px; }
+button { border:0; background:var(--brand); color:#fff; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700; }
+button.secondary { background:#eef2ff; color:#1e3a8a; border:1px solid #c7d2fe; }
+button.good { background:#0f766e; }
+button.warn { background:#ea580c; }
+button.danger { background:#dc2626; }
+button:disabled { opacity:.55; cursor:not-allowed; }
+.badge { display:inline-flex; gap:6px; align-items:center; padding:5px 9px; border-radius:999px; font-size:12px; font-weight:700; border:1px solid var(--line); background:#fff; color:#374151; }
+.badge.single { background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe; }
+.badge.multiple { background:#f0fdf4; color:#047857; border-color:#bbf7d0; }
+.badge.diff { background:#fff7ed; color:#9a3412; border-color:#fed7aa; }
+.q-card { border:1px solid var(--line); border-radius:16px; padding:18px; margin-top:14px; background:#fff; }
+.q-stem { font-size:18px; font-weight:750; line-height:1.55; margin:12px 0 14px; }
+.option { display:flex; gap:10px; align-items:flex-start; padding:12px; border:1px solid var(--line); border-radius:14px; margin:8px 0; cursor:pointer; background:#fff; }
+.option:hover { background:#f9fafb; }
+.option input { margin-top:3px; }
+.option.correct { border-color:#34d399; background:var(--good); }
+.option.wrong { border-color:#fca5a5; background:var(--bad); }
+.explain { display:none; border-left:4px solid var(--brand2); background:#f8fafc; padding:14px; border-radius:12px; margin-top:14px; line-height:1.75; }
+.explain.show { display:block; }
+.progress-wrap { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:10px 0; }
+.progress { height:10px; background:#e5e7eb; border-radius:999px; flex:1; min-width:180px; overflow:hidden; }
+.progress > span { display:block; height:100%; background:linear-gradient(90deg,#2563eb,#0f766e); width:0%; transition:.25s; }
+table { width:100%; border-collapse:collapse; }
+th,td { padding:10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+th { background:#f8fafc; font-size:13px; color:#374151; }
+.small { font-size:13px; color:var(--muted); line-height:1.6; }
+.hidden { display:none!important; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; }
+.stat { border:1px solid var(--line); border-radius:14px; padding:14px; background:#fff; }
+.stat b { font-size:24px; color:#1d4ed8; }
+.list-item { border:1px solid var(--line); border-radius:14px; padding:12px; margin:10px 0; background:#fff; }
+.kp { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; background:#f3f4f6; border-radius:6px; padding:2px 6px; margin:2px; display:inline-block; }
+.exam-grid { display:grid; grid-template-columns:1fr; gap:14px; }
+.exam-question { border:1px solid var(--line); border-radius:14px; padding:14px; background:#fff; }
+.exam-result { border-radius:14px; padding:14px; margin:12px 0; }
+.exam-result.good { background:var(--good); border:1px solid #86efac; }
+.exam-result.bad { background:var(--bad); border:1px solid #fecaca; }
+.footer-note { color:var(--muted); font-size:12px; margin-top:12px; }
+@media (max-width: 640px) { h1 { font-size:22px; } .panel { padding:14px; } .q-stem { font-size:16px; } }
+</style>
+</head>
+<body>
+<header><div class="header-inner">
+  <h1>为大语言模型添加知识：题库与在线刷题/模拟考试系统</h1>
+  <div class="subtitle">基于课程大纲与讲义生成：覆盖数据筛选、合成数据、LLM 评估、CPT、SFT、DPO、部署优化和综合实践。支持刷题、错题本、模拟考试、题库检索和覆盖度查看。</div>
+  <div class="metrics">
+    <div class="metric"><b id="mTotal">64</b><span>总题数</span></div>
+    <div class="metric"><b id="mSingle">32</b><span>单选题</span></div>
+    <div class="metric"><b id="mMulti">32</b><span>多选题</span></div>
+    <div class="metric"><b id="mCoverage">≥2</b><span>知识点覆盖</span></div>
+  </div>
+</div></header>
+<nav><div class="nav-inner">
+  <button class="tab active" data-tab="practice">刷题模式</button>
+  <button class="tab" data-tab="exam">模拟考试</button>
+  <button class="tab" data-tab="bank">题库总览</button>
+  <button class="tab" data-tab="wrong">错题本</button>
+  <button class="tab" data-tab="coverage">覆盖统计</button>
+</div></nav>
+<main>
+<section id="practice" class="panel page">
+  <h2>刷题模式</h2>
+  <p class="small">可按模块、题型、难度筛选；答题后立即显示详细解析。浏览器会本地保存答题进度和错题本。</p>
+  <div class="controls">
+    <div><label>模块</label><select id="pModule"><option value="all">全部模块</option></select></div>
+    <div><label>题型</label><select id="pType"><option value="all">全部题型</option><option value="single">单选</option><option value="multiple">多选</option></select></div>
+    <div><label>难度</label><select id="pDifficulty"><option value="all">全部难度</option><option value="基础">基础</option><option value="进阶">进阶</option></select></div>
+    <div><label>顺序</label><select id="pOrder"><option value="sequential">顺序</option><option value="shuffle">随机</option></select></div>
+  </div>
+  <div class="row">
+    <button id="btnApply">应用筛选</button>
+    <button id="btnPrev" class="secondary">上一题</button>
+    <button id="btnNext" class="secondary">下一题</button>
+    <button id="btnResetPractice" class="warn">重置本轮</button>
+  </div>
+  <div class="progress-wrap"><div class="progress"><span id="pProgress"></span></div><span id="pInfo" class="small"></span></div>
+  <div id="practiceCard"></div>
+</section>
+
+<section id="exam" class="panel page hidden">
+  <h2>模拟考试</h2>
+  <p class="small">默认随机抽取 30 题，单选和多选混合。提交后显示成绩、错题和解析；可按需要调整题数和时间。</p>
+  <div class="controls">
+    <div><label>题数</label><input id="examCount" type="number" min="5" max="64" value="30"></div>
+    <div><label>时间（分钟）</label><input id="examMinutes" type="number" min="5" max="180" value="45"></div>
+    <div><label>模块范围</label><select id="examModule"><option value="all">全部模块</option></select></div>
+    <div><label>题型范围</label><select id="examType"><option value="all">全部题型</option><option value="single">单选</option><option value="multiple">多选</option></select></div>
+  </div>
+  <div class="row">
+    <button id="startExam" class="good">开始/重新生成试卷</button>
+    <button id="submitExam" class="warn" disabled>提交试卷</button>
+    <span id="timer" class="badge">未开始</span>
+  </div>
+  <div id="examArea" class="exam-grid"></div>
+</section>
+
+<section id="bank" class="panel page hidden">
+  <h2>题库总览</h2>
+  <div class="controls">
+    <div><label>关键词检索</label><input id="bankSearch" type="text" placeholder="输入 CPT、DPO、PII、量化等关键词" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px"></div>
+    <div><label>模块</label><select id="bankModule"><option value="all">全部模块</option></select></div>
+    <div><label>题型</label><select id="bankType"><option value="all">全部题型</option><option value="single">单选</option><option value="multiple">多选</option></select></div>
+  </div>
+  <div id="bankList"></div>
+</section>
+
+<section id="wrong" class="panel page hidden">
+  <h2>错题本</h2>
+  <p class="small">错题本保存在当前浏览器 localStorage 中。你可以清空，也可以在刷题模式反复练习。</p>
+  <div class="row"><button id="clearWrong" class="danger">清空错题本</button></div>
+  <div id="wrongList"></div>
+</section>
+
+<section id="coverage" class="panel page hidden">
+  <h2>知识点覆盖统计</h2>
+  <p class="small">每道题标注了知识点。该题库设计为重要知识点至少覆盖两次，便于复习和模拟考试抽题。</p>
+  <div id="coverageGrid" class="grid"></div>
+</section>
+</main>
+<script>
+const DATA = {"metadata": {"title": "为大语言模型添加知识：题库与在线刷题/模拟考试系统", "source": "基于上传的 NVIDIA DLI 课程大纲与前序课程讲义整理", "question_count": 64, "single_choice_count": 32, "multiple_choice_count": 32, "coverage_minimum": "所有重要知识点至少覆盖 2 次", "modules": ["为部署优化 LLM", "大语言模型评估", "持续预训练 CPT", "数据筛选与合成数据生成", "监督微调 SFT", "直接偏好优化 DPO", "综合实践与总结", "课程总览与端到端工作流"]}, "coverage": {"catastrophic_forgetting": 2, "certificate": 2, "chosen_rejected": 2, "cloud_lab_prereq": 2, "course_format": 3, "course_goal": 6, "cpt_use_case": 5, "data_quality": 8, "depth_pruning": 2, "distillation": 2, "domain_knowledge_injection": 5, "dpo_use_case": 5, "elo": 2, "end_to_end_workflow": 9, "evaluation_quantitative": 7, "final_practical_assessment": 6, "fp8": 2, "llama31_style": 2, "llm_as_judge": 3, "mlflow": 4, "mmlu": 2, "nemo_curator": 2, "nemo_evaluator": 2, "nemo_rl": 2, "performance_accuracy_tradeoff": 4, "pii_removal": 2, "preference_dataset": 5, "prompt_response_chat_format": 4, "quantization_ptq": 4, "sft_dataset": 5, "sft_use_case": 7, "synthetic_qa": 2, "tensorrt_llm": 2, "text_cleaning_filtering": 2, "toolchain": 2, "validation_generalization": 2, "zero_few_shot": 2}, "questions": [{"id": "Q001", "type": "single", "module": "课程总览与端到端工作流", "difficulty": "基础", "knowledge_points": ["end_to_end_workflow", "course_goal"], "stem": "《为大语言模型添加知识》课程的核心目标最准确的是哪一项？", "options": [{"key": "A", "text": "只学习如何写提示词，让通用 LLM 回答更长"}, {"key": "B", "text": "从原始数据出发，完成数据策展、评估、定制、优化与实践评估的端到端模型定制流程"}, {"key": "C", "text": "只学习如何部署 RAG 系统，不涉及模型训练或对齐"}, {"key": "D", "text": "主要学习传统机器学习分类器的调参方法"}], "answer": ["B"], "analysis": "课程大纲明确把主线设计为从原始数据出发，经过 NeMo Curator 数据筛选与合成数据生成、模型评估、CPT/SFT/DPO 定制，再到量化、剪枝、蒸馏等部署优化，最后通过实践评估收尾。因此 B 最完整。A 只涉及提示工程，C 只涉及 RAG，D 与课程主题不符。"}, {"id": "Q002", "type": "single", "module": "课程总览与端到端工作流", "difficulty": "基础", "knowledge_points": ["cloud_lab_prereq", "course_format"], "stem": "关于该课程的学习环境和预备知识，下列说法最符合课程大纲的是哪一项？", "options": [{"key": "A", "text": "无需任何编程基础，只需会使用浏览器"}, {"key": "B", "text": "需要熟悉 Python 与 Jupyter notebook，并了解 LLM、深度学习和神经网络基本概念"}, {"key": "C", "text": "必须提前在本地安装所有 NVIDIA GPU 驱动和 NeMo 源码"}, {"key": "D", "text": "课程完全离线进行，不使用云端实验环境"}], "answer": ["B"], "analysis": "大纲列出的预备知识包括 Python 编程、Jupyter notebook、LLM 及其应用、深度学习与神经网络基本概念；同时课程模式是讲师授课并使用完全配置的云端实验环境。B 正确。A 低估了先修要求；C 并非课程要求；D 与云端实验环境相矛盾。"}, {"id": "Q003", "type": "single", "module": "课程总览与端到端工作流", "difficulty": "基础", "knowledge_points": ["course_goal", "domain_knowledge_injection"], "stem": "为什么企业场景下常需要“为 LLM 添加知识”？", "options": [{"key": "A", "text": "因为通用 LLM 通常完全没有语言生成能力"}, {"key": "B", "text": "因为通用 LLM 的知识可能缺少企业所需的特定、最新或专业信息"}, {"key": "C", "text": "因为所有企业问题都只能通过剪枝解决"}, {"key": "D", "text": "因为 LLM 只能处理英文，不能处理中文"}], "answer": ["B"], "analysis": "课程概述指出，LLM 功能强大，但其知识通常是通用的，可能缺乏企业应用所需的特定、最新或专业信息，因此需要增强和定制。B 正确。A、C、D 都是过度化或错误表述。"}, {"id": "Q004", "type": "single", "module": "课程总览与端到端工作流", "difficulty": "基础", "knowledge_points": ["final_practical_assessment", "nemo_rl"], "stem": "课程最终实践评估的代表性任务是什么？", "options": [{"key": "A", "text": "使用 DPO 将 Llama 3.1 8B 调整为特定对话风格，并展示偏好数据准备、NeMo-RL 对齐和最终评估能力"}, {"key": "B", "text": "只手写一份关于深度学习历史的论文"}, {"key": "C", "text": "训练一个传统线性回归模型预测房价"}, {"key": "D", "text": "只比较两个网页搜索引擎的结果数量"}], "answer": ["A"], "analysis": "大纲的“评估测试和总结”说明，学员将在实践编程任务中使用 DPO 将 Llama 3.1 8B 模型调整为特定对话风格，并展示准备偏好数据集、使用 NeMo-RL 运行对齐任务、评估最终模型的能力。A 正确。"}, {"id": "Q005", "type": "multiple", "module": "课程总览与端到端工作流", "difficulty": "基础", "knowledge_points": ["end_to_end_workflow", "course_goal"], "stem": "按照课程大纲，端到端模型定制工作流通常包含哪些环节？", "options": [{"key": "A", "text": "数据筛选与合成数据生成"}, {"key": "B", "text": "模型评估与实验跟踪"}, {"key": "C", "text": "CPT、SFT、DPO 等模型定制方法"}, {"key": "D", "text": "量化、剪枝、知识蒸馏等部署优化"}, {"key": "E", "text": "完全跳过评估，直接上线模型"}], "answer": ["A", "B", "C", "D"], "analysis": "课程主线是数据→评估→定制→部署优化→实践评估。A、B、C、D 都是大纲列出的核心环节。E 错误，课程反复强调严格评估与实践评测。"}, {"id": "Q006", "type": "multiple", "module": "课程总览与端到端工作流", "difficulty": "基础", "knowledge_points": ["cloud_lab_prereq", "course_format"], "stem": "关于课程模式，下列哪些说法正确？", "options": [{"key": "A", "text": "课程为讲师授课"}, {"key": "B", "text": "每位学员使用完全配置的云端实验环境进行实战练习"}, {"key": "C", "text": "课后一定时间内可以继续访问课件和实验，但实验资源有限额"}, {"key": "D", "text": "课程不需要任何浏览器或网络环境"}, {"key": "E", "text": "课程语言为中文"}], "answer": ["A", "B", "C", "E"], "analysis": "大纲说明课程时长 8 小时，讲师授课，学员使用云端实验环境，课后 6 个月内可继续访问课件和实验且资源用量有限，课程语言为中文。D 错在课程硬件要求明确需要可联网电脑和最新版 Chrome/Firefox。"}, {"id": "Q007", "type": "multiple", "module": "课程总览与端到端工作流", "difficulty": "进阶", "knowledge_points": ["course_goal", "end_to_end_workflow"], "stem": "判断一个模型定制项目是否符合本课程精神，通常应关注哪些交付物？", "options": [{"key": "A", "text": "清晰的问题定义与成功标准"}, {"key": "B", "text": "可审计的数据处理流程"}, {"key": "C", "text": "定制方法选择理由，例如为何使用 CPT、SFT 或 DPO"}, {"key": "D", "text": "上线前后的评估与失败样例分析"}, {"key": "E", "text": "只展示一个成功回答截图即可"}], "answer": ["A", "B", "C", "D"], "analysis": "课程强调真实世界问题的端到端工作流。一个合格项目不仅要能跑，还要能说明问题、数据、方法、评估和部署取舍。E 只展示成功截图，无法证明模型稳健性和可复现性。"}, {"id": "Q008", "type": "multiple", "module": "课程总览与端到端工作流", "difficulty": "基础", "knowledge_points": ["course_goal", "toolchain"], "stem": "课程大纲中明确涉及或使用的工具、库和框架包括哪些？", "options": [{"key": "A", "text": "Python"}, {"key": "B", "text": "NVIDIA NeMo"}, {"key": "C", "text": "NVIDIA TensorRT-LLM"}, {"key": "D", "text": "Docker 与 MLflow"}, {"key": "E", "text": "仅限 Microsoft Excel 宏"}], "answer": ["A", "B", "C", "D"], "analysis": "大纲列出的工具、库和框架包括 Python、NVIDIA NeMo、NVIDIA TensorRT-LLM、Docker、MLflow。E 不属于大纲中的工具链。"}, {"id": "Q009", "type": "single", "module": "数据筛选与合成数据生成", "difficulty": "基础", "knowledge_points": ["nemo_curator", "data_quality"], "stem": "NeMo Curator 在课程中的主要作用是什么？", "options": [{"key": "A", "text": "构建大规模高质量数据集并支持数据筛选与合成数据生成"}, {"key": "B", "text": "只负责网页前端界面美化"}, {"key": "C", "text": "只用于模型推理加速，不处理数据"}, {"key": "D", "text": "只用于生成考试证书"}], "answer": ["A"], "analysis": "课程的数据单元明确要求使用 NVIDIA NeMo Curator 构建大规模高质量数据集，并执行文本清洗、过滤、PII 去除和合成问答对生成。A 正确。"}, {"id": "Q010", "type": "single", "module": "数据筛选与合成数据生成", "difficulty": "基础", "knowledge_points": ["text_cleaning_filtering", "data_quality"], "stem": "在数据筛选阶段，文本清洗和过滤的主要目的是什么？", "options": [{"key": "A", "text": "尽量保留所有噪声，增加训练难度"}, {"key": "B", "text": "减少乱码、广告、无关文本、低质量样本等噪声，提高训练数据质量"}, {"key": "C", "text": "把所有数据都转换为图片"}, {"key": "D", "text": "完全替代模型评估环节"}], "answer": ["B"], "analysis": "文本清洗和过滤的目标是把原始材料整理成更干净、更可训练、更可审计的数据，减少低质量和无关内容对模型的负面影响。B 正确。A 反向错误；C 与任务无关；D 错在数据处理不能替代评估。"}, {"id": "Q011", "type": "single", "module": "数据筛选与合成数据生成", "difficulty": "基础", "knowledge_points": ["pii_removal", "data_quality"], "stem": "PII 去除在 LLM 数据管线中的主要价值是什么？", "options": [{"key": "A", "text": "提升训练数据隐私合规性，降低泄露个人敏感信息的风险"}, {"key": "B", "text": "让模型必须输出更长的回答"}, {"key": "C", "text": "自动把所有无标注文本变成偏好数据"}, {"key": "D", "text": "保证模型永远不会出现幻觉"}], "answer": ["A"], "analysis": "PII 指个人可识别信息。训练数据中若包含姓名、电话、邮箱、地址等敏感信息，可能带来隐私和合规风险。PII 去除的价值是降低这种风险。B、C、D 都不是 PII 去除的目标。"}, {"id": "Q012", "type": "single", "module": "数据筛选与合成数据生成", "difficulty": "进阶", "knowledge_points": ["synthetic_qa", "sft_dataset"], "stem": "课程中生成高质量问答对数据的直接用途主要是什么？", "options": [{"key": "A", "text": "用于构建稳健的 SFT 数据集"}, {"key": "B", "text": "用于删除 TensorRT-LLM"}, {"key": "C", "text": "用于跳过所有人工抽样检查"}, {"key": "D", "text": "只用于生成网页标题"}], "answer": ["A"], "analysis": "大纲明确写到生成高质量的问答对数据，用于构建稳健的 SFT 数据集。A 正确。生成合成数据并不意味着可以跳过质量检查，C 错。"}, {"id": "Q013", "type": "multiple", "module": "数据筛选与合成数据生成", "difficulty": "基础", "knowledge_points": ["text_cleaning_filtering", "pii_removal"], "stem": "下列哪些属于课程中强调的关键数据筛选任务？", "options": [{"key": "A", "text": "文本清洗"}, {"key": "B", "text": "过滤低质量样本"}, {"key": "C", "text": "PII 去除"}, {"key": "D", "text": "生成高质量问答对"}, {"key": "E", "text": "把评估结果全部隐藏"}], "answer": ["A", "B", "C", "D"], "analysis": "大纲明确列出文本清洗、过滤、PII 去除以及生成高质量问答对。E 与课程强调的可评估、可跟踪原则相反。"}, {"id": "Q014", "type": "multiple", "module": "数据筛选与合成数据生成", "difficulty": "进阶", "knowledge_points": ["synthetic_qa", "data_quality"], "stem": "关于合成数据，下列哪些说法更合理？", "options": [{"key": "A", "text": "合成问答对可以扩展 SFT 数据覆盖范围"}, {"key": "B", "text": "合成数据仍需抽样检查和质量控制"}, {"key": "C", "text": "合成数据可以帮助覆盖原始数据中不足的任务形式"}, {"key": "D", "text": "合成数据天然全部正确，无需评估"}, {"key": "E", "text": "合成数据质量会影响下游微调效果"}], "answer": ["A", "B", "C", "E"], "analysis": "合成数据有助于扩展任务覆盖和构建 SFT 样本，但它不是天然正确的，仍需要质量检查、去重、事实性和格式检查。D 错误。"}, {"id": "Q015", "type": "multiple", "module": "数据筛选与合成数据生成", "difficulty": "进阶", "knowledge_points": ["nemo_curator", "sft_dataset"], "stem": "从原始客服日志构建 SFT 数据集时，合理流程包括哪些步骤？", "options": [{"key": "A", "text": "先清洗无关噪声和格式问题"}, {"key": "B", "text": "去除或脱敏个人敏感信息"}, {"key": "C", "text": "把日志改写成明确的输入—输出样本"}, {"key": "D", "text": "完全保留所有重复样本以增加权重"}, {"key": "E", "text": "对生成样本进行抽样复核"}], "answer": ["A", "B", "C", "E"], "analysis": "原始日志通常存在噪声、隐私、冗余和表达不规范等问题。合理流程是清洗、脱敏、去重/过滤、转换为输入—输出样本并抽检。D 错在重复样本可能导致浪费预算、过拟合或偏置放大。"}, {"id": "Q016", "type": "multiple", "module": "数据筛选与合成数据生成", "difficulty": "基础", "knowledge_points": ["data_quality", "end_to_end_workflow"], "stem": "为什么数据质量被视为 LLM 开发生命周期的重要环节？", "options": [{"key": "A", "text": "低质量数据可能让模型学习错误模式"}, {"key": "B", "text": "重复和噪声数据会浪费训练资源"}, {"key": "C", "text": "隐私信息进入训练集可能带来合规风险"}, {"key": "D", "text": "高质量数据有助于后续评估、SFT 和 DPO 更可靠"}, {"key": "E", "text": "只要模型足够大，数据质量完全不重要"}], "answer": ["A", "B", "C", "D"], "analysis": "数据质量直接影响训练效果、隐私合规、资源效率和后续评估/定制质量。E 是常见误区：大模型并不能自动抵消低质量数据带来的系统性问题。"}, {"id": "Q017", "type": "single", "module": "大语言模型评估", "difficulty": "基础", "knowledge_points": ["evaluation_quantitative", "end_to_end_workflow"], "stem": "课程为什么强调从“目测”走向系统化量化评估？", "options": [{"key": "A", "text": "因为目测通常缺乏可复现性，难以比较模型版本和定位失败类型"}, {"key": "B", "text": "因为量化评估可以保证模型不会犯错"}, {"key": "C", "text": "因为目测比任何自动评估都更慢，所以完全无价值"}, {"key": "D", "text": "因为评估只需要看模型输出是否足够长"}], "answer": ["A"], "analysis": "课程评估单元强调全面了解多种评估技术，目的是把主观印象转化为可复现、可比较、可跟踪的指标体系。量化评估不能保证零错误，人工目测也并非完全无价值，但不能作为唯一依据。"}, {"id": "Q018", "type": "single", "module": "大语言模型评估", "difficulty": "基础", "knowledge_points": ["mmlu", "evaluation_quantitative", "elo"], "stem": "MMLU 在课程中属于哪类评估工具？", "options": [{"key": "A", "text": "行业标准基准测试，用于评估模型多任务语言理解能力"}, {"key": "B", "text": "一种模型剪枝算法"}, {"key": "C", "text": "一种浏览器插件"}, {"key": "D", "text": "一种数据脱敏方法"}], "answer": ["A"], "analysis": "大纲列出使用 MMLU 等行业标准基准测试评估模型。MMLU 主要用于评估模型在多学科、多任务问题上的能力。B、C、D 与 MMLU 无关。"}, {"id": "Q019", "type": "single", "module": "大语言模型评估", "difficulty": "进阶", "knowledge_points": ["llm_as_judge", "evaluation_quantitative"], "stem": "LLM-as-a-Judge 最适合补充评估哪类任务？", "options": [{"key": "A", "text": "只有唯一标准答案且可精确匹配的加法题"}, {"key": "B", "text": "开放式生成任务中，需综合判断事实性、帮助性、风格或安全性的输出"}, {"key": "C", "text": "只用于压缩模型参数"}, {"key": "D", "text": "只用于检测 GPU 显存占用"}], "answer": ["B"], "analysis": "LLM-as-a-Judge 的价值在于开放式生成场景：输出可能没有唯一标准答案，需要按 rubric 判断质量。A 可用精确匹配或规则评估；C、D 与 judge 无关。"}, {"id": "Q020", "type": "single", "module": "大语言模型评估", "difficulty": "基础", "knowledge_points": ["mlflow", "evaluation_quantitative", "nemo_evaluator"], "stem": "MLflow 在课程评估环节中的主要作用是什么？", "options": [{"key": "A", "text": "跟踪与可视化评估实验，比较不同模型或配置的结果"}, {"key": "B", "text": "替代所有训练数据"}, {"key": "C", "text": "删除模型中的某些层"}, {"key": "D", "text": "把所有题目自动改成多选题"}], "answer": ["A"], "analysis": "大纲明确写到使用 MLflow 跟踪与可视化评估实验。它用于记录指标、版本、配置和结果，帮助比较与复盘。B、C、D 都不是 MLflow 在该课程中的用途。"}, {"id": "Q021", "type": "multiple", "module": "大语言模型评估", "difficulty": "基础", "knowledge_points": ["nemo_evaluator", "zero_few_shot"], "stem": "关于 NeMo Evaluator 在课程评估环节中的作用，下列哪些说法正确？", "options": [{"key": "A", "text": "可用于比较 zero-shot 与 few-shot 表现"}, {"key": "B", "text": "支持更系统化的模型评估流程"}, {"key": "C", "text": "与课程中的自动化评估主题相关"}, {"key": "D", "text": "主要用途是手动绘制幻灯片"}, {"key": "E", "text": "可作为模型版本比较的一部分"}], "answer": ["A", "B", "C", "E"], "analysis": "大纲明确写到使用 NeMo Evaluator 微服务比较 zero-shot 与 few-shot 表现，并用于严格评估模型性能。D 与课程无关。"}, {"id": "Q022", "type": "multiple", "module": "大语言模型评估", "difficulty": "进阶", "knowledge_points": ["llm_as_judge", "mlflow"], "stem": "设计 LLM-as-a-Judge 评估时，哪些做法更稳妥？", "options": [{"key": "A", "text": "制定清晰的评分 rubric"}, {"key": "B", "text": "保留 judge 提示词、模型版本和评分结果"}, {"key": "C", "text": "对高风险样本进行人工复核"}, {"key": "D", "text": "把 judge 分数当作绝对真理，不再检查失败样本"}, {"key": "E", "text": "使用 MLflow 等工具记录实验与对比结果"}], "answer": ["A", "B", "C", "E"], "analysis": "LLM-as-a-Judge 会受到提示、模型、偏差和任务定义影响，因此应有清晰 rubric、版本记录、人工复核和实验跟踪。D 是错误做法。"}, {"id": "Q023", "type": "multiple", "module": "大语言模型评估", "difficulty": "基础", "knowledge_points": ["mmlu", "elo"], "stem": "课程大纲中提到的高级 LLM 评估技术或概念包括哪些？", "options": [{"key": "A", "text": "MMLU 等基准测试"}, {"key": "B", "text": "LLM-as-a-Judge"}, {"key": "C", "text": "ELO"}, {"key": "D", "text": "MLflow 实验跟踪"}, {"key": "E", "text": "只看回答是否押韵"}], "answer": ["A", "B", "C", "D"], "analysis": "大纲明确列出 MMLU、LLM-as-a-Judge、ELO、NeMo Evaluator 与 MLflow 等评估相关内容。E 不是通用评估指标。"}, {"id": "Q024", "type": "multiple", "module": "大语言模型评估", "difficulty": "进阶", "knowledge_points": ["zero_few_shot", "evaluation_quantitative"], "stem": "比较 zero-shot 与 few-shot 表现时，应注意哪些问题？", "options": [{"key": "A", "text": "使用相同或可比的评估数据集"}, {"key": "B", "text": "记录提示词、示例数量和示例内容"}, {"key": "C", "text": "同时观察准确性、格式遵循和失败样例"}, {"key": "D", "text": "few-shot 一定总是优于 zero-shot，因此无需评估"}, {"key": "E", "text": "把结果纳入实验跟踪，便于版本比较"}], "answer": ["A", "B", "C", "E"], "analysis": "zero-shot/few-shot 对比必须控制变量并记录上下文示例，否则无法复现。few-shot 通常可能提升表现，但并非必然优于 zero-shot，尤其当示例质量差或引入偏差时。D 错误。"}, {"id": "Q025", "type": "single", "module": "持续预训练 CPT", "difficulty": "基础", "knowledge_points": ["cpt_use_case", "domain_knowledge_injection"], "stem": "CPT 最核心的教学定位是什么？", "options": [{"key": "A", "text": "通过大量领域语料继续预训练，为模型注入或强化特定领域知识"}, {"key": "B", "text": "通过 chosen/rejected 对直接学习人类偏好"}, {"key": "C", "text": "只把模型输出压缩为更短文本"}, {"key": "D", "text": "只用于评估模型的多任务能力"}], "answer": ["A"], "analysis": "CPT 即持续预训练，课程目标是通过 CPT 为 LLM 注入特定领域的新知识。B 更接近 DPO；C 不是 CPT；D 属于评估环节。"}, {"id": "Q026", "type": "single", "module": "持续预训练 CPT", "difficulty": "进阶", "knowledge_points": ["cpt_use_case", "sft_use_case"], "stem": "某团队拥有大量无标注行业白皮书，但几乎没有问答标注数据。若主要问题是模型不懂行业术语，应优先考虑哪种方法？", "options": [{"key": "A", "text": "CPT"}, {"key": "B", "text": "DPO"}, {"key": "C", "text": "只做 ELO 排名"}, {"key": "D", "text": "只做 depth pruning"}], "answer": ["A"], "analysis": "大量无标注领域语料更适合 CPT，用于改善模型对领域语言和知识分布的掌握。如果主要是任务格式或技能问题，才更偏向 SFT；如果是风格和偏好问题，才更偏向 DPO。"}, {"id": "Q027", "type": "single", "module": "持续预训练 CPT", "difficulty": "进阶", "knowledge_points": ["catastrophic_forgetting", "cpt_use_case"], "stem": "进行 CPT 时需要特别警惕的风险之一是什么？", "options": [{"key": "A", "text": "灾难性遗忘或领域外能力退化"}, {"key": "B", "text": "模型无法再读取任何文本"}, {"key": "C", "text": "浏览器无法打开网页"}, {"key": "D", "text": "所有评估指标必然上升"}], "answer": ["A"], "analysis": "持续在特定领域数据上训练可能让模型更适合该领域，但也可能损害通用能力或其他领域能力，称为灾难性遗忘/能力退化。B、C 无关，D 是错误乐观假设。"}, {"id": "Q028", "type": "single", "module": "持续预训练 CPT", "difficulty": "基础", "knowledge_points": ["domain_knowledge_injection", "end_to_end_workflow"], "stem": "在端到端工作流中，CPT 通常应放在什么位置理解？", "options": [{"key": "A", "text": "数据准备和基线评估之后，作为模型定制阶段的一种知识注入方法"}, {"key": "B", "text": "课程开始前随意执行，完全不需要数据和评估"}, {"key": "C", "text": "部署后才第一次考虑"}, {"key": "D", "text": "只在证书生成之后使用"}], "answer": ["A"], "analysis": "课程先强调数据筛选和模型评估，然后进入 LLM 定制。CPT 是定制技术之一，应基于清洗后的领域语料和评估基线开展。A 正确。"}, {"id": "Q029", "type": "multiple", "module": "持续预训练 CPT", "difficulty": "进阶", "knowledge_points": ["cpt_use_case", "domain_knowledge_injection"], "stem": "哪些场景更适合优先考虑 CPT？", "options": [{"key": "A", "text": "模型缺少大量领域术语和背景知识"}, {"key": "B", "text": "可获得规模较大的高质量无标注领域语料"}, {"key": "C", "text": "主要目标是让模型按固定 JSON 格式输出，但几乎没有知识缺口"}, {"key": "D", "text": "需要让模型更熟悉领域文本的语言分布"}, {"key": "E", "text": "只想删除模型层数以降低显存"}], "answer": ["A", "B", "D"], "analysis": "CPT 的强项是利用无标注领域语料进行领域适配和知识注入。固定输出格式更适合 SFT，删除模型层数是剪枝，不是 CPT。"}, {"id": "Q030", "type": "multiple", "module": "持续预训练 CPT", "difficulty": "进阶", "knowledge_points": ["catastrophic_forgetting", "evaluation_quantitative"], "stem": "为了降低 CPT 后模型退化风险，哪些做法合理？", "options": [{"key": "A", "text": "在 CPT 前建立领域内和领域外评估基线"}, {"key": "B", "text": "保留通用能力测试或关键业务回归测试"}, {"key": "C", "text": "对 CPT 后模型进行系统评估，而不是只看训练 loss"}, {"key": "D", "text": "只要训练数据多，就不需要评估"}, {"key": "E", "text": "记录数据版本和训练配置，便于回滚与复现"}], "answer": ["A", "B", "C", "E"], "analysis": "CPT 可能带来领域收益，也可能造成通用能力退化。建立基线、保留回归测试、记录版本并系统评估，是降低风险的基本做法。D 错误。"}, {"id": "Q031", "type": "multiple", "module": "持续预训练 CPT", "difficulty": "基础", "knowledge_points": ["cpt_use_case", "sft_use_case"], "stem": "CPT 与 SFT 的区别可以怎样概括？", "options": [{"key": "A", "text": "CPT 更偏向用无标注领域语料调整知识分布"}, {"key": "B", "text": "SFT 更偏向用有监督输入—输出样本教授任务技能"}, {"key": "C", "text": "CPT 与 SFT 完全相同，只是名称不同"}, {"key": "D", "text": "二者都需要在评估框架下验证收益"}, {"key": "E", "text": "SFT 通常可用于学习格式、任务流程或特定输出行为"}], "answer": ["A", "B", "D", "E"], "analysis": "CPT 和 SFT 的输入数据、目标和适用场景不同。CPT 偏知识/领域语料，SFT 偏任务行为/输入输出映射。但无论使用哪种，都应通过评估验证收益。C 错误。"}, {"id": "Q032", "type": "multiple", "module": "持续预训练 CPT", "difficulty": "进阶", "knowledge_points": ["domain_knowledge_injection", "data_quality"], "stem": "准备 CPT 语料时应关注哪些质量问题？", "options": [{"key": "A", "text": "领域相关性"}, {"key": "B", "text": "重复率和噪声比例"}, {"key": "C", "text": "敏感信息和版权/合规风险"}, {"key": "D", "text": "语料是否足以代表目标领域"}, {"key": "E", "text": "只要文件越大越好，不需要筛选"}], "answer": ["A", "B", "C", "D"], "analysis": "CPT 语料质量会直接影响模型适配方向。需要关注相关性、重复、噪声、隐私合规和覆盖度。E 是“数据越多越好”的误区。"}, {"id": "Q033", "type": "single", "module": "监督微调 SFT", "difficulty": "基础", "knowledge_points": ["sft_use_case", "prompt_response_chat_format"], "stem": "SFT 的核心目标最准确的是哪一项？", "options": [{"key": "A", "text": "使用有监督输入—输出样本，让模型学习新技能或完成特定任务"}, {"key": "B", "text": "只用无标注语料进行领域沉浸"}, {"key": "C", "text": "直接删除模型中的层"}, {"key": "D", "text": "仅比较 zero-shot 与 few-shot 表现"}], "answer": ["A"], "analysis": "监督微调使用有监督输入—输出数据，让模型学习如何执行任务、遵循格式或完成技能。B 更接近 CPT；C 是剪枝；D 是评估。"}, {"id": "Q034", "type": "single", "module": "监督微调 SFT", "difficulty": "基础", "knowledge_points": ["sft_use_case", "course_goal"], "stem": "课程大纲中给出的 SFT 示例最接近下列哪一项？", "options": [{"key": "A", "text": "让模型学习新技能，例如用另一种语言解数学题"}, {"key": "B", "text": "只降低模型显存占用"}, {"key": "C", "text": "只生成 ELO 排名"}, {"key": "D", "text": "只删除用户姓名和电话"}], "answer": ["A"], "analysis": "大纲明确说 SFT 可让模型学习新技能，例如用另一种语言解数学题。B 属于部署优化，C 属于评估，D 属于数据隐私处理。"}, {"id": "Q035", "type": "single", "module": "监督微调 SFT", "difficulty": "进阶", "knowledge_points": ["validation_generalization", "sft_dataset"], "stem": "为什么 SFT 中需要验证集或保留测试集？", "options": [{"key": "A", "text": "用于判断模型是否真正泛化，而不是只记住训练样本"}, {"key": "B", "text": "用于增加训练集泄漏，让分数更高"}, {"key": "C", "text": "用于替代所有训练数据"}, {"key": "D", "text": "用于自动剪掉模型层"}], "answer": ["A"], "analysis": "SFT 后模型在训练样本上表现好，不代表能泛化到新输入。验证集/测试集可帮助发现过拟合、格式失效或任务覆盖不足。B 是数据泄漏，C、D 不正确。"}, {"id": "Q036", "type": "single", "module": "监督微调 SFT", "difficulty": "进阶", "knowledge_points": ["prompt_response_chat_format", "sft_dataset"], "stem": "把企业 FAQ 直接原样作为 SFT 数据通常不够稳妥，主要原因是什么？", "options": [{"key": "A", "text": "FAQ 往往缺少清晰的用户输入形式、上下文和期望输出规范，需要改写成训练样本"}, {"key": "B", "text": "FAQ 中的文字无法被任何模型读取"}, {"key": "C", "text": "SFT 不接受任何文本数据"}, {"key": "D", "text": "FAQ 只能用于知识蒸馏"}], "answer": ["A"], "analysis": "SFT 需要明确的输入—输出映射或 chat 格式。FAQ 原文常常没有覆盖真实提问方式、上下文、格式要求和边界样例，因此应整理、改写和抽检。A 正确。"}, {"id": "Q037", "type": "multiple", "module": "监督微调 SFT", "difficulty": "基础", "knowledge_points": ["prompt_response_chat_format", "sft_dataset"], "stem": "适合 SFT 的数据样本通常应具备哪些特征？", "options": [{"key": "A", "text": "明确的输入或用户指令"}, {"key": "B", "text": "符合目标任务规范的输出"}, {"key": "C", "text": "可解析的结构，例如 prompt-response 或 chat 格式"}, {"key": "D", "text": "尽量包含未脱敏个人隐私信息"}, {"key": "E", "text": "覆盖常见问题和边界情况"}], "answer": ["A", "B", "C", "E"], "analysis": "SFT 数据应清晰、规范、可解析，并覆盖目标任务多样性。D 错误，隐私信息应处理或脱敏。"}, {"id": "Q038", "type": "multiple", "module": "监督微调 SFT", "difficulty": "进阶", "knowledge_points": ["sft_use_case", "validation_generalization"], "stem": "哪些现象可能提示 SFT 出现过拟合或泛化不足？", "options": [{"key": "A", "text": "训练样本表现很好，但新样本格式经常出错"}, {"key": "B", "text": "验证集指标停滞或下降"}, {"key": "C", "text": "模型只会复述训练集中相似模板"}, {"key": "D", "text": "模型在边界问题上失效"}, {"key": "E", "text": "训练 loss 下降，因此一定不存在过拟合"}], "answer": ["A", "B", "C", "D"], "analysis": "过拟合常表现为训练表现好、验证或新样本表现差、模板化严重和边界失败。E 是常见误区，训练 loss 下降不能证明泛化良好。"}, {"id": "Q039", "type": "multiple", "module": "监督微调 SFT", "difficulty": "基础", "knowledge_points": ["sft_use_case", "dpo_use_case"], "stem": "SFT 与 DPO 在模型定制中的关系，哪些说法合理？", "options": [{"key": "A", "text": "SFT 常用于先让模型学会任务和基本输出格式"}, {"key": "B", "text": "DPO 常用于在已有能力基础上调整风格、语气、安全性或偏好"}, {"key": "C", "text": "DPO 一定能完全替代 SFT"}, {"key": "D", "text": "许多项目可以先 SFT，再用 DPO 做偏好对齐"}, {"key": "E", "text": "二者都应经过评估验证"}], "answer": ["A", "B", "D", "E"], "analysis": "SFT 偏技能和任务映射，DPO 偏偏好/风格/行为对齐。在很多工程流程中，先 SFT 建立基本能力，再用 DPO 对齐偏好更稳妥。C 错误。"}, {"id": "Q040", "type": "multiple", "module": "监督微调 SFT", "difficulty": "进阶", "knowledge_points": ["prompt_response_chat_format", "mlflow"], "stem": "为了让 SFT 实验可复现，应记录哪些信息？", "options": [{"key": "A", "text": "训练数据版本和划分方式"}, {"key": "B", "text": "样本格式和模板"}, {"key": "C", "text": "模型、超参数和训练配置"}, {"key": "D", "text": "验证集结果与失败样例"}, {"key": "E", "text": "只记录最终模型名称，不记录数据"}], "answer": ["A", "B", "C", "D"], "analysis": "SFT 的可复现性依赖数据、格式、模型、超参数和评估记录。MLflow 等工具可用于记录实验。E 信息不足，无法复现。"}, {"id": "Q041", "type": "single", "module": "直接偏好优化 DPO", "difficulty": "基础", "knowledge_points": ["dpo_use_case", "preference_dataset"], "stem": "DPO 最适合解决哪类问题？", "options": [{"key": "A", "text": "使模型在风格、语气、安全性或偏好上更符合目标要求"}, {"key": "B", "text": "只用无标注语料扩充领域知识"}, {"key": "C", "text": "只把模型参数量变小"}, {"key": "D", "text": "只清除训练文本里的电话号码"}], "answer": ["A"], "analysis": "课程将 DPO 定位为让模型对话风格、语气和安全性更贴近人类偏好。B 是 CPT，C 是部署压缩，D 是数据处理。"}, {"id": "Q042", "type": "single", "module": "直接偏好优化 DPO", "difficulty": "基础", "knowledge_points": ["chosen_rejected", "preference_dataset"], "stem": "DPO 偏好数据中 chosen/rejected 的含义是什么？", "options": [{"key": "A", "text": "同一 prompt 下更符合偏好的回答与较不符合偏好的回答"}, {"key": "B", "text": "训练集和测试集的两个文件夹名称"}, {"key": "C", "text": "GPU 的两个显存区域"}, {"key": "D", "text": "剪枝前后的模型层名称"}], "answer": ["A"], "analysis": "DPO 依赖成对偏好数据。chosen 是更符合偏好或质量标准的回答，rejected 是较差回答。B、C、D 与偏好数据无关。"}, {"id": "Q043", "type": "single", "module": "直接偏好优化 DPO", "difficulty": "进阶", "knowledge_points": ["dpo_use_case", "sft_use_case"], "stem": "如果模型已经会回答问题，但语气过于随意，不符合企业客服规范，最直接的对齐方法通常是哪一种？", "options": [{"key": "A", "text": "DPO"}, {"key": "B", "text": "只做 MMLU"}, {"key": "C", "text": "只做 PII 去除"}, {"key": "D", "text": "只做 depth pruning"}], "answer": ["A"], "analysis": "题干中的核心问题是“回答风格/语气不符合偏好”，不是知识缺口或模型过大。DPO 正是用于偏好、风格、语气、安全性等行为对齐。"}, {"id": "Q044", "type": "single", "module": "直接偏好优化 DPO", "difficulty": "基础", "knowledge_points": ["nemo_rl", "final_practical_assessment"], "stem": "课程最终评估中，NeMo-RL 与 DPO 的关系最接近哪一项？", "options": [{"key": "A", "text": "使用 NeMo-RL 运行对齐任务，将模型调成特定对话风格"}, {"key": "B", "text": "使用 NeMo-RL 删除个人隐私信息"}, {"key": "C", "text": "使用 NeMo-RL 只做网页排版"}, {"key": "D", "text": "NeMo-RL 与 DPO 和对齐任务无关"}], "answer": ["A"], "analysis": "大纲的最终实践要求展示准备偏好数据集、使用 NeMo-RL 运行对齐任务并评估最终模型的能力。A 正确。"}, {"id": "Q045", "type": "multiple", "module": "直接偏好优化 DPO", "difficulty": "基础", "knowledge_points": ["preference_dataset", "chosen_rejected"], "stem": "构建 DPO 偏好数据时，通常需要包含哪些要素？", "options": [{"key": "A", "text": "prompt 或用户输入"}, {"key": "B", "text": "chosen 回答"}, {"key": "C", "text": "rejected 回答"}, {"key": "D", "text": "偏好理由或标注标准"}, {"key": "E", "text": "只需要模型参数，不需要文本样本"}], "answer": ["A", "B", "C", "D"], "analysis": "DPO 训练依赖 prompt、chosen、rejected 等成对偏好数据。为了减少噪声，最好记录偏好理由或标注标准。E 错误。"}, {"id": "Q046", "type": "multiple", "module": "直接偏好优化 DPO", "difficulty": "进阶", "knowledge_points": ["dpo_use_case", "llm_as_judge"], "stem": "哪些维度适合作为 DPO 偏好标注的依据？", "options": [{"key": "A", "text": "回答是否符合目标语气"}, {"key": "B", "text": "是否更安全、礼貌、专业"}, {"key": "C", "text": "是否遵守业务格式要求"}, {"key": "D", "text": "是否事实准确且不过度编造"}, {"key": "E", "text": "只按回答长度越长越好判断"}], "answer": ["A", "B", "C", "D"], "analysis": "DPO 可用于风格、语气、安全性和偏好对齐，也可结合事实性和格式要求制定偏好标准。单纯按长度判断会引入长度偏差，E 错。"}, {"id": "Q047", "type": "multiple", "module": "直接偏好优化 DPO", "difficulty": "进阶", "knowledge_points": ["preference_dataset", "data_quality"], "stem": "偏好数据质量差会带来哪些风险？", "options": [{"key": "A", "text": "模型学习到混乱或互相矛盾的偏好信号"}, {"key": "B", "text": "风格对齐不稳定"}, {"key": "C", "text": "安全边界可能被错误强化或削弱"}, {"key": "D", "text": "评估结果难以解释"}, {"key": "E", "text": "偏好数据质量不会影响 DPO"}], "answer": ["A", "B", "C", "D"], "analysis": "DPO 的训练信号来自偏好对。若标注标准不一致、样本噪声大或 chosen/rejected 差异不清，会直接影响对齐效果和可解释性。E 错误。"}, {"id": "Q048", "type": "multiple", "module": "直接偏好优化 DPO", "difficulty": "基础", "knowledge_points": ["llama31_style", "final_practical_assessment"], "stem": "课程最终 DPO 实践任务通常考察哪些能力？", "options": [{"key": "A", "text": "准备偏好数据集"}, {"key": "B", "text": "运行对齐任务"}, {"key": "C", "text": "评估最终模型是否呈现目标对话风格"}, {"key": "D", "text": "理解 DPO 如何用于风格对齐"}, {"key": "E", "text": "只修改网页背景颜色"}], "answer": ["A", "B", "C", "D"], "analysis": "最终评估围绕使用 DPO 将 Llama 3.1 8B 调整为特定对话风格，考察偏好数据准备、NeMo-RL 对齐运行和最终评估能力。E 无关。"}, {"id": "Q049", "type": "single", "module": "为部署优化 LLM", "difficulty": "基础", "knowledge_points": ["tensorrt_llm", "quantization_ptq"], "stem": "TensorRT-LLM 在课程中的主要定位是什么？", "options": [{"key": "A", "text": "用于高性能 LLM 推理和部署优化"}, {"key": "B", "text": "只用于写课程讲义"}, {"key": "C", "text": "只用于制作偏好标签"}, {"key": "D", "text": "只用于删除 PII"}], "answer": ["A"], "analysis": "课程把 TensorRT-LLM 放在“为部署优化 LLM”环节，重点学习压缩和加速 LLM，以实现高效推理。A 正确。"}, {"id": "Q050", "type": "single", "module": "为部署优化 LLM", "difficulty": "基础", "knowledge_points": ["quantization_ptq", "fp8"], "stem": "课程中 PTQ/FP8 的主要目的是什么？", "options": [{"key": "A", "text": "减少模型尺寸与内存占用，提高推理效率"}, {"key": "B", "text": "增加模型参数量，让模型更难部署"}, {"key": "C", "text": "替代所有数据筛选任务"}, {"key": "D", "text": "只用于生成问答对"}], "answer": ["A"], "analysis": "大纲说明使用 TensorRT-LLM 应用后训练量化 PTQ，重点使用 FP8 格式，以减少模型尺寸与内存占用。A 正确。"}, {"id": "Q051", "type": "single", "module": "为部署优化 LLM", "difficulty": "基础", "knowledge_points": ["depth_pruning", "performance_accuracy_tradeoff"], "stem": "Depth Pruning 在课程中的含义最接近哪一项？", "options": [{"key": "A", "text": "删除整个层以减小模型规模"}, {"key": "B", "text": "把无标注语料改成问答对"}, {"key": "C", "text": "让 judge 评分更高"}, {"key": "D", "text": "把模型回答改成莎士比亚式英文"}], "answer": ["A"], "analysis": "大纲明确写到通过层级剪枝（Depth Pruning）删除整个层以减小模型规模。A 正确。D 是最终 DPO 风格任务的示例。"}, {"id": "Q052", "type": "single", "module": "为部署优化 LLM", "difficulty": "基础", "knowledge_points": ["distillation", "performance_accuracy_tradeoff"], "stem": "知识蒸馏在课程中的作用是什么？", "options": [{"key": "A", "text": "训练小型学生模型模仿大型教师模型，以恢复或保留能力"}, {"key": "B", "text": "直接去除个人隐私信息"}, {"key": "C", "text": "只用于生成 ELO 分数"}, {"key": "D", "text": "只用于登录 DLI 平台"}], "answer": ["A"], "analysis": "大纲写到使用知识蒸馏训练小型“学生”模型模仿大型“教师”模型，以恢复剪枝带来的性能损失。A 正确。"}, {"id": "Q053", "type": "multiple", "module": "为部署优化 LLM", "difficulty": "基础", "knowledge_points": ["quantization_ptq", "tensorrt_llm"], "stem": "课程中的部署优化技术包括哪些？", "options": [{"key": "A", "text": "后训练量化 PTQ"}, {"key": "B", "text": "FP8 低精度格式"}, {"key": "C", "text": "Depth Pruning"}, {"key": "D", "text": "知识蒸馏"}, {"key": "E", "text": "完全不评估准确率，只看速度"}], "answer": ["A", "B", "C", "D"], "analysis": "大纲列出的部署优化包括 PTQ、FP8、剪枝和知识蒸馏，并要求权衡性能与准确率。E 与课程要求相反。"}, {"id": "Q054", "type": "multiple", "module": "为部署优化 LLM", "difficulty": "进阶", "knowledge_points": ["performance_accuracy_tradeoff", "evaluation_quantitative"], "stem": "进行部署优化时，为什么必须重新评估模型？", "options": [{"key": "A", "text": "量化可能改变输出质量"}, {"key": "B", "text": "剪枝可能造成能力下降"}, {"key": "C", "text": "蒸馏后的学生模型需要验证是否保留关键能力"}, {"key": "D", "text": "性能提升不一定意味着准确率和风格都保持"}, {"key": "E", "text": "只要显存下降，就可以不用评估"}], "answer": ["A", "B", "C", "D"], "analysis": "部署优化本质是质量、速度、显存、成本之间的权衡。量化、剪枝和蒸馏都可能改变模型行为，因此必须回到统一评估框架中验证。E 错误。"}, {"id": "Q055", "type": "multiple", "module": "为部署优化 LLM", "difficulty": "进阶", "knowledge_points": ["quantization_ptq", "fp8"], "stem": "关于 PTQ 与 FP8，下列哪些说法符合课程重点？", "options": [{"key": "A", "text": "PTQ 属于后训练量化，通常不需要完整重新训练"}, {"key": "B", "text": "FP8 是课程中特别强调的低精度格式之一"}, {"key": "C", "text": "量化可减少模型尺寸和内存占用"}, {"key": "D", "text": "量化后不需要再做质量评估"}, {"key": "E", "text": "量化常用于提升部署效率"}], "answer": ["A", "B", "C", "E"], "analysis": "大纲强调使用 TensorRT-LLM 应用 PTQ，重点使用 FP8，以减少模型尺寸与内存占用、提高部署效率。D 错误，量化可能带来质量变化。"}, {"id": "Q056", "type": "multiple", "module": "为部署优化 LLM", "difficulty": "进阶", "knowledge_points": ["depth_pruning", "distillation"], "stem": "关于剪枝与蒸馏的配合，下列哪些说法合理？", "options": [{"key": "A", "text": "剪枝可减小模型规模，但可能损失能力"}, {"key": "B", "text": "蒸馏可让较小学生模型学习教师模型行为"}, {"key": "C", "text": "剪枝后应通过评估确认损失程度"}, {"key": "D", "text": "蒸馏一定能完全恢复所有能力"}, {"key": "E", "text": "剪枝和蒸馏都属于部署优化思路"}], "answer": ["A", "B", "C", "E"], "analysis": "剪枝可以减小模型，但可能损失性能；蒸馏有助于恢复或保留能力，但不能保证完全恢复。二者都应在评估闭环中使用。D 错误。"}, {"id": "Q057", "type": "single", "module": "综合实践与总结", "difficulty": "进阶", "knowledge_points": ["end_to_end_workflow", "final_practical_assessment"], "stem": "一个完整的课程结课项目最不应缺少哪一项？", "options": [{"key": "A", "text": "清晰说明数据、评估、定制方法、优化取舍和最终失败/成功样例"}, {"key": "B", "text": "只展示一张模型回答截图"}, {"key": "C", "text": "只报告训练用了几分钟"}, {"key": "D", "text": "只写模型名称，不说明任务目标"}], "answer": ["A"], "analysis": "课程强调端到端定制工作流。结课项目应能说明问题定义、数据处理、评估设计、定制策略、部署优化和结果复盘。B、C、D 都无法体现完整能力。"}, {"id": "Q058", "type": "single", "module": "综合实践与总结", "difficulty": "进阶", "knowledge_points": ["performance_accuracy_tradeoff", "mlflow"], "stem": "如果一个优化版本推理速度更快，但 LLM-as-a-Judge 分数和人工复核均显示风格一致性下降，应如何处理最合理？", "options": [{"key": "A", "text": "回到评估记录，比较速度收益与质量损失，并根据业务底线决定是否回滚或调整优化方案"}, {"key": "B", "text": "只要速度更快就必须上线"}, {"key": "C", "text": "删除所有失败样例"}, {"key": "D", "text": "停止记录实验结果"}], "answer": ["A"], "analysis": "课程强调部署优化必须权衡性能与准确率/质量，并使用 MLflow 等工具跟踪实验。若质量跌破底线，应回滚或调整，而不是只追求速度。"}, {"id": "Q059", "type": "single", "module": "综合实践与总结", "difficulty": "基础", "knowledge_points": ["llama31_style", "dpo_use_case"], "stem": "把 Llama 3.1 8B 调整为“莎士比亚式英文”等特定风格，主要体现了哪类技术能力？", "options": [{"key": "A", "text": "DPO 风格与偏好对齐"}, {"key": "B", "text": "PII 去除"}, {"key": "C", "text": "Depth Pruning"}, {"key": "D", "text": "MMLU 标准测试"}], "answer": ["A"], "analysis": "课程最终实践示例是使用 DPO 将模型调整为特定对话风格，这体现了偏好数据和风格对齐能力。B、C、D 属于其他模块。"}, {"id": "Q060", "type": "single", "module": "综合实践与总结", "difficulty": "基础", "knowledge_points": ["certificate", "final_practical_assessment"], "stem": "根据课程大纲，学员在什么情况下可获得 NVIDIA 培训证书？", "options": [{"key": "A", "text": "成功完成课程和测试后"}, {"key": "B", "text": "只要打开课程网页就自动获得"}, {"key": "C", "text": "只要安装 Docker 即可获得"}, {"key": "D", "text": "只要完成一次普通网页搜索即可获得"}], "answer": ["A"], "analysis": "课程大纲写明成功完成本课程和测试后，学员将获得 NVIDIA 培训证书。A 正确。"}, {"id": "Q061", "type": "multiple", "module": "综合实践与总结", "difficulty": "进阶", "knowledge_points": ["end_to_end_workflow", "data_quality"], "stem": "当最终模型效果不佳时，应优先回溯哪些环节？", "options": [{"key": "A", "text": "数据质量和覆盖度"}, {"key": "B", "text": "评估集是否代表真实任务"}, {"key": "C", "text": "CPT/SFT/DPO 方法选择是否匹配问题类型"}, {"key": "D", "text": "部署优化是否损害了模型能力"}, {"key": "E", "text": "只责怪用户提问太复杂，不检查系统"}], "answer": ["A", "B", "C", "D"], "analysis": "课程是闭环工作流。模型效果不佳可能来自数据、评估、方法选择、训练配置或部署优化等多处。E 是推卸责任，不能帮助改进系统。"}, {"id": "Q062", "type": "multiple", "module": "综合实践与总结", "difficulty": "进阶", "knowledge_points": ["final_practical_assessment", "preference_dataset"], "stem": "面向最终 DPO 实践，项目报告中应包含哪些内容？", "options": [{"key": "A", "text": "偏好数据集构造方法"}, {"key": "B", "text": "chosen/rejected 的标注标准"}, {"key": "C", "text": "对齐任务运行说明"}, {"key": "D", "text": "最终模型评估与失败样例"}, {"key": "E", "text": "只写“模型效果很好”而无证据"}], "answer": ["A", "B", "C", "D"], "analysis": "最终 DPO 实践不仅要跑通，还要展示偏好数据准备、标注标准、对齐过程和评估结果。E 缺乏证据。"}, {"id": "Q063", "type": "multiple", "module": "综合实践与总结", "difficulty": "进阶", "knowledge_points": ["toolchain", "end_to_end_workflow"], "stem": "如果把课程内容落地为企业模型定制项目，哪些工具/框架可对应关键环节？", "options": [{"key": "A", "text": "NeMo Curator：数据筛选与合成数据"}, {"key": "B", "text": "NeMo Evaluator：模型评估"}, {"key": "C", "text": "NeMo-RL：偏好对齐实践"}, {"key": "D", "text": "TensorRT-LLM：高性能推理优化"}, {"key": "E", "text": "MLflow：实验跟踪与可视化"}], "answer": ["A", "B", "C", "D", "E"], "analysis": "这些工具分别覆盖数据、评估、对齐、部署和实验跟踪，是课程大纲中反复出现的工具链。"}, {"id": "Q064", "type": "multiple", "module": "综合实践与总结", "difficulty": "基础", "knowledge_points": ["certificate", "course_format"], "stem": "关于课程收尾和后续学习，下列哪些说法符合大纲？", "options": [{"key": "A", "text": "课程包含评估测试和总结"}, {"key": "B", "text": "成功完成课程和测试后可获得培训证书"}, {"key": "C", "text": "大纲还推荐了 LLM 智能体、RAG、提示工程、多模态等后续课程"}, {"key": "D", "text": "课程结束不涉及任何实践编程任务"}, {"key": "E", "text": "课程强调云端实验环境同步边练"}], "answer": ["A", "B", "C", "E"], "analysis": "大纲最后包含评估测试和总结、证书说明、下一步课程推荐，并强调实战培训和云端实验环境。D 错误，因为最终评估明确包含实践编程任务。"}]};
+const QUESTIONS = DATA.questions;
+const STORAGE_KEY = 'llmKnowledgeQuizState.v1';
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"answers":{},"wrong":[],"practiceIds":[],"practiceIndex":0}');
+let practiceList = [];
+let exam = { questions: [], answers: {}, startedAt: null, endsAt: null, timerId: null, submitted: false };
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function byId(id) { return document.getElementById(id); }
+function shuffle(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function isSameAnswer(a,b) { return [...(a||[])].sort().join('|') === [...(b||[])].sort().join('|'); }
+function typeLabel(t) { return t==='single' ? '单选' : '多选'; }
+function typeClass(t) { return t==='single' ? 'single' : 'multiple'; }
+function modules() { return [...new Set(QUESTIONS.map(q=>q.module))]; }
+function optionHTML(q, selected=[], reveal=false) {
+  return q.options.map(o => {
+    const checked = selected.includes(o.key) ? 'checked' : '';
+    let cls = 'option';
+    if(reveal) {
+      if(q.answer.includes(o.key)) cls += ' correct';
+      else if(selected.includes(o.key)) cls += ' wrong';
+    }
+    const inputType = q.type === 'single' ? 'radio' : 'checkbox';
+    return `<label class="${cls}"><input type="${inputType}" name="ans-${q.id}" value="${o.key}" ${checked}> <span><b>${o.key}.</b> ${o.text}</span></label>`;
+  }).join('');
+}
+function questionHeader(q) {
+  return `<div class="row"><span class="badge ${typeClass(q.type)}">${typeLabel(q.type)}</span><span class="badge diff">${q.difficulty}</span><span class="badge">${q.module}</span></div><div class="small">知识点：${q.knowledge_points.map(k=>`<span class="kp">${k}</span>`).join('')}</div>`;
+}
+function initSelects() {
+  const moduleIds = ['pModule','examModule','bankModule'];
+  for (const id of moduleIds) {
+    const sel = byId(id); modules().forEach(m => { const op=document.createElement('option'); op.value=m; op.textContent=m; sel.appendChild(op); });
+  }
+}
+function filtered(module, type, difficulty='all') {
+  return QUESTIONS.filter(q => (module==='all'||q.module===module) && (type==='all'||q.type===type) && (difficulty==='all'||q.difficulty===difficulty));
+}
+function applyPractice() {
+  const list = filtered(byId('pModule').value, byId('pType').value, byId('pDifficulty').value);
+  practiceList = byId('pOrder').value === 'shuffle' ? shuffle(list) : list;
+  state.practiceIds = practiceList.map(q=>q.id); state.practiceIndex = 0; save(); renderPractice();
+}
+function currentPracticeQuestion() {
+  if(!practiceList.length && state.practiceIds.length) practiceList = state.practiceIds.map(id => QUESTIONS.find(q=>q.id===id)).filter(Boolean);
+  if(!practiceList.length) practiceList = QUESTIONS;
+  return practiceList[state.practiceIndex] || practiceList[0];
+}
+function renderPractice() {
+  const q = currentPracticeQuestion();
+  const selected = state.answers[q.id] || [];
+  const reveal = selected.length > 0;
+  byId('pInfo').textContent = `${state.practiceIndex+1} / ${practiceList.length || QUESTIONS.length}`;
+  byId('pProgress').style.width = `${((state.practiceIndex+1)/(practiceList.length || QUESTIONS.length))*100}%`;
+  byId('practiceCard').innerHTML = `<div class="q-card">${questionHeader(q)}<div class="q-stem">${q.id}. ${q.stem}</div><div id="pOptions">${optionHTML(q, selected, reveal)}</div><div class="row" style="margin-top:12px"><button id="checkPractice">提交本题</button><button id="toggleExplain" class="secondary">显示/隐藏解析</button><button id="markWrong" class="secondary">加入错题本</button></div><div id="pExplain" class="explain ${reveal?'show':''}"><b>正确答案：${q.answer.join('、')}</b><br>${q.analysis}</div></div>`;
+  byId('checkPractice').onclick = () => {
+    const ans = [...document.querySelectorAll(`#pOptions input:checked`)].map(i=>i.value);
+    if(!ans.length) return alert('请先选择答案。');
+    state.answers[q.id] = ans;
+    if(!isSameAnswer(ans, q.answer) && !state.wrong.includes(q.id)) state.wrong.push(q.id);
+    save(); renderPractice();
+  };
+  byId('toggleExplain').onclick = () => byId('pExplain').classList.toggle('show');
+  byId('markWrong').onclick = () => { if(!state.wrong.includes(q.id)) state.wrong.push(q.id); save(); alert('已加入错题本。'); };
+}
+function renderBank() {
+  const kw = (byId('bankSearch').value || '').trim().toLowerCase();
+  const list = filtered(byId('bankModule').value, byId('bankType').value).filter(q => !kw || JSON.stringify(q).toLowerCase().includes(kw));
+  byId('bankList').innerHTML = `<div class="small">共 ${list.length} 题</div>` + list.map(q => `<div class="list-item">${questionHeader(q)}<b>${q.id}. ${q.stem}</b><div class="small" style="margin-top:8px">答案：${q.answer.join('、')}｜解析：${q.analysis}</div></div>`).join('');
+}
+function renderWrong() {
+  const list = state.wrong.map(id=>QUESTIONS.find(q=>q.id===id)).filter(Boolean);
+  byId('wrongList').innerHTML = list.length ? list.map(q => `<div class="list-item">${questionHeader(q)}<b>${q.id}. ${q.stem}</b><div class="small" style="margin-top:8px">答案：${q.answer.join('、')}｜解析：${q.analysis}</div></div>`).join('') : '<p class="small">暂无错题。</p>';
+}
+function renderCoverage() {
+  const entries = Object.entries(DATA.coverage).sort((a,b)=>a[0].localeCompare(b[0]));
+  byId('coverageGrid').innerHTML = entries.map(([kp,c]) => `<div class="stat"><b>${c}</b><div class="kp">${kp}</div><div class="small">覆盖次数</div></div>`).join('');
+}
+function renderExamArea(showResult=false) {
+  if(!exam.questions.length) { byId('examArea').innerHTML='<p class="small">请先生成试卷。</p>'; return; }
+  let score = 0;
+  const parts = exam.questions.map((q,idx) => {
+    const selected = exam.answers[q.id] || [];
+    const correct = isSameAnswer(selected, q.answer);
+    if(correct) score++;
+    const result = showResult ? `<div class="exam-result ${correct?'good':'bad'}"><b>${correct?'正确':'错误'}｜正确答案：${q.answer.join('、')}</b><br>${q.analysis}</div>` : '';
+    return `<div class="exam-question" data-qid="${q.id}">${questionHeader(q)}<div class="q-stem">${idx+1}. ${q.stem}</div><div>${optionHTML(q, selected, showResult)}</div>${result}</div>`;
+  });
+  const summary = showResult ? `<div class="panel"><h3>考试结果</h3><p><b>得分：${score} / ${exam.questions.length}</b>，正确率：${Math.round(score/exam.questions.length*100)}%</p><p class="small">答错题目已自动加入错题本。</p></div>` : '';
+  byId('examArea').innerHTML = summary + parts.join('');
+  if(!showResult) {
+    document.querySelectorAll('#examArea input').forEach(inp => inp.onchange = () => {
+      const box = inp.closest('.exam-question'); const qid = box.dataset.qid; const q = QUESTIONS.find(x=>x.id===qid);
+      const checked = [...box.querySelectorAll('input:checked')].map(i=>i.value);
+      exam.answers[qid] = checked;
+      if(q.type==='single') renderExamArea(false);
+    });
+  } else {
+    exam.questions.forEach(q=>{ if(!isSameAnswer(exam.answers[q.id]||[], q.answer) && !state.wrong.includes(q.id)) state.wrong.push(q.id); }); save();
+  }
+}
+function startExam() {
+  const list = filtered(byId('examModule').value, byId('examType').value);
+  const count = Math.max(5, Math.min(parseInt(byId('examCount').value||30), list.length));
+  exam.questions = shuffle(list).slice(0, count); exam.answers = {}; exam.submitted = false;
+  const mins = Math.max(5, parseInt(byId('examMinutes').value||45));
+  exam.startedAt = Date.now(); exam.endsAt = exam.startedAt + mins*60*1000;
+  byId('submitExam').disabled = false;
+  if(exam.timerId) clearInterval(exam.timerId);
+  exam.timerId = setInterval(updateTimer, 1000); updateTimer(); renderExamArea(false);
+}
+function updateTimer() {
+  if(!exam.endsAt) { byId('timer').textContent='未开始'; return; }
+  const remain = exam.endsAt - Date.now();
+  if(remain <= 0) { clearInterval(exam.timerId); byId('timer').textContent='时间到'; submitExam(); return; }
+  const m = Math.floor(remain/60000), s = Math.floor((remain%60000)/1000);
+  byId('timer').textContent = `剩余 ${m}:${String(s).padStart(2,'0')}`;
+}
+function submitExam() {
+  if(!exam.questions.length || exam.submitted) return;
+  exam.submitted = true; byId('submitExam').disabled = true; if(exam.timerId) clearInterval(exam.timerId); byId('timer').textContent='已提交'; renderExamArea(true);
+}
+
+initSelects();
+byId('mTotal').textContent = QUESTIONS.length; byId('mSingle').textContent = QUESTIONS.filter(q=>q.type==='single').length; byId('mMulti').textContent = QUESTIONS.filter(q=>q.type==='multiple').length;
+practiceList = state.practiceIds.length ? state.practiceIds.map(id => QUESTIONS.find(q=>q.id===id)).filter(Boolean) : QUESTIONS;
+if(state.practiceIndex >= practiceList.length) state.practiceIndex = 0;
+renderPractice(); renderBank(); renderCoverage(); renderWrong();
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden')); byId(t.dataset.tab).classList.remove('hidden');
+  if(t.dataset.tab==='bank') renderBank(); if(t.dataset.tab==='wrong') renderWrong(); if(t.dataset.tab==='coverage') renderCoverage();
+});
+byId('btnApply').onclick = applyPractice;
+byId('btnPrev').onclick = () => { if(state.practiceIndex>0) state.practiceIndex--; save(); renderPractice(); };
+byId('btnNext').onclick = () => { if(state.practiceIndex < (practiceList.length || QUESTIONS.length)-1) state.practiceIndex++; save(); renderPractice(); };
+byId('btnResetPractice').onclick = () => { state.answers={}; state.practiceIndex=0; save(); renderPractice(); };
+byId('startExam').onclick = startExam; byId('submitExam').onclick = submitExam;
+byId('bankSearch').oninput = renderBank; byId('bankModule').onchange = renderBank; byId('bankType').onchange = renderBank;
+byId('clearWrong').onclick = () => { if(confirm('确定清空错题本吗？')) { state.wrong=[]; save(); renderWrong(); } };
+</script>
+</body>
+</html>
