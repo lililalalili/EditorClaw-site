@@ -1,0 +1,850 @@
+[
+  {
+    "id": 1,
+    "term": "RAG",
+    "english": "Retrieval-Augmented Generation",
+    "chinese": "检索增强生成",
+    "module": "RAG 基础",
+    "explain": "先从外部知识库检索相关证据，再让大语言模型基于这些证据生成回答，用于降低幻觉、增强事实性和可追溯性。"
+  },
+  {
+    "id": 2,
+    "term": "LLM",
+    "english": "Large Language Model",
+    "chinese": "大语言模型",
+    "module": "RAG 基础",
+    "explain": "能够理解和生成自然语言的大规模模型，是 RAG 系统中负责理解问题、综合上下文并生成答案的核心组件。"
+  },
+  {
+    "id": 3,
+    "term": "Agent",
+    "english": "Agent",
+    "chinese": "智能体",
+    "module": "RAG 基础",
+    "explain": "能够根据目标进行规划、维护状态、调用工具并完成任务的系统，不只是被动回答单个问题。"
+  },
+  {
+    "id": 4,
+    "term": "RAG Agent",
+    "english": "Retrieval-Augmented Generation Agent",
+    "chinese": "检索增强生成智能体",
+    "module": "RAG 基础",
+    "explain": "在 RAG 基础上加入任务规划、工具调用、对话状态、追问和护栏等能力的智能系统。"
+  },
+  {
+    "id": 5,
+    "term": "Prompt",
+    "english": "Prompt",
+    "chinese": "提示词",
+    "module": "Prompt 与生成",
+    "explain": "给模型的任务说明、上下文、约束和输出格式要求。Prompt 的质量直接影响模型回答的准确性和稳定性。"
+  },
+  {
+    "id": 6,
+    "term": "System Prompt",
+    "english": "System Prompt",
+    "chinese": "系统提示词",
+    "module": "Prompt 与生成",
+    "explain": "用于设定模型角色、行为边界、回答风格和安全要求的高优先级提示。"
+  },
+  {
+    "id": 7,
+    "term": "User Prompt",
+    "english": "User Prompt",
+    "chinese": "用户提示词",
+    "module": "Prompt 与生成",
+    "explain": "用户输入给系统的具体问题或任务请求，是触发模型推理和检索流程的直接输入。"
+  },
+  {
+    "id": 8,
+    "term": "Context Window",
+    "english": "Context Window",
+    "chinese": "上下文窗口",
+    "module": "Prompt 与生成",
+    "explain": "模型一次推理中可以接收和处理的最大文本范围，包括系统提示、对话历史、检索材料和用户问题。"
+  },
+  {
+    "id": 9,
+    "term": "Token",
+    "english": "Token",
+    "chinese": "词元 / 标记",
+    "module": "Prompt 与生成",
+    "explain": "模型处理文本的基本单位，可以是词、子词、字符或符号。上下文长度、成本和生成速度通常都与 token 数有关。"
+  },
+  {
+    "id": 10,
+    "term": "Hallucination",
+    "english": "Hallucination",
+    "chinese": "幻觉",
+    "module": "Prompt 与生成",
+    "explain": "模型生成看似合理但缺乏事实依据或与材料不符的内容。RAG、引用和评估都旨在减少幻觉。"
+  },
+  {
+    "id": 11,
+    "term": "Grounding",
+    "english": "Grounding",
+    "chinese": "证据锚定 / 基于证据生成",
+    "module": "Prompt 与生成",
+    "explain": "要求模型回答必须建立在给定文档、检索结果或数据库证据之上，而不是自由发挥。"
+  },
+  {
+    "id": 12,
+    "term": "Retrieval",
+    "english": "Retrieval",
+    "chinese": "检索",
+    "module": "检索与向量库",
+    "explain": "根据用户问题从文档库、数据库或向量库中找出相关材料，是 RAG 的第一步。"
+  },
+  {
+    "id": 13,
+    "term": "Generation",
+    "english": "Generation",
+    "chinese": "生成",
+    "module": "Prompt 与生成",
+    "explain": "大语言模型根据 Prompt、问题和上下文生成自然语言答案、摘要、结构化结果或代码的过程。"
+  },
+  {
+    "id": 14,
+    "term": "Retriever",
+    "english": "Retriever",
+    "chinese": "检索器",
+    "module": "检索与向量库",
+    "explain": "负责接收查询并返回相关文档片段的组件，可以基于向量、关键词或混合检索。"
+  },
+  {
+    "id": 15,
+    "term": "Chunk",
+    "english": "Chunk",
+    "chinese": "文档块 / 文本块",
+    "module": "长文档处理",
+    "explain": "长文档切分后的较小文本片段，用于嵌入、检索和上下文组装。"
+  },
+  {
+    "id": 16,
+    "term": "Chunk Size",
+    "english": "Chunk Size",
+    "chinese": "文档块大小",
+    "module": "长文档处理",
+    "explain": "每个文档块包含的字符数或 token 数。过大可能降低检索精度，过小可能破坏语义完整性。"
+  },
+  {
+    "id": 17,
+    "term": "Chunk Overlap",
+    "english": "Chunk Overlap",
+    "chinese": "文档块重叠",
+    "module": "长文档处理",
+    "explain": "相邻文档块之间保留的重复文本，用于减少语义被切断的问题。"
+  },
+  {
+    "id": 18,
+    "term": "Semantic Chunking",
+    "english": "Semantic Chunking",
+    "chinese": "语义分块",
+    "module": "长文档处理",
+    "explain": "根据段落、标题、主题或语义边界切分文档，而不是机械地按固定长度切分。"
+  },
+  {
+    "id": 19,
+    "term": "Document Loader",
+    "english": "Document Loader",
+    "chinese": "文档加载器",
+    "module": "长文档处理",
+    "explain": "读取 PDF、网页、Word、Markdown 或数据库内容并转换为可处理文本的组件。"
+  },
+  {
+    "id": 20,
+    "term": "Text Splitter",
+    "english": "Text Splitter",
+    "chinese": "文本切分器",
+    "module": "长文档处理",
+    "explain": "把长文本切成适合嵌入和检索的小块，通常需要配合 chunk size 和 overlap 设置。"
+  },
+  {
+    "id": 21,
+    "term": "Metadata",
+    "english": "Metadata",
+    "chinese": "元数据",
+    "module": "长文档处理",
+    "explain": "描述文档块来源的信息，如文件名、标题、页码、章节、年份和作者，用于过滤、引用和追溯。"
+  },
+  {
+    "id": 22,
+    "term": "Embedding",
+    "english": "Embedding",
+    "chinese": "嵌入 / 向量表示",
+    "module": "嵌入与语义相似性",
+    "explain": "把文本转换为数字向量，使语义相近的文本在向量空间中距离更近。"
+  },
+  {
+    "id": 23,
+    "term": "Embedding Model",
+    "english": "Embedding Model",
+    "chinese": "嵌入模型",
+    "module": "嵌入与语义相似性",
+    "explain": "专门用于把查询或文档编码为向量的模型，是语义检索和向量数据库的基础。"
+  },
+  {
+    "id": 24,
+    "term": "Vector",
+    "english": "Vector",
+    "chinese": "向量",
+    "module": "嵌入与语义相似性",
+    "explain": "由一组数字组成的表示形式，用于表达文本在语义空间中的位置。"
+  },
+  {
+    "id": 25,
+    "term": "Vector Space",
+    "english": "Vector Space",
+    "chinese": "向量空间",
+    "module": "嵌入与语义相似性",
+    "explain": "文本向量所在的数学空间，语义相似的文本通常在该空间中距离较近。"
+  },
+  {
+    "id": 26,
+    "term": "Vector Store",
+    "english": "Vector Store",
+    "chinese": "向量存储",
+    "module": "检索与向量库",
+    "explain": "用于保存文本向量、原文片段和元数据的数据结构或数据库。"
+  },
+  {
+    "id": 27,
+    "term": "Vector Database",
+    "english": "Vector Database",
+    "chinese": "向量数据库",
+    "module": "检索与向量库",
+    "explain": "专门支持向量存储、相似性搜索、元数据过滤和大规模近邻检索的数据库。"
+  },
+  {
+    "id": 28,
+    "term": "Similarity Search",
+    "english": "Similarity Search",
+    "chinese": "相似性搜索",
+    "module": "检索与向量库",
+    "explain": "根据查询向量寻找最相似的文档向量，从而返回语义相关的文本片段。"
+  },
+  {
+    "id": 29,
+    "term": "Cosine Similarity",
+    "english": "Cosine Similarity",
+    "chinese": "余弦相似度",
+    "module": "嵌入与语义相似性",
+    "explain": "衡量两个向量方向相似程度的指标，常用于文本语义相似性计算。"
+  },
+  {
+    "id": 30,
+    "term": "Dot Product",
+    "english": "Dot Product",
+    "chinese": "点积",
+    "module": "嵌入与语义相似性",
+    "explain": "一种向量相似性计算方式，可用于衡量查询向量与文档向量的相关程度。"
+  },
+  {
+    "id": 31,
+    "term": "Euclidean Distance",
+    "english": "Euclidean Distance",
+    "chinese": "欧氏距离",
+    "module": "嵌入与语义相似性",
+    "explain": "衡量两个向量之间直线距离的指标，距离越小通常表示越相似。"
+  },
+  {
+    "id": 32,
+    "term": "ANN",
+    "english": "Approximate Nearest Neighbor",
+    "chinese": "近似最近邻搜索",
+    "module": "检索与向量库",
+    "explain": "在大规模向量集合中快速找到近似最相似结果的方法，用于提升检索效率。"
+  },
+  {
+    "id": 33,
+    "term": "Top-k",
+    "english": "Top-k Retrieval",
+    "chinese": "前 k 个结果检索",
+    "module": "检索与向量库",
+    "explain": "返回相似度最高的 k 个文档片段，是 RAG 中最常见的基础检索方式。"
+  },
+  {
+    "id": 34,
+    "term": "MMR",
+    "english": "Maximal Marginal Relevance",
+    "chinese": "最大边际相关性",
+    "module": "检索与向量库",
+    "explain": "在相关性和多样性之间取得平衡的检索策略，用于减少返回结果高度重复。"
+  },
+  {
+    "id": 35,
+    "term": "Hybrid Search",
+    "english": "Hybrid Search",
+    "chinese": "混合检索",
+    "module": "检索与向量库",
+    "explain": "结合关键词检索和向量检索的方法，既能匹配术语，也能捕捉语义相似性。"
+  },
+  {
+    "id": 36,
+    "term": "Reranking",
+    "english": "Reranking",
+    "chinese": "重排序",
+    "module": "检索与向量库",
+    "explain": "对初步检索结果再次排序，提升最相关证据在前列出现的概率。"
+  },
+  {
+    "id": 37,
+    "term": "Query Rewrite",
+    "english": "Query Rewriting",
+    "chinese": "查询改写",
+    "module": "检索与向量库",
+    "explain": "把用户问题改写成更适合检索的独立、明确查询，尤其适合多轮对话中的省略和指代。"
+  },
+  {
+    "id": 38,
+    "term": "Multi-turn QA",
+    "english": "Multi-turn Question Answering",
+    "chinese": "多轮问答",
+    "module": "对话状态与管理",
+    "explain": "系统在连续对话中理解上下文、指代和任务进度，并持续回答后续问题。"
+  },
+  {
+    "id": 39,
+    "term": "Conversational Memory",
+    "english": "Conversational Memory",
+    "chinese": "对话记忆",
+    "module": "对话状态与管理",
+    "explain": "保存对话历史、用户偏好和任务状态，使系统能够在多轮交互中保持连续性。"
+  },
+  {
+    "id": 40,
+    "term": "State",
+    "english": "State",
+    "chinese": "状态",
+    "module": "对话状态与管理",
+    "explain": "系统当前保存的任务信息，如用户身份、任务目标、已填字段、历史问题和工具调用结果。"
+  },
+  {
+    "id": 41,
+    "term": "Runtime State",
+    "english": "Runtime State",
+    "chinese": "运行时状态",
+    "module": "对话状态与管理",
+    "explain": "链条或智能体在执行过程中动态维护的信息，用于决定下一步动作。"
+  },
+  {
+    "id": 42,
+    "term": "Slot Filling",
+    "english": "Slot Filling",
+    "chinese": "槽位填充",
+    "module": "对话状态与管理",
+    "explain": "从用户输入中抽取并补全任务所需字段，如日期、领域、文档范围、输出格式等。"
+  },
+  {
+    "id": 43,
+    "term": "Information Extraction",
+    "english": "Information Extraction",
+    "chinese": "信息抽取",
+    "module": "对话状态与管理",
+    "explain": "从自然语言中提取结构化信息，如疾病、方法、作者、数据集、研究类型等。"
+  },
+  {
+    "id": 44,
+    "term": "Structured Output",
+    "english": "Structured Output",
+    "chinese": "结构化输出",
+    "module": "对话状态与管理",
+    "explain": "要求模型按 JSON、表格或固定字段输出，便于程序解析、保存和后续调用。"
+  },
+  {
+    "id": 45,
+    "term": "JSON Output",
+    "english": "JavaScript Object Notation Output",
+    "chinese": "JSON 格式输出",
+    "module": "对话状态与管理",
+    "explain": "一种轻量级结构化数据格式，常用于让 LLM 输出可被程序读取的字段和值。"
+  },
+  {
+    "id": 46,
+    "term": "Output Parser",
+    "english": "Output Parser",
+    "chinese": "输出解析器",
+    "module": "LangChain 与服务化",
+    "explain": "把模型原始输出转换为字符串、JSON、列表或自定义结构的组件。"
+  },
+  {
+    "id": 47,
+    "term": "Intent Classification",
+    "english": "Intent Classification",
+    "chinese": "意图分类",
+    "module": "对话状态与管理",
+    "explain": "判断用户输入属于问答、检索、摘要、工具调用、闲聊或拒答等哪类任务。"
+  },
+  {
+    "id": 48,
+    "term": "Tool Calling",
+    "english": "Tool Calling",
+    "chinese": "工具调用",
+    "module": "智能体与工具",
+    "explain": "模型或智能体根据任务调用外部工具，如数据库、搜索、计算器、文件读取或 API。"
+  },
+  {
+    "id": 49,
+    "term": "API",
+    "english": "Application Programming Interface",
+    "chinese": "应用程序编程接口",
+    "module": "服务化与部署",
+    "explain": "软件系统之间交换请求和结果的接口，RAG 服务通常通过 API 被前端或其他系统调用。"
+  },
+  {
+    "id": 50,
+    "term": "Microservice",
+    "english": "Microservice",
+    "chinese": "微服务",
+    "module": "服务化与部署",
+    "explain": "把系统拆分为职责单一、可独立部署和扩展的小服务，如检索服务、模型服务和评估服务。"
+  },
+  {
+    "id": 51,
+    "term": "API Gateway",
+    "english": "API Gateway",
+    "chinese": "API 网关",
+    "module": "服务化与部署",
+    "explain": "统一接收外部请求并转发到内部服务的入口，可处理鉴权、路由、限流和日志。"
+  },
+  {
+    "id": 52,
+    "term": "Local Deployment",
+    "english": "Local Deployment",
+    "chinese": "本地部署",
+    "module": "服务化与部署",
+    "explain": "在本机、局域网或私有服务器运行模型和系统，适合数据敏感或内网使用场景。"
+  },
+  {
+    "id": 53,
+    "term": "Remote Endpoint",
+    "english": "Remote Endpoint",
+    "chinese": "远程接入点",
+    "module": "服务化与部署",
+    "explain": "通过网络访问的模型或服务地址，应用可向其发送请求并接收推理结果。"
+  },
+  {
+    "id": 54,
+    "term": "Cloud API",
+    "english": "Cloud Application Programming Interface",
+    "chinese": "云端 API",
+    "module": "服务化与部署",
+    "explain": "由云服务商提供的远程模型接口，便于快速开发和弹性扩展，但需要注意成本和数据合规。"
+  },
+  {
+    "id": 55,
+    "term": "Private Cloud",
+    "english": "Private Cloud",
+    "chinese": "私有云",
+    "module": "服务化与部署",
+    "explain": "组织内部或专属环境中的云基础设施，适合合规、权限和内部系统集成要求较高的场景。"
+  },
+  {
+    "id": 56,
+    "term": "Hybrid Deployment",
+    "english": "Hybrid Deployment",
+    "chinese": "混合部署",
+    "module": "服务化与部署",
+    "explain": "同时使用本地、私有云和公有云能力，根据数据敏感性和任务需求灵活调度。"
+  },
+  {
+    "id": 57,
+    "term": "LangChain",
+    "english": "LangChain",
+    "chinese": "LangChain 框架",
+    "module": "LangChain 与服务化",
+    "explain": "用于构建 LLM 应用的开源框架，支持 Prompt、链条、检索器、工具、记忆和结构化输出。"
+  },
+  {
+    "id": 58,
+    "term": "LCEL",
+    "english": "LangChain Expression Language",
+    "chinese": "LangChain 表达语言",
+    "module": "LangChain 与服务化",
+    "explain": "LangChain 中用于把 Prompt、模型、解析器等组件按管道方式组合成可运行链条的表达方式。"
+  },
+  {
+    "id": 59,
+    "term": "Runnable",
+    "english": "Runnable",
+    "chinese": "可运行单元",
+    "module": "LangChain 与服务化",
+    "explain": "LangChain 中可被 invoke、stream 或 batch 调用的模块化组件，如 Prompt、模型、检索器或链条。"
+  },
+  {
+    "id": 60,
+    "term": "Chain",
+    "english": "Chain",
+    "chinese": "链条",
+    "module": "LangChain 与服务化",
+    "explain": "把多个处理步骤连接起来形成的工作流，例如 Prompt → LLM → Output Parser。"
+  },
+  {
+    "id": 61,
+    "term": "Gradio",
+    "english": "Gradio",
+    "chinese": "Gradio 交互界面框架",
+    "module": "LangChain 与服务化",
+    "explain": "快速构建机器学习和 LLM 应用前端的工具，适合演示、教学和内部原型。"
+  },
+  {
+    "id": 62,
+    "term": "LangServe",
+    "english": "LangServe",
+    "chinese": "LangChain 服务化工具",
+    "module": "LangChain 与服务化",
+    "explain": "把 LangChain 链条部署为 HTTP API，使前端、脚本和其他服务可以调用。"
+  },
+  {
+    "id": 63,
+    "term": "NGC",
+    "english": "NVIDIA GPU Cloud",
+    "chinese": "NVIDIA GPU Cloud",
+    "module": "NVIDIA 与课程环境",
+    "explain": "NVIDIA 提供的模型、容器、资源和软件目录，可用于访问托管模型和 AI 开发资源。"
+  },
+  {
+    "id": 64,
+    "term": "NVIDIA AI Foundation Models",
+    "english": "NVIDIA AI Foundation Models",
+    "chinese": "NVIDIA AI 基础模型",
+    "module": "NVIDIA 与课程环境",
+    "explain": "NVIDIA 提供或托管的基础模型服务，可作为远程推理端点用于生成式 AI 应用。"
+  },
+  {
+    "id": 65,
+    "term": "PyTorch",
+    "english": "PyTorch",
+    "chinese": "PyTorch 深度学习框架",
+    "module": "预备知识",
+    "explain": "常用深度学习框架，课程要求学习者具备一定 PyTorch 和迁移学习基础。"
+  },
+  {
+    "id": 66,
+    "term": "Transfer Learning",
+    "english": "Transfer Learning",
+    "chinese": "迁移学习",
+    "module": "预备知识",
+    "explain": "把已有模型学到的能力迁移到新任务中的方法，是理解现代深度学习和 LLM 应用的重要基础。"
+  },
+  {
+    "id": 67,
+    "term": "Encoder",
+    "english": "Encoder",
+    "chinese": "编码器",
+    "module": "嵌入与语义相似性",
+    "explain": "把输入文本转换为内部表示或向量的模型结构，常用于嵌入、分类和检索。"
+  },
+  {
+    "id": 68,
+    "term": "Decoder",
+    "english": "Decoder",
+    "chinese": "解码器",
+    "module": "嵌入与语义相似性",
+    "explain": "根据上下文逐步生成文本的模型结构，常见于 GPT 类生成式大模型。"
+  },
+  {
+    "id": 69,
+    "term": "Guardrail",
+    "english": "Guardrail",
+    "chinese": "护栏",
+    "module": "护栏与安全",
+    "explain": "限制模型输入输出边界的机制，用于控制安全、合规、任务范围和回答风格。"
+  },
+  {
+    "id": 70,
+    "term": "Semantic Guardrail",
+    "english": "Semantic Guardrail",
+    "chinese": "语义护栏",
+    "module": "护栏与安全",
+    "explain": "基于语义相似性、意图分类或嵌入判断请求是否属于允许范围，而不只是关键词过滤。"
+  },
+  {
+    "id": 71,
+    "term": "Refusal",
+    "english": "Refusal",
+    "chinese": "拒答",
+    "module": "护栏与安全",
+    "explain": "当请求超出系统范围、缺少证据或存在安全风险时，系统礼貌说明无法回答并给出安全引导。"
+  },
+  {
+    "id": 72,
+    "term": "Safety Boundary",
+    "english": "Safety Boundary",
+    "chinese": "安全边界",
+    "module": "护栏与安全",
+    "explain": "系统允许回答和必须拒绝之间的边界，需要由任务目标、政策和风险水平共同决定。"
+  },
+  {
+    "id": 73,
+    "term": "Document QA",
+    "english": "Document Question Answering",
+    "chinese": "文档问答",
+    "module": "RAG 应用",
+    "explain": "基于给定文档内容回答用户问题，是 RAG 系统最典型的应用之一。"
+  },
+  {
+    "id": 74,
+    "term": "Long Document Processing",
+    "english": "Long Document Processing",
+    "chinese": "长文档处理",
+    "module": "长文档处理",
+    "explain": "处理超过模型上下文窗口的论文、手册或报告，包括切分、摘要、压缩、重构和检索。"
+  },
+  {
+    "id": 75,
+    "term": "Summarization",
+    "english": "Summarization",
+    "chinese": "摘要生成",
+    "module": "长文档处理",
+    "explain": "把长文本压缩为保留主要信息的短文本，可用于文档理解、上下文压缩和评估。"
+  },
+  {
+    "id": 76,
+    "term": "Map-Reduce Summarization",
+    "english": "Map-Reduce Summarization",
+    "chinese": "Map-Reduce 摘要",
+    "module": "长文档处理",
+    "explain": "先分别总结各文档块，再汇总所有局部摘要生成整体摘要的方法。"
+  },
+  {
+    "id": 77,
+    "term": "Incremental Summarization",
+    "english": "Incremental Summarization",
+    "chinese": "增量摘要",
+    "module": "长文档处理",
+    "explain": "逐块处理长文档，并把上一轮摘要与新内容结合，持续更新中间摘要。"
+  },
+  {
+    "id": 78,
+    "term": "While-loop Processing",
+    "english": "While-loop Processing",
+    "chinese": "循环式处理",
+    "module": "长文档处理",
+    "explain": "用循环逐步处理长文档或多步骤任务，每轮更新状态直到达到终止条件。"
+  },
+  {
+    "id": 79,
+    "term": "Document Compression",
+    "english": "Document Compression",
+    "chinese": "文档压缩",
+    "module": "长文档处理",
+    "explain": "对检索到或输入的文本进行摘要、筛选和重写，以减少上下文长度并突出关键信息。"
+  },
+  {
+    "id": 80,
+    "term": "Context Assembly",
+    "english": "Context Assembly",
+    "chinese": "上下文组装",
+    "module": "Prompt 与生成",
+    "explain": "把系统提示、用户问题、对话历史和检索片段组合成最终发送给模型的输入。"
+  },
+  {
+    "id": 81,
+    "term": "Citation",
+    "english": "Citation",
+    "chinese": "引用",
+    "module": "评估与可追溯性",
+    "explain": "在答案中标明信息来源，使用户能追溯回答依据。"
+  },
+  {
+    "id": 82,
+    "term": "Source Attribution",
+    "english": "Source Attribution",
+    "chinese": "来源归因",
+    "module": "评估与可追溯性",
+    "explain": "明确回答中的信息来自哪个文档、页面、章节或片段，提升可信度和可审查性。"
+  },
+  {
+    "id": 83,
+    "term": "RAG Prompt Template",
+    "english": "Retrieval-Augmented Generation Prompt Template",
+    "chinese": "RAG 提示词模板",
+    "module": "Prompt 与生成",
+    "explain": "专门用于把检索上下文和用户问题组织起来，并约束模型只基于材料回答的 Prompt 模板。"
+  },
+  {
+    "id": 84,
+    "term": "No-answer Handling",
+    "english": "No-answer Handling",
+    "chinese": "无答案处理",
+    "module": "护栏与安全",
+    "explain": "当给定材料中没有答案时，系统应说明无法确定，而不是编造答案。"
+  },
+  {
+    "id": 85,
+    "term": "Evaluation Chain",
+    "english": "Evaluation Chain",
+    "chinese": "评估链",
+    "module": "RAG 评估",
+    "explain": "用于自动评估 RAG 输出质量的链条，可检查准确性、忠实性、完整性和安全性。"
+  },
+  {
+    "id": 86,
+    "term": "Faithfulness",
+    "english": "Faithfulness",
+    "chinese": "忠实性",
+    "module": "RAG 评估",
+    "explain": "衡量答案是否严格符合给定上下文，是否包含上下文没有支持的内容。"
+  },
+  {
+    "id": 87,
+    "term": "Answer Accuracy",
+    "english": "Answer Accuracy",
+    "chinese": "答案准确性",
+    "module": "RAG 评估",
+    "explain": "衡量回答是否事实正确，并与标准答案或证据一致。"
+  },
+  {
+    "id": 88,
+    "term": "Completeness",
+    "english": "Completeness",
+    "chinese": "完整性",
+    "module": "RAG 评估",
+    "explain": "衡量回答是否覆盖问题所需的关键方面，而不是遗漏重要信息。"
+  },
+  {
+    "id": 89,
+    "term": "Traceability",
+    "english": "Traceability",
+    "chinese": "可追溯性",
+    "module": "评估与可追溯性",
+    "explain": "用户能够根据引用或元数据追踪答案依据到具体来源。"
+  },
+  {
+    "id": 90,
+    "term": "Precision@k",
+    "english": "Precision at k",
+    "chinese": "前 k 个结果准确率",
+    "module": "RAG 评估",
+    "explain": "前 k 个检索结果中相关结果所占比例，用于评估检索结果的纯度。"
+  },
+  {
+    "id": 91,
+    "term": "Recall@k",
+    "english": "Recall at k",
+    "chinese": "前 k 个结果召回率",
+    "module": "RAG 评估",
+    "explain": "正确证据是否出现在前 k 个检索结果中，是衡量 RAG 检索是否找得到答案的重要指标。"
+  },
+  {
+    "id": 92,
+    "term": "MRR",
+    "english": "Mean Reciprocal Rank",
+    "chinese": "平均倒数排名",
+    "module": "RAG 评估",
+    "explain": "衡量第一个正确结果出现位置的指标，正确结果越靠前，MRR 越高。"
+  },
+  {
+    "id": 93,
+    "term": "nDCG",
+    "english": "Normalized Discounted Cumulative Gain",
+    "chinese": "归一化折损累计增益",
+    "module": "RAG 评估",
+    "explain": "综合考虑检索结果相关性等级和排序位置的评估指标。"
+  },
+  {
+    "id": 94,
+    "term": "Coverage",
+    "english": "Coverage",
+    "chinese": "覆盖度",
+    "module": "RAG 评估",
+    "explain": "检索结果是否覆盖回答问题所需的主要证据和信息范围。"
+  },
+  {
+    "id": 95,
+    "term": "Test Set",
+    "english": "Test Set",
+    "chinese": "测试集",
+    "module": "RAG 评估",
+    "explain": "用于评估系统表现的一组问题、标准答案和证据，可包含事实型、综合型、多轮和无答案问题。"
+  },
+  {
+    "id": 96,
+    "term": "Gold Answer",
+    "english": "Gold Answer",
+    "chinese": "标准答案",
+    "module": "RAG 评估",
+    "explain": "人工或权威来源给出的参考答案，用于衡量模型回答质量。"
+  },
+  {
+    "id": 97,
+    "term": "Human Review",
+    "english": "Human Review",
+    "chinese": "人工复核",
+    "module": "RAG 评估",
+    "explain": "由人检查模型或评估器结果，以发现自动评分无法识别的问题。"
+  },
+  {
+    "id": 98,
+    "term": "Logging",
+    "english": "Logging",
+    "chinese": "日志记录",
+    "module": "服务化与部署",
+    "explain": "记录输入、输出、耗时、错误、检索结果和用户操作，便于调试、评估和审计。"
+  },
+  {
+    "id": 99,
+    "term": "Caching",
+    "english": "Caching",
+    "chinese": "缓存",
+    "module": "服务化与部署",
+    "explain": "保存常见查询或中间结果，减少重复计算，降低延迟和成本。"
+  },
+  {
+    "id": 100,
+    "term": "Latency",
+    "english": "Latency",
+    "chinese": "延迟",
+    "module": "服务化与部署",
+    "explain": "从用户发起请求到系统返回结果的时间，是衡量在线 RAG 应用体验的重要指标。"
+  },
+  {
+    "id": 101,
+    "term": "Temperature",
+    "english": "Temperature",
+    "chinese": "温度参数",
+    "module": "Prompt 与生成",
+    "explain": "控制模型生成随机性的参数。较低温度通常更稳定，适合事实问答；较高温度更发散。"
+  },
+  {
+    "id": 102,
+    "term": "MVP",
+    "english": "Minimum Viable Product",
+    "chinese": "最小可行产品",
+    "module": "RAG 应用",
+    "explain": "用最少核心功能形成可运行闭环的版本，如文档加载、切分、检索、生成和前端交互。"
+  },
+  {
+    "id": 103,
+    "term": "API Service",
+    "english": "Application Programming Interface Service",
+    "chinese": "API 服务",
+    "module": "服务化与部署",
+    "explain": "把功能封装为可被其他程序调用的服务，便于前后端分离和系统集成。"
+  },
+  {
+    "id": 104,
+    "term": "Frontend",
+    "english": "Frontend",
+    "chinese": "前端",
+    "module": "服务化与部署",
+    "explain": "用户与系统交互的界面，如聊天窗口、表单、按钮和结果展示区域。"
+  },
+  {
+    "id": 105,
+    "term": "State Machine",
+    "english": "State Machine",
+    "chinese": "状态机",
+    "module": "对话状态与管理",
+    "explain": "用明确状态和转移规则管理任务流程，可提升多轮对话和 Agent 行为的可预测性。"
+  },
+  {
+    "id": 106,
+    "term": "Knowledge Base",
+    "english": "Knowledge Base",
+    "chinese": "知识库",
+    "module": "RAG 应用",
+    "explain": "RAG 系统可检索的外部知识集合，可以由论文、手册、网页、数据库或内部文档构成。"
+  }
+]

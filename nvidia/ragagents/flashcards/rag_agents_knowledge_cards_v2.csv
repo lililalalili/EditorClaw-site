@@ -1,0 +1,107 @@
+﻿id,term,english,chinese,module,explain
+1,RAG,Retrieval-Augmented Generation,检索增强生成,RAG 基础,先从外部知识库检索相关证据，再让大语言模型基于这些证据生成回答，用于降低幻觉、增强事实性和可追溯性。
+2,LLM,Large Language Model,大语言模型,RAG 基础,能够理解和生成自然语言的大规模模型，是 RAG 系统中负责理解问题、综合上下文并生成答案的核心组件。
+3,Agent,Agent,智能体,RAG 基础,能够根据目标进行规划、维护状态、调用工具并完成任务的系统，不只是被动回答单个问题。
+4,RAG Agent,Retrieval-Augmented Generation Agent,检索增强生成智能体,RAG 基础,在 RAG 基础上加入任务规划、工具调用、对话状态、追问和护栏等能力的智能系统。
+5,Prompt,Prompt,提示词,Prompt 与生成,给模型的任务说明、上下文、约束和输出格式要求。Prompt 的质量直接影响模型回答的准确性和稳定性。
+6,System Prompt,System Prompt,系统提示词,Prompt 与生成,用于设定模型角色、行为边界、回答风格和安全要求的高优先级提示。
+7,User Prompt,User Prompt,用户提示词,Prompt 与生成,用户输入给系统的具体问题或任务请求，是触发模型推理和检索流程的直接输入。
+8,Context Window,Context Window,上下文窗口,Prompt 与生成,模型一次推理中可以接收和处理的最大文本范围，包括系统提示、对话历史、检索材料和用户问题。
+9,Token,Token,词元 / 标记,Prompt 与生成,模型处理文本的基本单位，可以是词、子词、字符或符号。上下文长度、成本和生成速度通常都与 token 数有关。
+10,Hallucination,Hallucination,幻觉,Prompt 与生成,模型生成看似合理但缺乏事实依据或与材料不符的内容。RAG、引用和评估都旨在减少幻觉。
+11,Grounding,Grounding,证据锚定 / 基于证据生成,Prompt 与生成,要求模型回答必须建立在给定文档、检索结果或数据库证据之上，而不是自由发挥。
+12,Retrieval,Retrieval,检索,检索与向量库,根据用户问题从文档库、数据库或向量库中找出相关材料，是 RAG 的第一步。
+13,Generation,Generation,生成,Prompt 与生成,大语言模型根据 Prompt、问题和上下文生成自然语言答案、摘要、结构化结果或代码的过程。
+14,Retriever,Retriever,检索器,检索与向量库,负责接收查询并返回相关文档片段的组件，可以基于向量、关键词或混合检索。
+15,Chunk,Chunk,文档块 / 文本块,长文档处理,长文档切分后的较小文本片段，用于嵌入、检索和上下文组装。
+16,Chunk Size,Chunk Size,文档块大小,长文档处理,每个文档块包含的字符数或 token 数。过大可能降低检索精度，过小可能破坏语义完整性。
+17,Chunk Overlap,Chunk Overlap,文档块重叠,长文档处理,相邻文档块之间保留的重复文本，用于减少语义被切断的问题。
+18,Semantic Chunking,Semantic Chunking,语义分块,长文档处理,根据段落、标题、主题或语义边界切分文档，而不是机械地按固定长度切分。
+19,Document Loader,Document Loader,文档加载器,长文档处理,读取 PDF、网页、Word、Markdown 或数据库内容并转换为可处理文本的组件。
+20,Text Splitter,Text Splitter,文本切分器,长文档处理,把长文本切成适合嵌入和检索的小块，通常需要配合 chunk size 和 overlap 设置。
+21,Metadata,Metadata,元数据,长文档处理,描述文档块来源的信息，如文件名、标题、页码、章节、年份和作者，用于过滤、引用和追溯。
+22,Embedding,Embedding,嵌入 / 向量表示,嵌入与语义相似性,把文本转换为数字向量，使语义相近的文本在向量空间中距离更近。
+23,Embedding Model,Embedding Model,嵌入模型,嵌入与语义相似性,专门用于把查询或文档编码为向量的模型，是语义检索和向量数据库的基础。
+24,Vector,Vector,向量,嵌入与语义相似性,由一组数字组成的表示形式，用于表达文本在语义空间中的位置。
+25,Vector Space,Vector Space,向量空间,嵌入与语义相似性,文本向量所在的数学空间，语义相似的文本通常在该空间中距离较近。
+26,Vector Store,Vector Store,向量存储,检索与向量库,用于保存文本向量、原文片段和元数据的数据结构或数据库。
+27,Vector Database,Vector Database,向量数据库,检索与向量库,专门支持向量存储、相似性搜索、元数据过滤和大规模近邻检索的数据库。
+28,Similarity Search,Similarity Search,相似性搜索,检索与向量库,根据查询向量寻找最相似的文档向量，从而返回语义相关的文本片段。
+29,Cosine Similarity,Cosine Similarity,余弦相似度,嵌入与语义相似性,衡量两个向量方向相似程度的指标，常用于文本语义相似性计算。
+30,Dot Product,Dot Product,点积,嵌入与语义相似性,一种向量相似性计算方式，可用于衡量查询向量与文档向量的相关程度。
+31,Euclidean Distance,Euclidean Distance,欧氏距离,嵌入与语义相似性,衡量两个向量之间直线距离的指标，距离越小通常表示越相似。
+32,ANN,Approximate Nearest Neighbor,近似最近邻搜索,检索与向量库,在大规模向量集合中快速找到近似最相似结果的方法，用于提升检索效率。
+33,Top-k,Top-k Retrieval,前 k 个结果检索,检索与向量库,返回相似度最高的 k 个文档片段，是 RAG 中最常见的基础检索方式。
+34,MMR,Maximal Marginal Relevance,最大边际相关性,检索与向量库,在相关性和多样性之间取得平衡的检索策略，用于减少返回结果高度重复。
+35,Hybrid Search,Hybrid Search,混合检索,检索与向量库,结合关键词检索和向量检索的方法，既能匹配术语，也能捕捉语义相似性。
+36,Reranking,Reranking,重排序,检索与向量库,对初步检索结果再次排序，提升最相关证据在前列出现的概率。
+37,Query Rewrite,Query Rewriting,查询改写,检索与向量库,把用户问题改写成更适合检索的独立、明确查询，尤其适合多轮对话中的省略和指代。
+38,Multi-turn QA,Multi-turn Question Answering,多轮问答,对话状态与管理,系统在连续对话中理解上下文、指代和任务进度，并持续回答后续问题。
+39,Conversational Memory,Conversational Memory,对话记忆,对话状态与管理,保存对话历史、用户偏好和任务状态，使系统能够在多轮交互中保持连续性。
+40,State,State,状态,对话状态与管理,系统当前保存的任务信息，如用户身份、任务目标、已填字段、历史问题和工具调用结果。
+41,Runtime State,Runtime State,运行时状态,对话状态与管理,链条或智能体在执行过程中动态维护的信息，用于决定下一步动作。
+42,Slot Filling,Slot Filling,槽位填充,对话状态与管理,从用户输入中抽取并补全任务所需字段，如日期、领域、文档范围、输出格式等。
+43,Information Extraction,Information Extraction,信息抽取,对话状态与管理,从自然语言中提取结构化信息，如疾病、方法、作者、数据集、研究类型等。
+44,Structured Output,Structured Output,结构化输出,对话状态与管理,要求模型按 JSON、表格或固定字段输出，便于程序解析、保存和后续调用。
+45,JSON Output,JavaScript Object Notation Output,JSON 格式输出,对话状态与管理,一种轻量级结构化数据格式，常用于让 LLM 输出可被程序读取的字段和值。
+46,Output Parser,Output Parser,输出解析器,LangChain 与服务化,把模型原始输出转换为字符串、JSON、列表或自定义结构的组件。
+47,Intent Classification,Intent Classification,意图分类,对话状态与管理,判断用户输入属于问答、检索、摘要、工具调用、闲聊或拒答等哪类任务。
+48,Tool Calling,Tool Calling,工具调用,智能体与工具,模型或智能体根据任务调用外部工具，如数据库、搜索、计算器、文件读取或 API。
+49,API,Application Programming Interface,应用程序编程接口,服务化与部署,软件系统之间交换请求和结果的接口，RAG 服务通常通过 API 被前端或其他系统调用。
+50,Microservice,Microservice,微服务,服务化与部署,把系统拆分为职责单一、可独立部署和扩展的小服务，如检索服务、模型服务和评估服务。
+51,API Gateway,API Gateway,API 网关,服务化与部署,统一接收外部请求并转发到内部服务的入口，可处理鉴权、路由、限流和日志。
+52,Local Deployment,Local Deployment,本地部署,服务化与部署,在本机、局域网或私有服务器运行模型和系统，适合数据敏感或内网使用场景。
+53,Remote Endpoint,Remote Endpoint,远程接入点,服务化与部署,通过网络访问的模型或服务地址，应用可向其发送请求并接收推理结果。
+54,Cloud API,Cloud Application Programming Interface,云端 API,服务化与部署,由云服务商提供的远程模型接口，便于快速开发和弹性扩展，但需要注意成本和数据合规。
+55,Private Cloud,Private Cloud,私有云,服务化与部署,组织内部或专属环境中的云基础设施，适合合规、权限和内部系统集成要求较高的场景。
+56,Hybrid Deployment,Hybrid Deployment,混合部署,服务化与部署,同时使用本地、私有云和公有云能力，根据数据敏感性和任务需求灵活调度。
+57,LangChain,LangChain,LangChain 框架,LangChain 与服务化,用于构建 LLM 应用的开源框架，支持 Prompt、链条、检索器、工具、记忆和结构化输出。
+58,LCEL,LangChain Expression Language,LangChain 表达语言,LangChain 与服务化,LangChain 中用于把 Prompt、模型、解析器等组件按管道方式组合成可运行链条的表达方式。
+59,Runnable,Runnable,可运行单元,LangChain 与服务化,LangChain 中可被 invoke、stream 或 batch 调用的模块化组件，如 Prompt、模型、检索器或链条。
+60,Chain,Chain,链条,LangChain 与服务化,把多个处理步骤连接起来形成的工作流，例如 Prompt → LLM → Output Parser。
+61,Gradio,Gradio,Gradio 交互界面框架,LangChain 与服务化,快速构建机器学习和 LLM 应用前端的工具，适合演示、教学和内部原型。
+62,LangServe,LangServe,LangChain 服务化工具,LangChain 与服务化,把 LangChain 链条部署为 HTTP API，使前端、脚本和其他服务可以调用。
+63,NGC,NVIDIA GPU Cloud,NVIDIA GPU Cloud,NVIDIA 与课程环境,NVIDIA 提供的模型、容器、资源和软件目录，可用于访问托管模型和 AI 开发资源。
+64,NVIDIA AI Foundation Models,NVIDIA AI Foundation Models,NVIDIA AI 基础模型,NVIDIA 与课程环境,NVIDIA 提供或托管的基础模型服务，可作为远程推理端点用于生成式 AI 应用。
+65,PyTorch,PyTorch,PyTorch 深度学习框架,预备知识,常用深度学习框架，课程要求学习者具备一定 PyTorch 和迁移学习基础。
+66,Transfer Learning,Transfer Learning,迁移学习,预备知识,把已有模型学到的能力迁移到新任务中的方法，是理解现代深度学习和 LLM 应用的重要基础。
+67,Encoder,Encoder,编码器,嵌入与语义相似性,把输入文本转换为内部表示或向量的模型结构，常用于嵌入、分类和检索。
+68,Decoder,Decoder,解码器,嵌入与语义相似性,根据上下文逐步生成文本的模型结构，常见于 GPT 类生成式大模型。
+69,Guardrail,Guardrail,护栏,护栏与安全,限制模型输入输出边界的机制，用于控制安全、合规、任务范围和回答风格。
+70,Semantic Guardrail,Semantic Guardrail,语义护栏,护栏与安全,基于语义相似性、意图分类或嵌入判断请求是否属于允许范围，而不只是关键词过滤。
+71,Refusal,Refusal,拒答,护栏与安全,当请求超出系统范围、缺少证据或存在安全风险时，系统礼貌说明无法回答并给出安全引导。
+72,Safety Boundary,Safety Boundary,安全边界,护栏与安全,系统允许回答和必须拒绝之间的边界，需要由任务目标、政策和风险水平共同决定。
+73,Document QA,Document Question Answering,文档问答,RAG 应用,基于给定文档内容回答用户问题，是 RAG 系统最典型的应用之一。
+74,Long Document Processing,Long Document Processing,长文档处理,长文档处理,处理超过模型上下文窗口的论文、手册或报告，包括切分、摘要、压缩、重构和检索。
+75,Summarization,Summarization,摘要生成,长文档处理,把长文本压缩为保留主要信息的短文本，可用于文档理解、上下文压缩和评估。
+76,Map-Reduce Summarization,Map-Reduce Summarization,Map-Reduce 摘要,长文档处理,先分别总结各文档块，再汇总所有局部摘要生成整体摘要的方法。
+77,Incremental Summarization,Incremental Summarization,增量摘要,长文档处理,逐块处理长文档，并把上一轮摘要与新内容结合，持续更新中间摘要。
+78,While-loop Processing,While-loop Processing,循环式处理,长文档处理,用循环逐步处理长文档或多步骤任务，每轮更新状态直到达到终止条件。
+79,Document Compression,Document Compression,文档压缩,长文档处理,对检索到或输入的文本进行摘要、筛选和重写，以减少上下文长度并突出关键信息。
+80,Context Assembly,Context Assembly,上下文组装,Prompt 与生成,把系统提示、用户问题、对话历史和检索片段组合成最终发送给模型的输入。
+81,Citation,Citation,引用,评估与可追溯性,在答案中标明信息来源，使用户能追溯回答依据。
+82,Source Attribution,Source Attribution,来源归因,评估与可追溯性,明确回答中的信息来自哪个文档、页面、章节或片段，提升可信度和可审查性。
+83,RAG Prompt Template,Retrieval-Augmented Generation Prompt Template,RAG 提示词模板,Prompt 与生成,专门用于把检索上下文和用户问题组织起来，并约束模型只基于材料回答的 Prompt 模板。
+84,No-answer Handling,No-answer Handling,无答案处理,护栏与安全,当给定材料中没有答案时，系统应说明无法确定，而不是编造答案。
+85,Evaluation Chain,Evaluation Chain,评估链,RAG 评估,用于自动评估 RAG 输出质量的链条，可检查准确性、忠实性、完整性和安全性。
+86,Faithfulness,Faithfulness,忠实性,RAG 评估,衡量答案是否严格符合给定上下文，是否包含上下文没有支持的内容。
+87,Answer Accuracy,Answer Accuracy,答案准确性,RAG 评估,衡量回答是否事实正确，并与标准答案或证据一致。
+88,Completeness,Completeness,完整性,RAG 评估,衡量回答是否覆盖问题所需的关键方面，而不是遗漏重要信息。
+89,Traceability,Traceability,可追溯性,评估与可追溯性,用户能够根据引用或元数据追踪答案依据到具体来源。
+90,Precision@k,Precision at k,前 k 个结果准确率,RAG 评估,前 k 个检索结果中相关结果所占比例，用于评估检索结果的纯度。
+91,Recall@k,Recall at k,前 k 个结果召回率,RAG 评估,正确证据是否出现在前 k 个检索结果中，是衡量 RAG 检索是否找得到答案的重要指标。
+92,MRR,Mean Reciprocal Rank,平均倒数排名,RAG 评估,衡量第一个正确结果出现位置的指标，正确结果越靠前，MRR 越高。
+93,nDCG,Normalized Discounted Cumulative Gain,归一化折损累计增益,RAG 评估,综合考虑检索结果相关性等级和排序位置的评估指标。
+94,Coverage,Coverage,覆盖度,RAG 评估,检索结果是否覆盖回答问题所需的主要证据和信息范围。
+95,Test Set,Test Set,测试集,RAG 评估,用于评估系统表现的一组问题、标准答案和证据，可包含事实型、综合型、多轮和无答案问题。
+96,Gold Answer,Gold Answer,标准答案,RAG 评估,人工或权威来源给出的参考答案，用于衡量模型回答质量。
+97,Human Review,Human Review,人工复核,RAG 评估,由人检查模型或评估器结果，以发现自动评分无法识别的问题。
+98,Logging,Logging,日志记录,服务化与部署,记录输入、输出、耗时、错误、检索结果和用户操作，便于调试、评估和审计。
+99,Caching,Caching,缓存,服务化与部署,保存常见查询或中间结果，减少重复计算，降低延迟和成本。
+100,Latency,Latency,延迟,服务化与部署,从用户发起请求到系统返回结果的时间，是衡量在线 RAG 应用体验的重要指标。
+101,Temperature,Temperature,温度参数,Prompt 与生成,控制模型生成随机性的参数。较低温度通常更稳定，适合事实问答；较高温度更发散。
+102,MVP,Minimum Viable Product,最小可行产品,RAG 应用,用最少核心功能形成可运行闭环的版本，如文档加载、切分、检索、生成和前端交互。
+103,API Service,Application Programming Interface Service,API 服务,服务化与部署,把功能封装为可被其他程序调用的服务，便于前后端分离和系统集成。
+104,Frontend,Frontend,前端,服务化与部署,用户与系统交互的界面，如聊天窗口、表单、按钮和结果展示区域。
+105,State Machine,State Machine,状态机,对话状态与管理,用明确状态和转移规则管理任务流程，可提升多轮对话和 Agent 行为的可预测性。
+106,Knowledge Base,Knowledge Base,知识库,RAG 应用,RAG 系统可检索的外部知识集合，可以由论文、手册、网页、数据库或内部文档构成。
