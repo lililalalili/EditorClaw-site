@@ -1,0 +1,16 @@
+flowchart TD
+  A[用户反馈/告警] --> B[问题分类]
+  B --> C[系统故障: Pod/镜像/GPU/PVC]
+  B --> D[性能问题: P95/P99/队列/GPU/top_k]
+  B --> E[质量问题: 召回/rerank/prompt/幻觉]
+  B --> F[安全权限问题: 越权/PII/Prompt Injection]
+  C --> G[kubectl describe/logs/events]
+  D --> H[链路耗时拆解]
+  E --> I[检索生成分离检查]
+  F --> J[权限审计与策略检查]
+  G --> K[修复与回归]
+  H --> K
+  I --> K
+  J --> K
+  K --> L[验证上线: 评估集/压测/监控/回滚]
+  L -.仍异常.-> B

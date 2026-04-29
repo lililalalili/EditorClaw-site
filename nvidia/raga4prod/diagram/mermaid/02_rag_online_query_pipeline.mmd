@@ -1,0 +1,12 @@
+flowchart LR
+  U[User Query] --> G[API Gateway]
+  G --> N[Query Normalize]
+  N --> E[Query Embedding]
+  E --> R[Hybrid Retrieval]
+  R --> V[(Vector Store)]
+  V --> RR[Reranking NIM]
+  RR --> C[Context Assembly]
+  C --> L[LLM NIM]
+  L --> S[Guardrails]
+  S --> A[Answer + Citations]
+  A -.feedback.-> M[Trace/Metrics/Feedback]

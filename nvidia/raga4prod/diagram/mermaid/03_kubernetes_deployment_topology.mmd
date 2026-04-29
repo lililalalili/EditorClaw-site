@@ -1,0 +1,17 @@
+flowchart LR
+  subgraph K[Kubernetes Cluster / rag-prod]
+    I[Ingress/LB] --> A[API Gateway]
+    A --> R[RAG Server Deployment]
+    R --> E[Embedding NIM GPU Pod]
+    R --> RR[Reranking NIM GPU Pod]
+    R --> L[LLM NIM GPU Pod]
+    R --> V[(Vector DB StatefulSet/PVC)]
+    S[Ingestor Server] --> W[Worker/Jobs]
+    W --> E
+    W --> V
+    W --> O[(Object Storage)]
+    C[ConfigMap/Secret] -.-> R
+    M[Prometheus/Grafana] -.metrics.-> R
+    M -.metrics.-> E
+    M -.metrics.-> L
+  end

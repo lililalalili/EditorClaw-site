@@ -1,0 +1,16 @@
+flowchart LR
+  C[Client/App] --> R[RAG Orchestrator]
+  R --> E[Embedding NIM]
+  R --> RR[Reranking NIM]
+  R --> L[LLM NIM]
+  R --> G[Guardrails Service]
+  R -.logs.-> O[Observability]
+  W[Ingestion Worker] --> D[Document/OCR NIM]
+  W --> E
+  E --> V[(Vector DB)]
+  RR --> V
+  D --> V
+  L --> G
+  EV[Evaluator Service] -.metrics.-> O
+  N[NGC / Model Cache] -.pull/cache.-> E
+  N -.pull/cache.-> L

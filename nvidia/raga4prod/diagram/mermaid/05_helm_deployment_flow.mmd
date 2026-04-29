@@ -1,0 +1,12 @@
+flowchart LR
+  A[准备环境: K8s/GPU/Helm/NGC] --> B[添加 Helm Repo]
+  B --> C[编写 values.yaml]
+  C --> D[创建 Secret]
+  D --> E[helm upgrade --install]
+  E --> F[验证 pods/svc/logs/health]
+  F --> G[端到端测试]
+  G --> H[接入监控]
+  H --> I[灰度发布]
+  I --> J{是否异常?}
+  J -- 是 --> K[helm rollback / 恢复版本]
+  J -- 否 --> L[正式上线]

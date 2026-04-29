@@ -1,0 +1,12 @@
+flowchart LR
+  U[User/Role] --> I[IdP/SSO]
+  I --> P[Policy Engine: RBAC/ABAC]
+  P --> Q[Query Request + User Context]
+  Q --> F[Permission Filter / Metadata Filter]
+  F --> V[(Vector DB)]
+  V --> C[Context Guard / 二次检查]
+  C --> L[LLM NIM]
+  L --> G[Prompt Injection Guard]
+  G --> A[Answer with Citations or Refusal]
+  C -.access records.-> AU[Audit Log]
+  G -.output records.-> AU

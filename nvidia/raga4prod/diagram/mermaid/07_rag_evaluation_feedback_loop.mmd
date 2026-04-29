@@ -1,0 +1,11 @@
+flowchart LR
+  A[生产请求日志] --> B[样本抽取]
+  B --> C[专家标注: 标准答案/引用]
+  C --> D[Evaluation Set]
+  D --> E[自动评测]
+  E --> F[质量报告]
+  F --> G[改进策略: chunk/prompt/rerank/model]
+  G --> H[Staging/Canary]
+  H --> A
+  H -.线上反馈.-> I[持续监控]
+  I -.样本回流.-> B

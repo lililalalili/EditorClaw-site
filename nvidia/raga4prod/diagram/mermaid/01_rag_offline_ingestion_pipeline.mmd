@@ -1,0 +1,12 @@
+flowchart LR
+  A[PDF/Word/PPT] --> D[文档解析/OCR]
+  B[Web/Wiki/FAQ] --> D
+  C[Database/Tickets] --> D
+  D --> E[清洗/去重/规范化]
+  E --> F[Chunking]
+  F --> G[Embedding NIM]
+  F --> H[Metadata: 来源/页码/权限/版本]
+  G --> I[Vector Store]
+  H --> I
+  D --> J[Object Storage]
+  I --> K[Ingestion Logs & Audit]

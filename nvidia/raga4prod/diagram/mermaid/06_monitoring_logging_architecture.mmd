@@ -1,0 +1,13 @@
+flowchart LR
+  R[RAG Server] -.metrics.-> P[Prometheus]
+  N[NIM Pods] -.metrics.-> P
+  V[Vector DB] -.metrics.-> P
+  K[K8s Nodes] -.metrics.-> P
+  R -.traces.-> O[OpenTelemetry]
+  R -.logs.-> L[Loki/ELK]
+  P --> G[Grafana]
+  P --> A[Alertmanager]
+  O --> T[Trace UI]
+  L --> W[Data Warehouse]
+  W --> Q[Quality Panel]
+  Q -.eval samples.-> E[Evaluation Set]
