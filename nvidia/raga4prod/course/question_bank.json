@@ -1,0 +1,1265 @@
+[
+  {
+    "id": "q001",
+    "chapter": "第1章",
+    "type": "single",
+    "q": "生产级 RAG 与 Demo 级 RAG 的根本区别是？",
+    "options": [
+      "是否使用 Python",
+      "是否能调用 LLM",
+      "是否具备可扩展、可监控、安全、可评估的运行能力",
+      "是否只能处理 PDF"
+    ],
+    "answer": [
+      2
+    ],
+    "explain": "生产级 RAG 关注真实业务条件下的可靠运行，而不只是功能跑通。"
+  },
+  {
+    "id": "q002",
+    "chapter": "第1章",
+    "type": "multi",
+    "q": "企业级 RAG 通常需要解决哪些问题？",
+    "options": [
+      "知识持续更新",
+      "权限与合规",
+      "答案可追溯",
+      "完全不需要评估"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "企业 RAG 需要处理动态知识、权限、引用和审计；评估反而是必需项。"
+  },
+  {
+    "id": "q003",
+    "chapter": "第1章",
+    "type": "single",
+    "q": "RAG 引入检索系统的主要目的是什么？",
+    "options": [
+      "替代所有数据库",
+      "让模型基于外部证据回答",
+      "让 Kubernetes 自动扩容",
+      "减少所有 GPU 成本为零"
+    ],
+    "answer": [
+      1
+    ],
+    "explain": "RAG 的核心是将外部知识作为证据提供给生成模型。"
+  },
+  {
+    "id": "q004",
+    "chapter": "第1章",
+    "type": "multi",
+    "q": "生产级 RAG 的上线要求通常包括哪些？",
+    "options": [
+      "低延迟",
+      "可回滚",
+      "可审计",
+      "不需要日志"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "低延迟、可回滚和可审计是生产系统要求；日志是运维和审计基础。"
+  },
+  {
+    "id": "q005",
+    "chapter": "第2章",
+    "type": "single",
+    "q": "离线 ingestion pipeline 的主要职责是？",
+    "options": [
+      "响应用户在线问题",
+      "文档解析、切分、向量化和索引构建",
+      "只负责生成最终答案",
+      "只负责用户登录"
+    ],
+    "answer": [
+      1
+    ],
+    "explain": "离线管线把原始数据变成可检索知识库。"
+  },
+  {
+    "id": "q006",
+    "chapter": "第2章",
+    "type": "multi",
+    "q": "一个高质量 chunk 应该关联哪些 metadata？",
+    "options": [
+      "来源文档",
+      "页码或位置",
+      "权限标签",
+      "用户密码"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "来源、位置和权限是重要 metadata；用户密码不应作为 chunk metadata。"
+  },
+  {
+    "id": "q007",
+    "chapter": "第2章",
+    "type": "single",
+    "q": "Context Assembly 指的是？",
+    "options": [
+      "把检索片段组织进 prompt 的过程",
+      "安装 GPU 驱动",
+      "训练基础模型",
+      "删除所有 metadata"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "上下文组装决定哪些证据以什么形式进入模型输入。"
+  },
+  {
+    "id": "q008",
+    "chapter": "第2章",
+    "type": "multi",
+    "q": "在线 query pipeline 可能包含哪些步骤？",
+    "options": [
+      "query embedding",
+      "向量检索",
+      "reranking",
+      "最终答案生成"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些都是典型在线查询链路组成部分。"
+  },
+  {
+    "id": "q009",
+    "chapter": "第3章",
+    "type": "single",
+    "q": "NIM 的主要定位是？",
+    "options": [
+      "文本编辑器",
+      "NVIDIA 面向生产推理部署的微服务形态",
+      "向量数据库品牌",
+      "考试系统"
+    ],
+    "answer": [
+      1
+    ],
+    "explain": "NIM 用于将模型推理能力以生产微服务形式部署。"
+  },
+  {
+    "id": "q010",
+    "chapter": "第3章",
+    "type": "multi",
+    "q": "NeMo Retriever 在 RAG 中常见的能力包括？",
+    "options": [
+      "文本 embedding",
+      "文本 reranking",
+      "提升检索质量",
+      "替代 Kubernetes"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "NeMo Retriever 关注检索增强，不能替代 Kubernetes。"
+  },
+  {
+    "id": "q011",
+    "chapter": "第3章",
+    "type": "single",
+    "q": "Reranking NIM 的作用是？",
+    "options": [
+      "召回所有原始文档",
+      "对候选检索结果进行精排",
+      "创建 namespace",
+      "保存密钥"
+    ],
+    "answer": [
+      1
+    ],
+    "explain": "Reranking NIM 根据 query 与候选片段的匹配程度重新排序。"
+  },
+  {
+    "id": "q012",
+    "chapter": "第3章",
+    "type": "multi",
+    "q": "NIM Operator 的价值包括？",
+    "options": [
+      "管理 NIM 生命周期",
+      "支持模型缓存",
+      "辅助扩缩容",
+      "替代所有评估指标"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "NIM Operator 是 Kubernetes 运维能力，不替代质量评估。"
+  },
+  {
+    "id": "q013",
+    "chapter": "第4章",
+    "type": "single",
+    "q": "Helm 主要用于？",
+    "options": [
+      "Kubernetes 应用包管理与参数化部署",
+      "标注医学图像",
+      "计算 nDCG",
+      "生成密钥明文"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Helm 通过 chart 和 values.yaml 管理 Kubernetes 应用部署。"
+  },
+  {
+    "id": "q014",
+    "chapter": "第4章",
+    "type": "multi",
+    "q": "Kubernetes Secret 适合保存哪些内容？",
+    "options": [
+      "NGC API Key",
+      "数据库密码",
+      "服务 token",
+      "公开课程标题"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "Secret 用于敏感信息；公开课程标题不需要 Secret。"
+  },
+  {
+    "id": "q015",
+    "chapter": "第4章",
+    "type": "single",
+    "q": "Service 在 Kubernetes 中主要解决什么问题？",
+    "options": [
+      "为一组 Pod 提供稳定访问入口",
+      "对答案打分",
+      "把文本变成向量",
+      "创建评估集"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Service 提供稳定地址和负载均衡。"
+  },
+  {
+    "id": "q016",
+    "chapter": "第4章",
+    "type": "multi",
+    "q": "values.yaml 通常可以配置哪些参数？",
+    "options": [
+      "镜像名称",
+      "资源限制",
+      "服务端口",
+      "用户个人密码明文"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "values.yaml 可配置部署参数，但敏感信息应放 Secret。"
+  },
+  {
+    "id": "q017",
+    "chapter": "第5章",
+    "type": "single",
+    "q": "部署前最应先确认的是？",
+    "options": [
+      "是否有可用 Kubernetes/GPU/Helm/NGC 等基础条件",
+      "是否已经写好宣传文案",
+      "是否所有文档都是英文",
+      "是否完全不需要监控"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "基础设施可用性是部署前提。"
+  },
+  {
+    "id": "q018",
+    "chapter": "第5章",
+    "type": "multi",
+    "q": "RAG 部署后可以使用哪些方式验证？",
+    "options": [
+      "kubectl get pods",
+      "kubectl logs",
+      "健康检查接口",
+      "忽略所有错误率"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "Pod 状态、日志和健康检查是基本验证方法。"
+  },
+  {
+    "id": "q019",
+    "chapter": "第5章",
+    "type": "single",
+    "q": "Readiness Probe 的作用是？",
+    "options": [
+      "判断服务是否准备好接收流量",
+      "永久删除服务",
+      "替代向量库",
+      "自动生成教材"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "就绪探针防止未准备好的 Pod 接收流量。"
+  },
+  {
+    "id": "q020",
+    "chapter": "第5章",
+    "type": "multi",
+    "q": "RAG 系统中建议版本化管理哪些对象？",
+    "options": [
+      "模型版本",
+      "prompt 版本",
+      "索引版本",
+      "随机个人密码"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "模型、prompt、索引版本化有助于回滚与排查。"
+  },
+  {
+    "id": "q021",
+    "chapter": "第6章",
+    "type": "single",
+    "q": "P95 latency 表示什么？",
+    "options": [
+      "95% 请求低于该延迟",
+      "95 个请求总延迟",
+      "GPU 型号",
+      "检索准确率"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "P95 是 95th percentile latency。"
+  },
+  {
+    "id": "q022",
+    "chapter": "第6章",
+    "type": "multi",
+    "q": "RAG 请求总延迟可能由哪些阶段构成？",
+    "options": [
+      "query embedding",
+      "vector search",
+      "reranking",
+      "LLM decoding"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些阶段都可能影响总延迟。"
+  },
+  {
+    "id": "q023",
+    "chapter": "第6章",
+    "type": "single",
+    "q": "top_k 设置过大的常见后果是？",
+    "options": [
+      "可能增加噪声与延迟",
+      "一定降低所有成本",
+      "使权限控制自动消失",
+      "不影响任何环节"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "top_k 过大可能引入更多无关片段并增加 rerank 成本。"
+  },
+  {
+    "id": "q024",
+    "chapter": "第6章",
+    "type": "multi",
+    "q": "LLM 推理优化策略包括哪些？",
+    "options": [
+      "限制 max_tokens",
+      "缓存",
+      "批处理",
+      "无限增加上下文且不评估"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "合理限制生成长度、缓存和 batching 都是常见优化方式。"
+  },
+  {
+    "id": "q025",
+    "chapter": "第7章",
+    "type": "single",
+    "q": "Observability 的三类基础数据通常是？",
+    "options": [
+      "metrics、logs、traces",
+      "PDF、Word、Excel",
+      "CPU、鼠标、键盘",
+      "标题、摘要、作者"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "可观测性的三大支柱是指标、日志和链路追踪。"
+  },
+  {
+    "id": "q026",
+    "chapter": "第7章",
+    "type": "multi",
+    "q": "RAG 质量日志建议记录哪些内容？",
+    "options": [
+      "retrieved chunks",
+      "rerank scores",
+      "final answer",
+      "model/prompt/index version"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些记录有助于评估、排查和回归测试。"
+  },
+  {
+    "id": "q027",
+    "chapter": "第7章",
+    "type": "single",
+    "q": "Grafana 的典型作用是？",
+    "options": [
+      "展示监控 dashboard",
+      "替代所有模型",
+      "删除日志",
+      "生成 embedding"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Grafana 常用于指标和日志可视化。"
+  },
+  {
+    "id": "q028",
+    "chapter": "第7章",
+    "type": "multi",
+    "q": "生产监控面板应关注哪些系统指标？",
+    "options": [
+      "错误率",
+      "P95/P99 延迟",
+      "GPU 利用率",
+      "Pod 重启次数"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些指标都有助于判断服务健康度。"
+  },
+  {
+    "id": "q029",
+    "chapter": "第8章",
+    "type": "single",
+    "q": "Recall@k 主要衡量什么？",
+    "options": [
+      "正确证据是否出现在前 K 个结果中",
+      "LLM 是否压缩模型",
+      "服务是否有 Ingress",
+      "密钥是否加密"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Recall@k 衡量检索召回能力。"
+  },
+  {
+    "id": "q030",
+    "chapter": "第8章",
+    "type": "multi",
+    "q": "生成阶段评估可关注哪些指标？",
+    "options": [
+      "Answer Correctness",
+      "Faithfulness",
+      "Citation Accuracy",
+      "Refusal Accuracy"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些都是 RAG 生成质量评估常见指标。"
+  },
+  {
+    "id": "q031",
+    "chapter": "第8章",
+    "type": "single",
+    "q": "Faithfulness 低通常意味着？",
+    "options": [
+      "答案可能没有被上下文支持",
+      "GPU 必然损坏",
+      "Helm chart 不存在",
+      "Pod 数一定过多"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "忠实性低意味着模型可能引入上下文之外的内容。"
+  },
+  {
+    "id": "q032",
+    "chapter": "第8章",
+    "type": "multi",
+    "q": "更新哪些组件后应做回归测试？",
+    "options": [
+      "embedding 模型",
+      "prompt 模板",
+      "chunking 策略",
+      "向量索引"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些变化都可能影响检索和生成质量。"
+  },
+  {
+    "id": "q033",
+    "chapter": "第9章",
+    "type": "single",
+    "q": "为什么 RAG 权限控制不能只做在 UI 层？",
+    "options": [
+      "用户可能通过服务端请求或检索链路间接越权",
+      "UI 永远不显示内容",
+      "模型不需要数据",
+      "metadata 没有作用"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "权限必须进入检索层和上下文组装层。"
+  },
+  {
+    "id": "q034",
+    "chapter": "第9章",
+    "type": "multi",
+    "q": "Prompt Injection 防护可包括哪些措施？",
+    "options": [
+      "把文档内容视为不可信数据",
+      "系统指令与文档内容隔离",
+      "输出 guardrails",
+      "在文档中保存明文密钥"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "明文密钥会增加风险，不是防护措施。"
+  },
+  {
+    "id": "q035",
+    "chapter": "第9章",
+    "type": "single",
+    "q": "PII 指的是？",
+    "options": [
+      "个人可识别信息",
+      "GPU 推理接口",
+      "向量数据库索引",
+      "课程目录"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "PII 是 Personally Identifiable Information。"
+  },
+  {
+    "id": "q036",
+    "chapter": "第9章",
+    "type": "multi",
+    "q": "生产级 RAG 审计日志可记录哪些内容？",
+    "options": [
+      "用户访问时间",
+      "检索到的 chunk ID",
+      "返回引用",
+      "服务版本"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些信息有助于合规、追责和问题排查。"
+  },
+  {
+    "id": "q037",
+    "chapter": "第10章",
+    "type": "single",
+    "q": "ImagePullBackOff 通常说明什么？",
+    "options": [
+      "容器镜像拉取失败",
+      "答案引用准确",
+      "评估集满分",
+      "LLM 生成太短"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "常见原因包括镜像名错误、凭据错误或网络问题。"
+  },
+  {
+    "id": "q038",
+    "chapter": "第10章",
+    "type": "multi",
+    "q": "Pod Pending 可能由哪些原因导致？",
+    "options": [
+      "GPU 资源不足",
+      "PVC 无法绑定",
+      "node selector 不匹配",
+      "答案 faithfulness 太高"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "faithfulness 是质量指标，不会导致 Pod Pending。"
+  },
+  {
+    "id": "q039",
+    "chapter": "第10章",
+    "type": "single",
+    "q": "OOMKilled 的含义是？",
+    "options": [
+      "容器因内存不足被终止",
+      "服务完全成功",
+      "检索结果全部正确",
+      "namespace 创建成功"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "OOMKilled 是 Out Of Memory Killed。"
+  },
+  {
+    "id": "q040",
+    "chapter": "第10章",
+    "type": "multi",
+    "q": "排查答案不准时应检查哪些层面？",
+    "options": [
+      "chunking",
+      "embedding/检索",
+      "rerank",
+      "prompt 与 LLM 生成"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "答案不准可能来自检索链路或生成链路。"
+  },
+  {
+    "id": "q041",
+    "chapter": "第11章",
+    "type": "single",
+    "q": "压力测试主要用于评估什么？",
+    "options": [
+      "系统在并发负载下的吞吐、延迟和错误率",
+      "术语中文翻译",
+      "课程封面设计",
+      "用户头像"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "负载测试用于观察系统在压力下的运行表现。"
+  },
+  {
+    "id": "q042",
+    "chapter": "第11章",
+    "type": "multi",
+    "q": "实验手册中每个实验建议包含哪些部分？",
+    "options": [
+      "实验目标",
+      "操作步骤",
+      "预期结果",
+      "常见问题"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "完整实验应便于执行、验证和排查。"
+  },
+  {
+    "id": "q043",
+    "chapter": "第11章",
+    "type": "single",
+    "q": "Canary Release 指的是？",
+    "options": [
+      "先向小部分流量发布新版本",
+      "同时删除所有旧版本",
+      "不做任何监控",
+      "只在本地 notebook 运行"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "金丝雀发布用于降低新版本风险。"
+  },
+  {
+    "id": "q044",
+    "chapter": "第11章",
+    "type": "multi",
+    "q": "上线演练可包含哪些内容？",
+    "options": [
+      "评估集回归",
+      "监控告警检查",
+      "备份恢复验证",
+      "回滚演练"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些都是上线前重要工程实践。"
+  },
+  {
+    "id": "q045",
+    "chapter": "第12章",
+    "type": "single",
+    "q": "数据飞轮的核心思想是？",
+    "options": [
+      "用日志、反馈和评估持续改进系统",
+      "只训练一次后永不更新",
+      "删除所有用户反馈",
+      "不用记录版本"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "数据飞轮强调从真实使用中持续学习和改进。"
+  },
+  {
+    "id": "q046",
+    "chapter": "第12章",
+    "type": "multi",
+    "q": "生产上线 Checklist 应覆盖哪些维度？",
+    "options": [
+      "架构",
+      "性能",
+      "质量评估",
+      "安全与运维"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "生产上线必须进行多维度检查。"
+  },
+  {
+    "id": "q047",
+    "chapter": "第12章",
+    "type": "single",
+    "q": "Blue-Green Deployment 的主要价值是？",
+    "options": [
+      "通过双环境切换实现快速发布和回滚",
+      "提高 OCR 精度",
+      "生成随机题库",
+      "替代所有测试"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "蓝绿部署通过切换流量降低发布风险。"
+  },
+  {
+    "id": "q048",
+    "chapter": "第12章",
+    "type": "multi",
+    "q": "版本控制在 RAG 中应覆盖哪些内容？",
+    "options": [
+      "代码与配置",
+      "模型与 prompt",
+      "索引与评估集",
+      "公开术语表"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "完整版本记录有助于复现、回滚和排查；术语表也可作为课程资源版本化。"
+  },
+  {
+    "id": "q049",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "如果用户反馈“答案看起来合理但引用不支持结论”，最先应检查哪些环节？",
+    "options": [
+      "citation mapping",
+      "retrieved chunks",
+      "context assembly",
+      "显示器分辨率"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "引用错误通常与检索、上下文组装或引用映射有关。"
+  },
+  {
+    "id": "q050",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "如果 RAG 系统在高峰期 P99 突然升高，可能原因包括？",
+    "options": [
+      "请求排队",
+      "GPU 利用率过高",
+      "rerank 候选集过大",
+      "题库答案太长"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "高尾延迟通常来自排队、资源饱和或链路某阶段耗时增加。"
+  },
+  {
+    "id": "q051",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "如果文档更新后用户仍看到旧答案，应检查哪些？",
+    "options": [
+      "ingestion 是否完成",
+      "索引版本是否更新",
+      "缓存是否失效",
+      "浏览器主题颜色"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "旧答案常由数据摄取、索引或缓存问题造成。"
+  },
+  {
+    "id": "q052",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "为了减少 prompt injection 风险，可以采取哪些措施？",
+    "options": [
+      "在系统提示中声明文档不具备指令权限",
+      "对检索内容做风险扫描",
+      "敏感操作增加人工确认",
+      "无条件执行文档里的所有指令"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "文档内容应作为不可信数据处理。"
+  },
+  {
+    "id": "q053",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "如果 top_k 从 10 增加到 100，可能影响包括？",
+    "options": [
+      "召回可能提高",
+      "rerank 成本可能上升",
+      "上下文噪声可能增加",
+      "GPU 自动免费扩容"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "top_k 需要在召回、噪声和延迟之间平衡。"
+  },
+  {
+    "id": "q054",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "设计 RAG 评估集时应包含哪些问题？",
+    "options": [
+      "不可回答问题",
+      "权限边界问题",
+      "多跳问题",
+      "只有模型训练语料问题"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "评估集应覆盖真实风险和困难场景。"
+  },
+  {
+    "id": "q055",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "Secret 管理不当可能导致哪些风险？",
+    "options": [
+      "密钥泄露",
+      "越权访问",
+      "合规风险",
+      "Recall@k 自动提高"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "Secret 管理影响安全与合规，不会自动提升检索指标。"
+  },
+  {
+    "id": "q056",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "RAG Server 的职责可能包括哪些？",
+    "options": [
+      "调用 embedding 服务",
+      "查询向量数据库",
+      "调用 reranker/LLM",
+      "管理公司工资系统"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "RAG Server 编排 RAG 查询链路。"
+  },
+  {
+    "id": "q057",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "上线前压测应记录哪些指标？",
+    "options": [
+      "QPS",
+      "P95/P99 latency",
+      "error rate",
+      "GPU utilization"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些指标共同反映性能与稳定性。"
+  },
+  {
+    "id": "q058",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "如果 Pod 反复重启，应查看哪些信息？",
+    "options": [
+      "kubectl logs",
+      "kubectl describe pod",
+      "资源限制和环境变量",
+      "答案解析字数"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "日志、事件和配置是排查 CrashLoop 的关键。"
+  },
+  {
+    "id": "q059",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "RAG 质量下降但服务未报错，可能原因包括？",
+    "options": [
+      "索引过期",
+      "prompt 变更",
+      "数据源解析失败",
+      "Grafana logo 颜色变化"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "质量下降不一定表现为服务错误。"
+  },
+  {
+    "id": "q060",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "生产级 RAG 的审计价值包括？",
+    "options": [
+      "追踪用户访问",
+      "复盘错误答案",
+      "满足合规要求",
+      "绕过权限过滤"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "审计是权限和合规的补充，不是绕过机制。"
+  },
+  {
+    "id": "q061",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "选择 chunk 大小时需要权衡哪些因素？",
+    "options": [
+      "上下文完整性",
+      "检索噪声",
+      "token 成本",
+      "键盘布局"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "chunk 大小影响召回、噪声和成本。"
+  },
+  {
+    "id": "q062",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "使用 Helm 部署的优势包括？",
+    "options": [
+      "参数化配置",
+      "跨环境复用",
+      "版本化管理",
+      "自动保证答案正确"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "Helm 管部署，不保证 RAG 答案质量。"
+  },
+  {
+    "id": "q063",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "Reranker 的使用场景包括？",
+    "options": [
+      "初始召回结果较多",
+      "多数据源检索结果需要统一排序",
+      "需要提升上下文相关性",
+      "替代所有权限过滤"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "reranker 不能替代权限控制。"
+  },
+  {
+    "id": "q064",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "监控中发现 GPU 利用率长期很低，可能说明？",
+    "options": [
+      "副本或 GPU 资源过量",
+      "请求批处理不足",
+      "瓶颈在检索或网络而非 LLM",
+      "答案一定正确"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "低 GPU 利用率需要结合全链路指标分析。"
+  },
+  {
+    "id": "q065",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "为了支持回滚，应该保存哪些版本记录？",
+    "options": [
+      "模型版本",
+      "prompt 版本",
+      "索引版本",
+      "部署 chart 版本"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些版本记录有助于复现和回滚。"
+  },
+  {
+    "id": "q066",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "不可回答问题的测试价值是什么？",
+    "options": [
+      "评估拒答能力",
+      "降低幻觉风险",
+      "测试模型是否编造答案",
+      "使系统不再需要引用"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "不可回答问题用于测试系统是否诚实拒答。"
+  },
+  {
+    "id": "q067",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "向量数据库 metadata filter 可用于？",
+    "options": [
+      "权限过滤",
+      "按来源筛选",
+      "按时间版本筛选",
+      "替代 LLM 生成"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "metadata filter 能增强检索控制，但不负责生成。"
+  },
+  {
+    "id": "q068",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "RAG 课程实验的验收标准可包括？",
+    "options": [
+      "服务部署成功",
+      "能导入文档并检索",
+      "能返回带引用答案",
+      "能查看日志和指标"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "实验验收应覆盖功能和运维可见性。"
+  },
+  {
+    "id": "q069",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "导致检索结果不相关的可能原因包括？",
+    "options": [
+      "embedding 模型不适合领域",
+      "chunking 破坏语义",
+      "query 改写不当",
+      "Secret 名称太好看"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "检索质量与模型、chunk 和 query 处理密切相关。"
+  },
+  {
+    "id": "q070",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "数据摄取失败可能影响哪些结果？",
+    "options": [
+      "新文档无法被检索",
+      "索引内容过期",
+      "答案缺失最新信息",
+      "PPT 封面自动变色"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "摄取失败会导致知识库不完整或过期。"
+  },
+  {
+    "id": "q071",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "企业 RAG 合规应关注哪些数据？",
+    "options": [
+      "PII",
+      "客户数据",
+      "未公开科研数据",
+      "公开天气预报页面"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "敏感或内部数据需要更严格的权限和审计。"
+  },
+  {
+    "id": "q072",
+    "chapter": "综合场景",
+    "type": "multi",
+    "q": "LLM-as-a-Judge 的使用注意事项包括？",
+    "options": [
+      "可提升评估效率",
+      "需要抽样人工校验",
+      "评判提示词应稳定",
+      "永远完全替代专家"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "LLM 评判有用，但不应盲目完全替代人工。"
+  }
+]

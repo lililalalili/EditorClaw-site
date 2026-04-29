@@ -1,0 +1,155 @@
+[
+  {
+    "id": "lab01",
+    "title": "实验1：生产级 RAG 架构拆解",
+    "duration": "45 分钟",
+    "objective": "从组件角度理解离线 ingestion 与在线 query 两条管线。",
+    "steps": [
+      "列出你的企业或课程知识库中可能接入的数据源。",
+      "为每类数据源标注文档格式、更新频率、权限要求和解析难点。",
+      "画出 ingestion pipeline：解析、清洗、chunk、embedding、索引。",
+      "画出 query pipeline：问题、检索、rerank、上下文、LLM、引用。",
+      "标出每个组件的输入、输出和失败风险。"
+    ],
+    "validation": "能清楚解释每个组件为什么存在，以及如果该组件失败会造成什么影响。",
+    "pitfalls": [
+      "只画 LLM，不画数据摄取与索引",
+      "忽略权限 metadata",
+      "没有区分离线和在线流程"
+    ]
+  },
+  {
+    "id": "lab02",
+    "title": "实验2：Kubernetes Namespace、Secret 与 ConfigMap 设计",
+    "duration": "60 分钟",
+    "objective": "掌握生产部署中环境隔离、配置管理和密钥管理的基本方法。",
+    "steps": [
+      "设计 rag-dev、rag-staging、rag-prod 三个 namespace。",
+      "列出哪些配置应进入 ConfigMap，哪些应进入 Secret。",
+      "编写一个 values.yaml 草案，包含模型名、top_k、rerank_k 和资源限制。",
+      "设计 NGC API key、数据库密码和服务 token 的存放方式。",
+      "讨论为什么不应把密钥写入 Git 仓库。"
+    ],
+    "validation": "能够说明配置、密钥、环境参数如何分离，并能支持不同环境部署。",
+    "pitfalls": [
+      "把密钥写在 values.yaml 明文中",
+      "dev/staging/prod 共用同一套权限",
+      "缺少版本管理"
+    ]
+  },
+  {
+    "id": "lab03",
+    "title": "实验3：Embedding 与向量索引实验",
+    "duration": "90 分钟",
+    "objective": "理解文档切分、embedding 和向量检索之间的关系。",
+    "steps": [
+      "准备 5–10 篇课程相关文档或段落。",
+      "分别尝试固定长度切分和按标题切分。",
+      "为每个 chunk 生成 metadata：文档名、章节、页码、权限标签。",
+      "模拟生成 embedding 并写入向量库或 JSON 索引。",
+      "设计 10 个查询并观察返回片段是否相关。"
+    ],
+    "validation": "能比较不同 chunking 策略对召回质量的影响。",
+    "pitfalls": [
+      "chunk 过小导致上下文不足",
+      "chunk 过大导致噪声高",
+      "没有保存来源信息"
+    ]
+  },
+  {
+    "id": "lab04",
+    "title": "实验4：Reranking 质量对比",
+    "duration": "60 分钟",
+    "objective": "理解 reranker 如何改善初始召回结果排序。",
+    "steps": [
+      "准备 20 个 query，每个 query 召回 top 20 候选片段。",
+      "人工标注哪些候选片段真正相关。",
+      "比较 rerank 前后 top 5 的相关结果数量。",
+      "记录 Recall@5、Precision@5 和 MRR。",
+      "讨论 rerank 候选数量对质量和延迟的影响。"
+    ],
+    "validation": "能说明 rerank 提升质量的同时也会引入额外延迟。",
+    "pitfalls": [
+      "只看最终答案，不看检索排序",
+      "rerank 候选集过大",
+      "没有评估指标"
+    ]
+  },
+  {
+    "id": "lab05",
+    "title": "实验5：RAG Server 查询链路联调",
+    "duration": "90 分钟",
+    "objective": "模拟 RAG Server 如何编排 embedding、检索、rerank、LLM 和引用。",
+    "steps": [
+      "设计一个 query API 输入输出 JSON 格式。",
+      "模拟调用 query embedding 服务。",
+      "模拟向量库返回候选 chunks。",
+      "模拟 reranker 返回排序分数。",
+      "组装 prompt 并生成带引用答案。",
+      "记录每个阶段 latency。"
+    ],
+    "validation": "能输出答案、引用、latency breakdown 和日志记录。",
+    "pitfalls": [
+      "答案有引用但引用不支持结论",
+      "上下文重复",
+      "没有记录 prompt/index/model 版本"
+    ]
+  },
+  {
+    "id": "lab06",
+    "title": "实验6：Prometheus + Grafana 监控设计",
+    "duration": "75 分钟",
+    "objective": "设计 RAG 生产服务的监控指标与 dashboard。",
+    "steps": [
+      "列出系统指标：QPS、错误率、P95/P99、GPU、显存、Pod 重启。",
+      "列出 RAG 专用指标：retrieval latency、rerank latency、TTFT、tokens/s、citation accuracy。",
+      "设计 dashboard 分区：系统健康、RAG 链路、GPU、质量、告警。",
+      "为每个指标设置一个合理告警阈值草案。",
+      "讨论如何区分系统故障和质量退化。"
+    ],
+    "validation": "形成一张可用于生产团队讨论的监控面板设计表。",
+    "pitfalls": [
+      "只监控服务存活，不监控答案质量",
+      "没有 tail latency",
+      "没有错误率告警"
+    ]
+  },
+  {
+    "id": "lab07",
+    "title": "实验7：RAG 评估集与回归测试",
+    "duration": "90 分钟",
+    "objective": "构建小型 RAG evaluation set，并用于版本回归。",
+    "steps": [
+      "设计 30 个问题，覆盖事实、多跳、不可回答、权限边界和时间敏感问题。",
+      "为每个问题标注标准答案和标准引用。",
+      "运行当前版本 RAG 并记录检索与生成结果。",
+      "计算 Recall@k、Faithfulness、Citation Accuracy。",
+      "模拟 prompt 变更后重新测试并比较差异。"
+    ],
+    "validation": "能输出一份回归测试报告，说明新版本是否可上线。",
+    "pitfalls": [
+      "只有简单问题",
+      "没有不可回答问题",
+      "没有记录版本"
+    ]
+  },
+  {
+    "id": "lab08",
+    "title": "实验8：生产上线 Checklist 演练",
+    "duration": "60 分钟",
+    "objective": "用 checklist 方式完成上线前综合检查。",
+    "steps": [
+      "检查数据源、解析、chunk、metadata 和索引版本。",
+      "检查模型、prompt、RAG server 和 Helm chart 版本。",
+      "检查权限过滤、Secret、网络策略和审计日志。",
+      "检查监控、告警、备份、回滚和灾难恢复预案。",
+      "给出 Go / No-Go 上线建议。"
+    ],
+    "validation": "能够基于证据判断系统是否具备生产上线条件。",
+    "pitfalls": [
+      "只看功能成功，不看安全和回滚",
+      "没有压测结果",
+      "没有评估报告"
+    ]
+  }
+]
