@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RAG Production Flashcards | 生产级 RAG 知识卡片系统</title>
+<style>
+:root{
+  --bg:#f5f7fb;
+  --panel:#ffffff;
+  --text:#172033;
+  --muted:#67728a;
+  --primary:#4f46e5;
+  --primary2:#06b6d4;
+  --good:#16a34a;
+  --bad:#dc2626;
+  --warn:#f59e0b;
+  --line:#e5e7eb;
+  --shadow:0 18px 55px rgba(30,41,59,.12);
+  --radius:22px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Segoe UI","Microsoft YaHei",Arial,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(79,70,229,.16), transparent 34%),
+    radial-gradient(circle at 90% 10%, rgba(6,182,212,.16), transparent 30%),
+    var(--bg);
+  min-height:100vh;
+}
+header{
+  padding:28px 28px 18px;
+  max-width:1280px;
+  margin:0 auto;
+}
+.hero{
+  background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+  border:1px solid rgba(255,255,255,.8);
+  box-shadow:var(--shadow);
+  border-radius:28px;
+  padding:26px;
+  display:grid;
+  grid-template-columns:1.7fr .9fr;
+  gap:20px;
+  backdrop-filter: blur(14px);
+}
+h1{
+  margin:0 0 8px;
+  font-size:34px;
+  letter-spacing:-.03em;
+}
+.subtitle{
+  margin:0;
+  color:var(--muted);
+  line-height:1.7;
+  font-size:15px;
+}
+.stats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.stat{
+  background:rgba(255,255,255,.72);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+}
+.stat b{
+  display:block;
+  font-size:24px;
+  color:var(--primary);
+}
+.stat span{
+  color:var(--muted);
+  font-size:13px;
+}
+main{
+  max-width:1280px;
+  margin:0 auto;
+  padding:0 28px 36px;
+}
+.toolbar{
+  display:grid;
+  grid-template-columns: 1.1fr .85fr .7fr .7fr;
+  gap:12px;
+  margin:18px 0;
+}
+input,select,button{
+  font-family:inherit;
+  font-size:14px;
+}
+input,select{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px 13px;
+  background:rgba(255,255,255,.86);
+  outline:none;
+}
+input:focus,select:focus{border-color:var(--primary); box-shadow:0 0 0 4px rgba(79,70,229,.10)}
+.btnrow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:12px 0 18px;
+}
+button{
+  border:0;
+  border-radius:14px;
+  padding:11px 15px;
+  cursor:pointer;
+  background:var(--panel);
+  color:var(--text);
+  box-shadow:0 6px 18px rgba(15,23,42,.08);
+  border:1px solid var(--line);
+  transition:.18s ease;
+}
+button:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(15,23,42,.12)}
+button.primary{
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  color:white;
+  border-color:transparent;
+}
+button.good{background:#ecfdf5;color:#166534;border-color:#bbf7d0}
+button.bad{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+button.warn{background:#fffbeb;color:#92400e;border-color:#fde68a}
+.layout{
+  display:grid;
+  grid-template-columns: 360px 1fr;
+  gap:18px;
+}
+.sidebar{
+  background:rgba(255,255,255,.88);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+  border-radius:var(--radius);
+  padding:16px;
+  min-height:620px;
+}
+.progressWrap{
+  margin:6px 0 16px;
+}
+.progressText{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+.progressBar{
+  height:10px;
+  background:#e5e7eb;
+  border-radius:999px;
+  overflow:hidden;
+}
+.progressFill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,var(--primary),var(--primary2));
+  transition:.25s ease;
+}
+.chapterList{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  max-height:510px;
+  overflow:auto;
+  padding-right:3px;
+}
+.chapterItem{
+  padding:10px 12px;
+  border-radius:14px;
+  background:#f8fafc;
+  border:1px solid #edf2f7;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+}
+.chapterItem.active{
+  background:#eef2ff;
+  border-color:#c7d2fe;
+  color:#3730a3;
+}
+.chapterItem span:first-child{
+  font-size:13px;
+  line-height:1.35;
+}
+.badge{
+  font-size:12px;
+  color:var(--muted);
+  background:white;
+  padding:3px 8px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  white-space:nowrap;
+}
+.cardArea{
+  background:rgba(255,255,255,.88);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+  border-radius:var(--radius);
+  padding:22px;
+  min-height:620px;
+  display:flex;
+  flex-direction:column;
+}
+.cardTop{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:center;
+  margin-bottom:12px;
+}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  color:#3730a3;
+  background:#eef2ff;
+  border:1px solid #c7d2fe;
+  padding:7px 11px;
+  border-radius:999px;
+  font-size:13px;
+}
+.indexText{color:var(--muted);font-size:13px}
+.flashcard{
+  flex:1;
+  perspective:1200px;
+  min-height:390px;
+}
+.cardInner{
+  position:relative;
+  width:100%;
+  height:100%;
+  min-height:390px;
+  transition:transform .55s;
+  transform-style:preserve-3d;
+}
+.cardInner.flipped{transform:rotateY(180deg)}
+.face{
+  position:absolute;
+  inset:0;
+  backface-visibility:hidden;
+  border-radius:24px;
+  padding:34px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.95), rgba(248,250,252,.94));
+  border:1px solid rgba(226,232,240,1);
+  box-shadow:inset 0 1px 0 white, 0 18px 45px rgba(15,23,42,.08);
+}
+.face.front{
+  text-align:center;
+}
+.face.back{
+  transform:rotateY(180deg);
+  justify-content:flex-start;
+  overflow:auto;
+}
+.term{
+  font-size:58px;
+  font-weight:800;
+  letter-spacing:-.04em;
+  line-height:1.05;
+  margin:0 0 18px;
+  color:#111827;
+}
+.hint{
+  color:var(--muted);
+  font-size:14px;
+}
+.back h2{
+  margin:0 0 14px;
+  font-size:30px;
+  letter-spacing:-.02em;
+}
+.field{
+  padding:13px 0;
+  border-bottom:1px solid var(--line);
+}
+.field:last-child{border-bottom:0}
+.label{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:5px;
+}
+.value{
+  font-size:17px;
+  line-height:1.7;
+}
+.explain{
+  font-size:16px;
+  line-height:1.85;
+}
+.navrow{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-top:18px;
+}
+.navrow button{
+  min-width:108px;
+}
+.gridView{
+  display:none;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.mini{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.mini:hover{transform:translateY(-2px); box-shadow:0 12px 28px rgba(15,23,42,.10)}
+.mini b{display:block;font-size:17px;margin-bottom:6px}
+.mini small{color:var(--muted);line-height:1.4}
+.tagrow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+.tag{
+  font-size:12px;
+  border-radius:999px;
+  padding:4px 8px;
+  background:#f1f5f9;
+  color:#475569;
+}
+.tag.mastered{background:#dcfce7;color:#166534}
+.tag.review{background:#fef3c7;color:#92400e}
+.tag.star{background:#ede9fe;color:#5b21b6}
+.empty{
+  text-align:center;
+  color:var(--muted);
+  padding:60px 16px;
+}
+footer{
+  max-width:1280px;
+  margin:0 auto;
+  padding:0 28px 36px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.7;
+}
+.kbd{
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  padding:2px 6px;
+  border:1px solid var(--line);
+  border-bottom-width:2px;
+  border-radius:6px;
+  background:white;
+}
+@media(max-width:980px){
+  .hero,.layout,.toolbar{grid-template-columns:1fr}
+  .sidebar{min-height:unset}
+  .chapterList{max-height:260px}
+  .grid{grid-template-columns:1fr 1fr}
+  .term{font-size:42px}
+}
+@media(max-width:620px){
+  header,main,footer{padding-left:14px;padding-right:14px}
+  .grid{grid-template-columns:1fr}
+  .face{padding:22px}
+  .cardTop,.navrow{flex-direction:column;align-items:stretch}
+  .btnrow button{flex:1}
+}
+</style>
+</head>
+<body>
+<header>
+  <section class="hero">
+    <div>
+      <h1>生产级 RAG 知识卡片学习系统</h1>
+      <p class="subtitle">
+        基于《Introduction to Deploying RAG Pipelines for Production at Scale》讲义整理。卡片正面为术语/缩写，背面包含英文全称、中文全称和中文解释。
+        支持搜索、章节筛选、随机复习、收藏、掌握状态记录和错题式复习，可离线使用或上传到 GitHub Pages/内网服务器。
+      </p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="totalCards">0</b><span>知识卡片</span></div>
+      <div class="stat"><b id="masteredCount">0</b><span>已掌握</span></div>
+      <div class="stat"><b id="starredCount">0</b><span>已收藏</span></div>
+      <div class="stat"><b id="reviewCount">0</b><span>需复习</span></div>
+    </div>
+  </section>
+</header>
+
+<main>
+  <div class="toolbar">
+    <input id="searchInput" placeholder="搜索术语、英文全称、中文解释，例如 NIM / Helm / 忠实性..." />
+    <select id="chapterSelect"><option value="all">全部章节</option></select>
+    <select id="statusSelect">
+      <option value="all">全部状态</option>
+      <option value="unseen">未标记</option>
+      <option value="mastered">已掌握</option>
+      <option value="review">需复习</option>
+      <option value="starred">已收藏</option>
+    </select>
+    <select id="orderSelect">
+      <option value="normal">顺序学习</option>
+      <option value="random">随机排序</option>
+      <option value="az">术语 A-Z</option>
+    </select>
+  </div>
+
+  <div class="btnrow">
+    <button class="primary" id="flipBtn">翻开 / 隐藏答案</button>
+    <button id="prevBtn">上一张</button>
+    <button id="nextBtn">下一张</button>
+    <button class="good" id="masterBtn">标记已掌握</button>
+    <button class="warn" id="reviewBtn">标记需复习</button>
+    <button id="starBtn">收藏</button>
+    <button id="gridBtn">题库浏览</button>
+    <button class="bad" id="resetBtn">清空进度</button>
+  </div>
+
+  <section class="layout">
+    <aside class="sidebar">
+      <div class="progressWrap">
+        <div class="progressText"><span>学习进度</span><span id="progressLabel">0%</span></div>
+        <div class="progressBar"><div class="progressFill" id="progressFill"></div></div>
+      </div>
+      <div class="chapterList" id="chapterList"></div>
+    </aside>
+
+    <section class="cardArea">
+      <div id="cardView">
+        <div class="cardTop">
+          <span class="pill" id="chapterPill">章节</span>
+          <span class="indexText" id="indexText">0 / 0</span>
+        </div>
+        <div class="flashcard" id="flashcard">
+          <div class="cardInner" id="cardInner">
+            <div class="face front">
+              <p class="term" id="frontTerm">RAG</p>
+              <p class="hint">点击卡片或按 <span class="kbd">Space</span> 翻到背面</p>
+              <div class="tagrow" id="frontTags"></div>
+            </div>
+            <div class="face back">
+              <h2 id="backTerm">RAG</h2>
+              <div class="field">
+                <div class="label">英文全称 / English Full Name</div>
+                <div class="value" id="backEn"></div>
+              </div>
+              <div class="field">
+                <div class="label">中文全称 / Chinese Full Name</div>
+                <div class="value" id="backZh"></div>
+              </div>
+              <div class="field">
+                <div class="label">中文解释 / Explain</div>
+                <div class="explain" id="backExplain"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="navrow">
+          <button id="prevBtn2">← 上一张</button>
+          <button class="primary" id="flipBtn2">翻卡</button>
+          <button id="nextBtn2">下一张 →</button>
+        </div>
+      </div>
+      <div id="gridView" class="gridView">
+        <div class="cardTop">
+          <span class="pill">题库浏览</span>
+          <span class="indexText" id="gridCount"></span>
+        </div>
+        <div class="grid" id="cardGrid"></div>
+      </div>
+    </section>
+  </section>
+</main>
+
+<footer>
+  使用提示：<span class="kbd">Space</span> 翻卡，<span class="kbd">←</span>/<span class="kbd">→</span> 切换卡片。学习进度保存在本机浏览器 localStorage 中；清空浏览器缓存或点击“清空进度”会重置记录。
+</footer>
+
+<script>
+const CARDS = [{"chapter": "第1章 RAG基础与生产化思维", "front": "RAG", "en": "Retrieval-Augmented Generation", "zh": "检索增强生成", "explain": "一种将外部知识检索系统与大语言模型生成能力结合的架构。用户提问后，系统先从知识库中检索相关证据，再把证据作为上下文交给 LLM 生成答案，从而降低幻觉、增强可追溯性，并让模型使用企业最新知识。"}, {"chapter": "第1章 RAG基础与生产化思维", "front": "LLM", "en": "Large Language Model", "zh": "大语言模型", "explain": "基于海量文本训练、能够理解和生成自然语言的模型。在 RAG 中，LLM 负责根据检索到的上下文生成答案，而不是单独依赖参数记忆。"}, {"chapter": "第1章 RAG基础与生产化思维", "front": "PoC", "en": "Proof of Concept", "zh": "概念验证", "explain": "用于验证技术方案是否可行的早期原型。RAG 的 PoC 通常只证明“能回答”，而生产系统还必须满足安全、性能、监控、扩展和质量评估等要求。"}, {"chapter": "第1章 RAG基础与生产化思维", "front": "Production RAG", "en": "Production-Ready Retrieval-Augmented Generation", "zh": "生产级检索增强生成系统", "explain": "能够在真实业务场景中稳定运行的 RAG 系统。它不仅包括检索和生成，还包括数据更新、权限控制、监控告警、质量评估、回滚机制、扩缩容和成本控制。"}, {"chapter": "第1章 RAG基础与生产化思维", "front": "Hallucination", "en": "Hallucination", "zh": "幻觉", "explain": "模型生成看似合理但缺乏事实依据或与证据不一致的内容。RAG 通过引入可检索证据、引用和拒答策略来降低幻觉风险，但不能完全自动消除。"}, {"chapter": "第1章 RAG基础与生产化思维", "front": "Grounding", "en": "Grounding", "zh": "证据锚定/事实落地", "explain": "让模型回答严格基于给定上下文、文档或数据库证据。生产级 RAG 要求答案能够被检索片段支持，并尽量提供引用来源。"}, {"chapter": "第1章 RAG基础与生产化思维", "front": "Citation", "en": "Citation", "zh": "引用/来源标注", "explain": "答案中指向原始知识片段、文档页码或 URL 的来源信息。引用是企业 RAG 的关键能力，有助于审计、溯源和人工核查。"}, {"chapter": "第1章 RAG基础与生产化思维", "front": "Enterprise Knowledge", "en": "Enterprise Knowledge", "zh": "企业知识", "explain": "企业内部文档、制度、科研资料、产品说明、FAQ、工单和数据库等知识资产。RAG 的目标之一是让 LLM 能够在受控权限内使用这些动态知识。"}, {"chapter": "第1章 RAG基础与生产化思维", "front": "Demo RAG", "en": "Demonstration RAG System", "zh": "演示级 RAG 系统", "explain": "以快速展示功能为目的的 RAG 原型，通常文档量小、部署简单、缺少权限控制、监控和自动化评估，不适合直接上线。"}, {"chapter": "第1章 RAG基础与生产化思维", "front": "Scalability", "en": "Scalability", "zh": "可扩展性", "explain": "系统在用户数、文档量、请求量增加时仍能通过横向扩展、资源调度和架构优化保持服务能力。生产级 RAG 必须从设计阶段考虑可扩展性。"}, {"chapter": "第2章 RAG总体架构", "front": "Ingestion Pipeline", "en": "Ingestion Pipeline", "zh": "数据摄取管线", "explain": "把原始数据源转化为可检索知识库的离线或准实时流程，包括文档解析、清洗、切分、embedding 生成、元数据写入和索引构建。"}, {"chapter": "第2章 RAG总体架构", "front": "Query Pipeline", "en": "Query Pipeline", "zh": "查询管线", "explain": "用户提问后的在线处理流程，包括问题改写、向量化、检索、重排序、上下文组装、LLM 生成、引用输出和日志记录。"}, {"chapter": "第2章 RAG总体架构", "front": "Document Parsing", "en": "Document Parsing", "zh": "文档解析", "explain": "从 PDF、Word、HTML、PPT、Excel 等文件中抽取文本、表格、标题层级、图注和结构信息。解析质量直接影响后续检索质量。"}, {"chapter": "第2章 RAG总体架构", "front": "OCR", "en": "Optical Character Recognition", "zh": "光学字符识别", "explain": "从扫描件或图片中识别文字的技术。在 RAG ingestion 中，OCR 用于处理扫描 PDF、图片型文档和纸质资料数字化。"}, {"chapter": "第2章 RAG总体架构", "front": "Chunk", "en": "Text Chunk", "zh": "文本片段", "explain": "文档被切分后的基本检索单元。一个好的 chunk 应包含足够上下文，又不能过大到引入噪声或占用过多 prompt token。"}, {"chapter": "第2章 RAG总体架构", "front": "Chunking", "en": "Text Chunking", "zh": "文本切分", "explain": "将文档按长度、标题、段落、语义或滑动窗口切成多个片段的过程。chunking 策略会显著影响召回率、答案完整性和上下文噪声。"}, {"chapter": "第2章 RAG总体架构", "front": "Semantic Chunking", "en": "Semantic Chunking", "zh": "语义切分", "explain": "根据语义边界而不是固定字符长度切分文本的方法。它有助于保持段落或主题完整性，提高检索结果的可读性和相关性。"}, {"chapter": "第2章 RAG总体架构", "front": "Sliding Window", "en": "Sliding Window Chunking", "zh": "滑动窗口切分", "explain": "相邻 chunk 保留一定重叠文本的切分方式。它可以减少重要信息被切断的问题，但会增加存储量和检索冗余。"}, {"chapter": "第2章 RAG总体架构", "front": "Metadata", "en": "Metadata", "zh": "元数据", "explain": "描述 chunk 或文档属性的信息，如来源、页码、标题层级、版本、更新时间、权限标签和作者。生产级 RAG 依赖 metadata 实现过滤、溯源和权限控制。"}, {"chapter": "第2章 RAG总体架构", "front": "Index", "en": "Search Index", "zh": "检索索引", "explain": "用于快速检索文档或向量的结构。RAG 常用向量索引、关键词索引或混合索引来支持语义和精确匹配。"}, {"chapter": "第2章 RAG总体架构", "front": "Context Assembly", "en": "Context Assembly", "zh": "上下文组装", "explain": "将经过检索和重排序的片段按一定规则组合进 prompt 的过程。需要控制上下文长度、去重、排序、引用标记和权限边界。"}, {"chapter": "第2章 RAG总体架构", "front": "Prompt Template", "en": "Prompt Template", "zh": "提示词模板", "explain": "用于组织系统指令、用户问题、检索上下文和输出格式要求的固定模板。生产系统通常对 prompt 模板进行版本管理和回归测试。"}, {"chapter": "第3章 NVIDIA RAG技术栈", "front": "NIM", "en": "NVIDIA Inference Microservice", "zh": "NVIDIA 推理微服务", "explain": "NVIDIA 提供的模型推理微服务形态，用于将 LLM、embedding、reranking 等模型以可部署、可扩展、面向生产的 API 服务形式运行。"}, {"chapter": "第3章 NVIDIA RAG技术栈", "front": "NVIDIA AI Enterprise", "en": "NVIDIA AI Enterprise", "zh": "NVIDIA 企业级 AI 软件平台", "explain": "NVIDIA 面向企业生产环境提供的软件平台，包含模型部署、推理、微服务、优化和安全更新等能力。NIM 是其中的重要组成部分。"}, {"chapter": "第3章 NVIDIA RAG技术栈", "front": "NeMo Retriever", "en": "NVIDIA NeMo Retriever", "zh": "NVIDIA NeMo 检索组件", "explain": "面向企业检索和 RAG 的 NVIDIA 组件集合，通常包括 embedding、reranking、文档处理和检索相关能力，用于提升 RAG 的召回与排序质量。"}, {"chapter": "第3章 NVIDIA RAG技术栈", "front": "Embedding NIM", "en": "NeMo Retriever Text Embedding NIM", "zh": "文本嵌入 NIM 微服务", "explain": "用于将文档片段和用户问题编码为向量表示的 NIM 服务。它是语义检索、向量数据库构建和 RAG 查询流程的核心组件。"}, {"chapter": "第3章 NVIDIA RAG技术栈", "front": "Reranking NIM", "en": "NeMo Retriever Text Reranking NIM", "zh": "文本重排序 NIM 微服务", "explain": "用于对初始检索结果进行精排的 NIM 服务。它根据 query 与候选 chunk 的匹配程度重新排序，提高最终进入 LLM 的上下文质量。"}, {"chapter": "第3章 NVIDIA RAG技术栈", "front": "RAG Blueprint", "en": "NVIDIA RAG Blueprint", "zh": "NVIDIA RAG 参考蓝图", "explain": "NVIDIA 面向企业 RAG 场景提供的参考架构和部署示例，可作为端到端 RAG 服务、摄取服务和生产部署的起点。"}, {"chapter": "第3章 NVIDIA RAG技术栈", "front": "NIM Operator", "en": "NVIDIA NIM Operator", "zh": "NVIDIA NIM Kubernetes 运维算子", "explain": "用于在 Kubernetes 中管理 NIM 和 NeMo 微服务生命周期的 Operator。它可简化部署、模型缓存、扩缩容和推理服务管理。"}, {"chapter": "第3章 NVIDIA RAG技术栈", "front": "Triton", "en": "NVIDIA Triton Inference Server", "zh": "NVIDIA Triton 推理服务器", "explain": "NVIDIA 的高性能推理服务器，可支持多框架、多模型和生产级推理部署。部分 NIM 服务底层由 Triton 加速。"}, {"chapter": "第3章 NVIDIA RAG技术栈", "front": "OpenAI-Compatible API", "en": "OpenAI-Compatible API", "zh": "兼容 OpenAI 格式的 API", "explain": "指服务接口格式与 OpenAI API 类似，便于已有应用或框架迁移到本地或企业级模型服务。Embedding NIM 等组件可提供类似接口。"}, {"chapter": "第3章 NVIDIA RAG技术栈", "front": "NGC", "en": "NVIDIA GPU Cloud", "zh": "NVIDIA GPU Cloud", "explain": "NVIDIA 提供模型、容器镜像、Helm chart 和 AI 软件资源的平台。部署 NIM 或 RAG Blueprint 时通常需要访问 NGC 镜像和凭据。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "Kubernetes", "en": "Kubernetes", "zh": "容器编排平台", "explain": "用于部署、管理、扩缩容和调度容器化应用的平台。生产级 RAG 通常由多个服务组成，Kubernetes 能统一管理它们的生命周期。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "K8s", "en": "Kubernetes", "zh": "Kubernetes 缩写", "explain": "Kubernetes 的常用缩写，中间的 8 表示 K 与 s 之间有 8 个字母。RAG 生产部署常在 K8s 集群中运行。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "Pod", "en": "Pod", "zh": "Kubernetes 最小调度单元", "explain": "Kubernetes 中运行一个或多个容器的基本单位。NIM 服务、RAG server 或向量数据库通常以 Pod 形式运行。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "Deployment", "en": "Kubernetes Deployment", "zh": "部署控制器", "explain": "用于声明和维护一组 Pod 副本，支持滚动更新、回滚和副本数管理。生产服务通常通过 Deployment 部署。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "Service", "en": "Kubernetes Service", "zh": "服务暴露对象", "explain": "为一组 Pod 提供稳定访问入口和负载均衡。即使 Pod 重启或迁移，Service 地址也可以保持稳定。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "Ingress", "en": "Kubernetes Ingress", "zh": "入口路由", "explain": "用于将集群外部 HTTP/HTTPS 请求路由到内部 Service。RAG 前端或 API 网关通常通过 Ingress 暴露。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "Namespace", "en": "Kubernetes Namespace", "zh": "命名空间", "explain": "Kubernetes 中用于隔离资源的逻辑空间。常用于区分 dev、staging、prod，或隔离不同项目的 RAG 服务。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "ConfigMap", "en": "Kubernetes ConfigMap", "zh": "配置映射", "explain": "用于存放非敏感配置，如模型名称、top_k、日志级别和服务地址。修改 ConfigMap 可降低代码配置耦合。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "Secret", "en": "Kubernetes Secret", "zh": "密钥对象", "explain": "用于存放敏感信息，如 NGC API Key、数据库密码和服务 token。生产系统应避免把密钥明文写入代码或配置文件。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "PVC", "en": "PersistentVolumeClaim", "zh": "持久卷声明", "explain": "Kubernetes 中为应用申请持久化存储的对象。向量数据库、模型缓存和索引文件常需要 PVC。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "Helm", "en": "Helm", "zh": "Kubernetes 应用包管理器", "explain": "用于打包、配置和部署 Kubernetes 应用的工具。Helm chart 可以把多个 YAML 文件参数化，便于不同环境复用。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "Helm Chart", "en": "Helm Chart", "zh": "Helm 应用包", "explain": "一组模板化 Kubernetes 资源文件和默认配置的集合。NIM、RAG server、监控组件都可以通过 Helm Chart 部署。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "values.yaml", "en": "Helm Values File", "zh": "Helm 参数配置文件", "explain": "用于给 Helm chart 提供环境相关参数的文件，例如镜像、资源限制、服务端口、GPU 数量和模型名称。"}, {"chapter": "第4章 Kubernetes与Helm", "front": "GPU Operator", "en": "NVIDIA GPU Operator", "zh": "NVIDIA GPU 运维算子", "explain": "用于在 Kubernetes 中自动化管理 NVIDIA GPU 驱动、容器运行时、设备插件和监控组件，简化 GPU 集群运维。"}, {"chapter": "第5章 端到端部署流程", "front": "RAG Server", "en": "RAG Server", "zh": "RAG 服务端", "explain": "连接用户请求、embedding、向量数据库、reranker 和 LLM 的核心服务。它负责查询编排、上下文组装、生成调用和结果返回。"}, {"chapter": "第5章 端到端部署流程", "front": "Ingestor Server", "en": "Ingestor Server", "zh": "数据摄取服务端", "explain": "负责接收文档、触发解析、切分、embedding 和索引写入的服务。生产部署通常将 ingest 与在线 query 服务分离。"}, {"chapter": "第5章 端到端部署流程", "front": "Model Cache", "en": "Model Cache", "zh": "模型缓存", "explain": "把模型权重预先缓存到节点或共享存储，避免服务启动时反复下载大模型，从而减少冷启动时间和部署失败风险。"}, {"chapter": "第5章 端到端部署流程", "front": "ImagePullBackOff", "en": "ImagePullBackOff", "zh": "镜像拉取失败状态", "explain": "Kubernetes Pod 因无法拉取容器镜像而进入的错误状态。常见原因包括 NGC 凭据错误、镜像名错误或网络访问失败。"}, {"chapter": "第5章 端到端部署流程", "front": "ClusterIP", "en": "ClusterIP Service", "zh": "集群内部服务类型", "explain": "Kubernetes Service 的默认类型，只能在集群内部访问。Embedding NIM、reranker 等内部组件通常使用 ClusterIP。"}, {"chapter": "第5章 端到端部署流程", "front": "Readiness Probe", "en": "Readiness Probe", "zh": "就绪探针", "explain": "用于判断 Pod 是否已准备好接收流量。模型尚未加载完成时，readiness probe 可防止请求过早进入服务。"}, {"chapter": "第5章 端到端部署流程", "front": "Liveness Probe", "en": "Liveness Probe", "zh": "存活探针", "explain": "用于判断容器是否仍正常运行。如果探针失败，Kubernetes 可以自动重启容器。"}, {"chapter": "第5章 端到端部署流程", "front": "Rolling Update", "en": "Rolling Update", "zh": "滚动更新", "explain": "逐步替换旧 Pod 的更新方式，避免服务完全中断。生产 RAG 更新模型或服务时常使用滚动更新。"}, {"chapter": "第5章 端到端部署流程", "front": "Rollback", "en": "Rollback", "zh": "回滚", "explain": "当新版本出现问题时恢复到旧版本的操作。RAG 系统应支持模型、prompt、索引和服务版本的回滚。"}, {"chapter": "第5章 端到端部署流程", "front": "Dev/Staging/Prod", "en": "Development / Staging / Production Environments", "zh": "开发/预发布/生产环境", "explain": "生产化部署常用的多环境流程。开发环境用于调试，预发布用于验证，生产环境面向真实用户。"}, {"chapter": "第6章 性能优化", "front": "QPS", "en": "Queries Per Second", "zh": "每秒查询数", "explain": "衡量系统吞吐能力的指标，表示每秒能处理多少请求。生产级 RAG 需要在目标 QPS 下仍保持可接受延迟。"}, {"chapter": "第6章 性能优化", "front": "P95 Latency", "en": "95th Percentile Latency", "zh": "第 95 百分位延迟", "explain": "95% 请求的响应时间低于该值。相比平均延迟，P95 更能反映多数用户在高负载下的体验。"}, {"chapter": "第6章 性能优化", "front": "P99 Latency", "en": "99th Percentile Latency", "zh": "第 99 百分位延迟", "explain": "99% 请求的响应时间低于该值。P99 反映尾部延迟，对生产服务稳定性和高峰体验很重要。"}, {"chapter": "第6章 性能优化", "front": "TTFT", "en": "Time To First Token", "zh": "首 token 延迟", "explain": "从用户发起请求到模型生成第一个 token 的时间。流式输出场景下，TTFT 是用户体感速度的重要指标。"}, {"chapter": "第6章 性能优化", "front": "Tokens/s", "en": "Tokens Per Second", "zh": "每秒生成 token 数", "explain": "衡量 LLM 解码速度的指标。它影响长答案生成时间，也用于评估模型服务吞吐能力。"}, {"chapter": "第6章 性能优化", "front": "Retrieval Latency", "en": "Retrieval Latency", "zh": "检索延迟", "explain": "从发出检索请求到返回候选文档或 chunk 所需时间。向量库索引、filter、top_k 和数据量都会影响检索延迟。"}, {"chapter": "第6章 性能优化", "front": "Rerank Latency", "en": "Reranking Latency", "zh": "重排序延迟", "explain": "reranker 对候选结果打分并重新排序所需的时间。候选集越大，rerank 延迟通常越高。"}, {"chapter": "第6章 性能优化", "front": "GPU Utilization", "en": "GPU Utilization", "zh": "GPU 利用率", "explain": "GPU 计算资源被使用的比例。过低意味着资源浪费，过高可能导致排队、延迟上升或服务不稳定。"}, {"chapter": "第6章 性能优化", "front": "Batching", "en": "Request Batching", "zh": "请求批处理", "explain": "把多个请求合并成一个批次进行模型推理，以提高 GPU 吞吐。但批处理可能增加单个请求等待时间，需要平衡吞吐和延迟。"}, {"chapter": "第6章 性能优化", "front": "KV Cache", "en": "Key-Value Cache", "zh": "键值缓存", "explain": "LLM 推理中缓存历史 token 的注意力键值，减少重复计算。KV cache 对长上下文和多轮生成性能影响很大。"}, {"chapter": "第6章 性能优化", "front": "Autoscaling", "en": "Autoscaling", "zh": "自动扩缩容", "explain": "根据负载、延迟、GPU 利用率或队列长度自动增加或减少服务副本。生产 RAG 可通过 autoscaling 应对流量波动。"}, {"chapter": "第6章 性能优化", "front": "Cache Hit Rate", "en": "Cache Hit Rate", "zh": "缓存命中率", "explain": "请求能够从缓存中直接获得结果的比例。高命中率可降低延迟和成本，但必须注意缓存失效与权限隔离。"}, {"chapter": "第6章 性能优化", "front": "top_k", "en": "Top-K Retrieval", "zh": "前 K 个检索结果", "explain": "检索阶段返回的候选结果数量。top_k 太小可能漏掉答案，太大则增加噪声、延迟和 rerank 成本。"}, {"chapter": "第6章 性能优化", "front": "rerank_k", "en": "Top-K After Reranking", "zh": "重排序后保留的前 K 个结果", "explain": "reranker 精排后最终进入上下文组装的候选数量。rerank_k 需要结合上下文窗口和答案完整性设置。"}, {"chapter": "第7章 可观测性与监控", "front": "Observability", "en": "Observability", "zh": "可观测性", "explain": "通过指标、日志和链路追踪了解系统内部状态的能力。RAG 可观测性还应包括检索结果、引用、prompt 版本和答案质量。"}, {"chapter": "第7章 可观测性与监控", "front": "Metrics", "en": "Metrics", "zh": "指标", "explain": "系统可量化的运行数据，如 QPS、延迟、错误率、GPU 使用率和 token 吞吐。指标用于监控、告警和容量规划。"}, {"chapter": "第7章 可观测性与监控", "front": "Logs", "en": "Logs", "zh": "日志", "explain": "系统运行过程中记录的事件和上下文信息。RAG 日志应记录 query、检索片段、生成答案、引用、模型版本和错误信息。"}, {"chapter": "第7章 可观测性与监控", "front": "Tracing", "en": "Distributed Tracing", "zh": "分布式链路追踪", "explain": "记录一次请求跨多个服务的调用链和耗时。RAG pipeline 服务多，tracing 有助于定位延迟瓶颈和失败节点。"}, {"chapter": "第7章 可观测性与监控", "front": "Prometheus", "en": "Prometheus", "zh": "Prometheus 指标采集系统", "explain": "常用的开源监控和指标采集工具，可抓取服务指标并支持查询和告警。Kubernetes 和 NIM 部署常与 Prometheus 集成。"}, {"chapter": "第7章 可观测性与监控", "front": "Grafana", "en": "Grafana", "zh": "Grafana 可视化看板", "explain": "用于展示监控指标、日志和告警状态的可视化平台。RAG 生产系统可用 Grafana 展示延迟、错误率和 GPU 使用率。"}, {"chapter": "第7章 可观测性与监控", "front": "OpenTelemetry", "en": "OpenTelemetry", "zh": "开放遥测框架", "explain": "用于统一采集 metrics、logs 和 traces 的开源标准。适合多服务 RAG pipeline 的端到端追踪。"}, {"chapter": "第7章 可观测性与监控", "front": "Alertmanager", "en": "Prometheus Alertmanager", "zh": "告警管理器", "explain": "Prometheus 生态中的告警分发组件，用于根据规则发送告警到邮件、IM 或值班系统。"}, {"chapter": "第7章 可观测性与监控", "front": "ServiceMonitor", "en": "Prometheus ServiceMonitor", "zh": "服务监控配置", "explain": "Prometheus Operator 中用于声明如何抓取 Kubernetes Service 指标的资源对象。NIM metrics 集成常涉及 ServiceMonitor。"}, {"chapter": "第7章 可观测性与监控", "front": "SLO", "en": "Service Level Objective", "zh": "服务等级目标", "explain": "服务需要达到的可量化目标，如 99% 请求 P95 延迟低于 3 秒。生产 RAG 应定义延迟、错误率和可用性 SLO。"}, {"chapter": "第8章 RAG质量评估", "front": "Evaluation Set", "en": "Evaluation Set", "zh": "评估集", "explain": "用于系统性测试 RAG 质量的问题、标准答案和标准引用集合。评估集应包含普通问题、困难问题、不可回答问题和权限边界问题。"}, {"chapter": "第8章 RAG质量评估", "front": "Recall@k", "en": "Recall at K", "zh": "前 K 召回率", "explain": "正确文档或片段是否出现在前 K 个检索结果中的比例。它衡量检索系统是否能把答案相关证据召回。"}, {"chapter": "第8章 RAG质量评估", "front": "Precision@k", "en": "Precision at K", "zh": "前 K 精确率", "explain": "前 K 个检索结果中真正相关结果所占比例。Precision@k 高说明进入上下文的噪声较少。"}, {"chapter": "第8章 RAG质量评估", "front": "MRR", "en": "Mean Reciprocal Rank", "zh": "平均倒数排名", "explain": "衡量第一个相关结果排名位置的指标。相关结果越靠前，MRR 越高，说明检索排序效果越好。"}, {"chapter": "第8章 RAG质量评估", "front": "nDCG", "en": "Normalized Discounted Cumulative Gain", "zh": "归一化折损累计增益", "explain": "衡量排序质量的指标，既考虑相关性等级，也考虑相关结果在列表中的位置。适合评估检索和 rerank 排序。"}, {"chapter": "第8章 RAG质量评估", "front": "Hit Rate", "en": "Hit Rate", "zh": "命中率", "explain": "检索结果中是否至少包含一个正确证据的比例。它是评估 RAG 检索阶段的直观指标。"}, {"chapter": "第8章 RAG质量评估", "front": "Faithfulness", "en": "Faithfulness", "zh": "忠实性", "explain": "答案是否严格由检索上下文支持。faithfulness 低表示模型可能引入了上下文之外的信息或幻觉。"}, {"chapter": "第8章 RAG质量评估", "front": "Answer Correctness", "en": "Answer Correctness", "zh": "答案正确性", "explain": "答案是否准确回答了用户问题。它关注最终输出事实是否正确，可由人工、规则或 LLM-as-judge 辅助评估。"}, {"chapter": "第8章 RAG质量评估", "front": "Citation Accuracy", "en": "Citation Accuracy", "zh": "引用准确性", "explain": "答案引用的来源是否真正支持对应结论。生产级 RAG 不仅要给出引用，还要保证引用与答案内容匹配。"}, {"chapter": "第8章 RAG质量评估", "front": "Refusal Accuracy", "en": "Refusal Accuracy", "zh": "拒答准确性", "explain": "当知识库中没有足够证据、用户越权或问题不可回答时，系统是否正确拒答。它是安全和可靠 RAG 的重要指标。"}, {"chapter": "第8章 RAG质量评估", "front": "LLM-as-a-Judge", "en": "Large Language Model as a Judge", "zh": "以大模型作为评判器", "explain": "使用另一个 LLM 对答案质量、忠实性、完整性或引用准确性进行评估的方法。它能提高评估效率，但需要抽样人工校验。"}, {"chapter": "第8章 RAG质量评估", "front": "Regression Testing", "en": "Regression Testing", "zh": "回归测试", "explain": "在模型、prompt、索引、chunking 或数据更新后重新运行评估集，确认新版本没有破坏已有能力。"}, {"chapter": "第9章 安全、权限与合规", "front": "RBAC", "en": "Role-Based Access Control", "zh": "基于角色的访问控制", "explain": "根据用户角色分配权限的安全机制。生产 RAG 中，RBAC 可用于控制谁能访问哪些文档、服务和管理功能。"}, {"chapter": "第9章 安全、权限与合规", "front": "ABAC", "en": "Attribute-Based Access Control", "zh": "基于属性的访问控制", "explain": "根据用户、资源、环境等属性动态决定访问权限。例如部门、项目、文档密级和地区都可作为访问属性。"}, {"chapter": "第9章 安全、权限与合规", "front": "Permission Filter", "en": "Permission Filter", "zh": "权限过滤", "explain": "检索或上下文组装时根据用户权限过滤不可访问的 chunk。生产 RAG 必须在检索层和生成前双重执行权限检查。"}, {"chapter": "第9章 安全、权限与合规", "front": "Prompt Injection", "en": "Prompt Injection", "zh": "提示注入攻击", "explain": "攻击者通过用户输入或被检索文档中的恶意指令诱导模型忽略系统规则、泄露信息或执行不安全行为。RAG 尤其需要防御文档型 prompt injection。"}, {"chapter": "第9章 安全、权限与合规", "front": "PII", "en": "Personally Identifiable Information", "zh": "个人可识别信息", "explain": "可识别个人身份的信息，如姓名、电话、邮箱、身份证号、地址和病历编号。RAG 系统处理 PII 时需要脱敏、权限和审计。"}, {"chapter": "第9章 安全、权限与合规", "front": "Data Leakage", "en": "Data Leakage", "zh": "数据泄露", "explain": "敏感信息被未授权用户、外部服务或日志系统获取的事件。RAG 中常见泄露风险包括越权检索、prompt 注入和日志记录过度。"}, {"chapter": "第9章 安全、权限与合规", "front": "Audit Log", "en": "Audit Log", "zh": "审计日志", "explain": "记录谁在何时访问了哪些数据、发起了哪些操作、系统返回了哪些引用的日志。审计日志是企业合规和追责的重要依据。"}, {"chapter": "第9章 安全、权限与合规", "front": "KMS", "en": "Key Management Service", "zh": "密钥管理服务", "explain": "用于集中管理加密密钥和敏感凭据的服务。生产 RAG 可通过 KMS 管理数据库密码、API key 和证书。"}, {"chapter": "第9章 安全、权限与合规", "front": "Vault", "en": "HashiCorp Vault / Secret Vault", "zh": "密钥保险库", "explain": "用于安全存储、访问和轮换密钥的系统。相比在配置文件中写明文密钥，Vault 更适合企业生产环境。"}, {"chapter": "第9章 安全、权限与合规", "front": "Network Policy", "en": "Kubernetes Network Policy", "zh": "网络策略", "explain": "Kubernetes 中控制 Pod 间网络访问的机制。可限制只有 RAG server 能访问 embedding、reranker 或向量数据库服务。"}, {"chapter": "第9章 安全、权限与合规", "front": "Guardrails", "en": "AI Guardrails", "zh": "AI 安全护栏", "explain": "对模型输入、输出和行为施加安全约束的机制，包括敏感内容检测、拒答策略、格式约束和工具调用限制。"}, {"chapter": "第10章 故障排查", "front": "Pod Pending", "en": "Pod Pending State", "zh": "Pod 挂起状态", "explain": "Pod 已创建但尚未成功调度或运行。常见原因包括 GPU 不足、PVC 无法绑定、资源请求过高或节点选择器不匹配。"}, {"chapter": "第10章 故障排查", "front": "CrashLoopBackOff", "en": "CrashLoopBackOff", "zh": "容器反复崩溃重启状态", "explain": "容器启动后不断崩溃，Kubernetes 反复重启并逐渐延长等待时间。常由配置错误、依赖不可用或模型加载失败引起。"}, {"chapter": "第10章 故障排查", "front": "OOMKilled", "en": "Out Of Memory Killed", "zh": "内存不足被杀死", "explain": "容器因超过内存限制而被系统终止。LLM、embedding 或 reranker 服务在模型加载或高并发时可能出现 OOM。"}, {"chapter": "第10章 故障排查", "front": "Timeout", "en": "Request Timeout", "zh": "请求超时", "explain": "请求在指定时间内未完成。RAG 超时可能来自检索慢、rerank 候选过多、LLM 生成过长或服务排队。"}, {"chapter": "第10章 故障排查", "front": "Cold Start", "en": "Cold Start", "zh": "冷启动", "explain": "服务从未运行状态启动到可接收请求所需的过程。模型下载、权重加载和 GPU 初始化都会导致冷启动时间较长。"}, {"chapter": "第10章 故障排查", "front": "Health Check", "en": "Health Check", "zh": "健康检查", "explain": "用于检测服务是否正常运行的机制。Kubernetes 中通常通过 readiness 和 liveness probe 实现健康检查。"}, {"chapter": "第10章 故障排查", "front": "Resource Requests", "en": "Kubernetes Resource Requests", "zh": "资源请求", "explain": "Pod 向 Kubernetes 声明启动所需的最小 CPU、内存或 GPU 资源。调度器根据 requests 决定 Pod 能否放到某个节点。"}, {"chapter": "第10章 故障排查", "front": "Resource Limits", "en": "Kubernetes Resource Limits", "zh": "资源限制", "explain": "Pod 可使用资源的上限。limit 过低可能导致 OOM 或性能受限，过高可能降低集群资源利用率。"}, {"chapter": "第11章 实验与工程实践", "front": "Load Testing", "en": "Load Testing", "zh": "负载测试", "explain": "在模拟并发和流量下测试系统性能。RAG 负载测试应记录 QPS、P95/P99、错误率、GPU 使用率和各阶段耗时。"}, {"chapter": "第11章 实验与工程实践", "front": "k6", "en": "k6 Load Testing Tool", "zh": "k6 负载测试工具", "explain": "常用的开源负载测试工具，可用脚本模拟 HTTP 请求。适合测试 RAG API 的并发性能和延迟分布。"}, {"chapter": "第11章 实验与工程实践", "front": "Locust", "en": "Locust Load Testing Tool", "zh": "Locust 负载测试工具", "explain": "基于 Python 的负载测试工具，可以模拟用户行为。适合构造更复杂的 RAG 查询测试场景。"}, {"chapter": "第11章 实验与工程实践", "front": "CI/CD", "en": "Continuous Integration / Continuous Delivery", "zh": "持续集成/持续交付", "explain": "自动化构建、测试、部署和发布的软件工程流程。生产 RAG 可将评估集回归测试纳入 CI/CD。"}, {"chapter": "第11章 实验与工程实践", "front": "Canary Release", "en": "Canary Release", "zh": "金丝雀发布", "explain": "将新版本先提供给一小部分流量，观察质量和稳定性后再扩大范围。适合 RAG 模型、prompt 或检索策略更新。"}, {"chapter": "第11章 实验与工程实践", "front": "Blue-Green Deployment", "en": "Blue-Green Deployment", "zh": "蓝绿部署", "explain": "同时维护旧版和新版两个环境，通过切换流量实现快速发布和回滚。适合对停机时间要求高的 RAG 服务。"}, {"chapter": "第11章 实验与工程实践", "front": "Index Version", "en": "Index Version", "zh": "索引版本", "explain": "向量索引或检索索引的版本号。记录 index version 有助于追踪答案变化和支持索引回滚。"}, {"chapter": "第11章 实验与工程实践", "front": "Prompt Version", "en": "Prompt Version", "zh": "提示词版本", "explain": "prompt 模板的版本号。生产系统应记录每次请求使用的 prompt version，便于回归测试和问题定位。"}, {"chapter": "第12章 生产部署Checklist", "front": "SLA", "en": "Service Level Agreement", "zh": "服务等级协议", "explain": "对服务可用性、响应时间等指标的正式承诺。面向客户或业务部门的 RAG 服务可能需要定义 SLA。"}, {"chapter": "第12章 生产部署Checklist", "front": "Backup", "en": "Backup", "zh": "备份", "explain": "对向量数据库、原始文档、metadata、配置和评估集进行定期复制保存。备份是灾难恢复和误删恢复的基础。"}, {"chapter": "第12章 生产部署Checklist", "front": "Disaster Recovery", "en": "Disaster Recovery", "zh": "灾难恢复", "explain": "在硬件故障、数据损坏、机房中断或错误发布后恢复服务的能力。RAG 应有索引重建、数据恢复和服务切换方案。"}, {"chapter": "第12章 生产部署Checklist", "front": "Cost Control", "en": "Cost Control", "zh": "成本控制", "explain": "通过模型选择、缓存、批处理、资源配额、自动扩缩容和监控来控制 GPU、存储和网络成本。"}, {"chapter": "第12章 生产部署Checklist", "front": "Human-in-the-Loop", "en": "Human-in-the-Loop", "zh": "人在回路", "explain": "在高风险场景中引入人工审核或确认，例如敏感答案发布、权限变更和关键业务操作。"}, {"chapter": "第12章 生产部署Checklist", "front": "Data Flywheel", "en": "Data Flywheel", "zh": "数据飞轮", "explain": "通过用户反馈、错误分析、日志审计和评估集更新持续改进 RAG 系统的闭环机制。"}, {"chapter": "第12章 生产部署Checklist", "front": "A/B Testing", "en": "A/B Testing", "zh": "A/B 测试", "explain": "将不同用户流量分配到不同版本，比较检索策略、prompt、模型或 reranker 的实际效果。"}, {"chapter": "第12章 生产部署Checklist", "front": "Version Control", "en": "Version Control", "zh": "版本控制", "explain": "对代码、配置、prompt、模型、索引和评估集进行版本化管理。生产 RAG 的可复现性依赖完整版本记录。"}];
+
+const STORAGE_KEY = "rag_production_flashcards_progress_v1";
+let progress = loadProgress();
+let currentList = [];
+let currentIndex = 0;
+let flipped = false;
+let gridMode = false;
+let activeChapter = "all";
+
+function loadProgress(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch(e){ return {}; }
+}
+function saveProgress(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+}
+function stateOf(id){
+  return progress[id] || {};
+}
+function cardId(card){
+  return card.front + "|" + card.en;
+}
+function setState(card, patch){
+  const id = cardId(card);
+  progress[id] = Object.assign({}, progress[id] || {}, patch, {lastSeen: Date.now()});
+  saveProgress();
+  renderStats();
+  renderCard();
+  renderChapters();
+  if(gridMode) renderGrid();
+}
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function chapters(){
+  const map = new Map();
+  CARDS.forEach(c => map.set(c.chapter, (map.get(c.chapter)||0)+1));
+  return [...map.entries()];
+}
+function initChapters(){
+  const select = document.getElementById("chapterSelect");
+  chapters().forEach(([ch,count])=>{
+    const opt = document.createElement("option");
+    opt.value = ch;
+    opt.textContent = `${ch}（${count}）`;
+    select.appendChild(opt);
+  });
+}
+function applyFilters(){
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const chapter = document.getElementById("chapterSelect").value;
+  const status = document.getElementById("statusSelect").value;
+  const order = document.getElementById("orderSelect").value;
+  activeChapter = chapter;
+
+  let list = CARDS.filter(c=>{
+    const id = cardId(c);
+    const st = stateOf(id);
+    const text = [c.chapter,c.front,c.en,c.zh,c.explain].join(" ").toLowerCase();
+    if(chapter !== "all" && c.chapter !== chapter) return false;
+    if(q && !text.includes(q)) return false;
+    if(status === "mastered" && !st.mastered) return false;
+    if(status === "review" && !st.review) return false;
+    if(status === "starred" && !st.starred) return false;
+    if(status === "unseen" && (st.mastered || st.review || st.starred)) return false;
+    return true;
+  });
+
+  if(order === "random") list = shuffle(list);
+  if(order === "az") list.sort((a,b)=>a.front.localeCompare(b.front));
+
+  currentList = list;
+  if(currentIndex >= currentList.length) currentIndex = 0;
+  flipped = false;
+  renderCard();
+  renderChapters();
+  if(gridMode) renderGrid();
+}
+function renderStats(){
+  document.getElementById("totalCards").textContent = CARDS.length;
+  let mastered=0, starred=0, review=0;
+  CARDS.forEach(c=>{
+    const st=stateOf(cardId(c));
+    if(st.mastered) mastered++;
+    if(st.starred) starred++;
+    if(st.review) review++;
+  });
+  document.getElementById("masteredCount").textContent = mastered;
+  document.getElementById("starredCount").textContent = starred;
+  document.getElementById("reviewCount").textContent = review;
+  const pct = Math.round(mastered / CARDS.length * 100);
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressLabel").textContent = pct + "%";
+}
+function renderChapters(){
+  const el = document.getElementById("chapterList");
+  el.innerHTML = "";
+  const all = document.createElement("div");
+  all.className = "chapterItem" + (activeChapter==="all" ? " active" : "");
+  all.innerHTML = `<span>全部章节</span><span class="badge">${CARDS.length}</span>`;
+  all.onclick = ()=>{document.getElementById("chapterSelect").value="all"; currentIndex=0; applyFilters();};
+  el.appendChild(all);
+
+  chapters().forEach(([ch,count])=>{
+    const item=document.createElement("div");
+    item.className = "chapterItem" + (activeChapter===ch ? " active" : "");
+    item.innerHTML = `<span>${ch}</span><span class="badge">${count}</span>`;
+    item.onclick = ()=>{document.getElementById("chapterSelect").value=ch; currentIndex=0; applyFilters();};
+    el.appendChild(item);
+  });
+}
+function tagsFor(card){
+  const st = stateOf(cardId(card));
+  const tags = [];
+  if(st.mastered) tags.push(`<span class="tag mastered">已掌握</span>`);
+  if(st.review) tags.push(`<span class="tag review">需复习</span>`);
+  if(st.starred) tags.push(`<span class="tag star">已收藏</span>`);
+  if(!tags.length) tags.push(`<span class="tag">未标记</span>`);
+  return tags.join("");
+}
+function renderCard(){
+  const inner = document.getElementById("cardInner");
+  inner.classList.toggle("flipped", flipped);
+  if(!currentList.length){
+    document.getElementById("cardView").style.display = gridMode ? "none" : "block";
+    document.getElementById("frontTerm").textContent = "无结果";
+    document.getElementById("backTerm").textContent = "无结果";
+    document.getElementById("backEn").textContent = "";
+    document.getElementById("backZh").textContent = "";
+    document.getElementById("backExplain").textContent = "请调整搜索或筛选条件。";
+    document.getElementById("chapterPill").textContent = "无匹配卡片";
+    document.getElementById("indexText").textContent = "0 / 0";
+    document.getElementById("frontTags").innerHTML = "";
+    return;
+  }
+  const card = currentList[currentIndex];
+  document.getElementById("frontTerm").textContent = card.front;
+  document.getElementById("backTerm").textContent = card.front;
+  document.getElementById("backEn").textContent = card.en;
+  document.getElementById("backZh").textContent = card.zh;
+  document.getElementById("backExplain").textContent = card.explain;
+  document.getElementById("chapterPill").textContent = card.chapter;
+  document.getElementById("indexText").textContent = `${currentIndex + 1} / ${currentList.length}`;
+  document.getElementById("frontTags").innerHTML = tagsFor(card);
+}
+function renderGrid(){
+  const grid = document.getElementById("cardGrid");
+  const count = document.getElementById("gridCount");
+  count.textContent = `${currentList.length} 张卡片`;
+  grid.innerHTML = "";
+  if(!currentList.length){
+    grid.innerHTML = `<div class="empty">没有匹配的卡片。</div>`;
+    return;
+  }
+  currentList.forEach((c,i)=>{
+    const mini=document.createElement("div");
+    mini.className="mini";
+    mini.innerHTML = `<b>${escapeHtml(c.front)}</b><small>${escapeHtml(c.en)}<br>${escapeHtml(c.zh)}</small><div class="tagrow">${tagsFor(c)}</div>`;
+    mini.onclick=()=>{
+      currentIndex=i;
+      gridMode=false;
+      document.getElementById("gridView").style.display="none";
+      document.getElementById("cardView").style.display="block";
+      flipped=false;
+      renderCard();
+    };
+    grid.appendChild(mini);
+  });
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+function next(){
+  if(!currentList.length) return;
+  currentIndex = (currentIndex + 1) % currentList.length;
+  flipped = false;
+  renderCard();
+}
+function prev(){
+  if(!currentList.length) return;
+  currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
+  flipped = false;
+  renderCard();
+}
+function flip(){
+  flipped = !flipped;
+  renderCard();
+}
+function currentCard(){ return currentList[currentIndex]; }
+
+document.getElementById("searchInput").addEventListener("input", ()=>{currentIndex=0;applyFilters();});
+document.getElementById("chapterSelect").addEventListener("change", ()=>{currentIndex=0;applyFilters();});
+document.getElementById("statusSelect").addEventListener("change", ()=>{currentIndex=0;applyFilters();});
+document.getElementById("orderSelect").addEventListener("change", ()=>{currentIndex=0;applyFilters();});
+
+["flipBtn","flipBtn2"].forEach(id=>document.getElementById(id).onclick=flip);
+["nextBtn","nextBtn2"].forEach(id=>document.getElementById(id).onclick=next);
+["prevBtn","prevBtn2"].forEach(id=>document.getElementById(id).onclick=prev);
+
+document.getElementById("flashcard").onclick = flip;
+document.getElementById("masterBtn").onclick = ()=>{
+  const c=currentCard(); if(!c) return;
+  const st=stateOf(cardId(c));
+  setState(c,{mastered:!st.mastered, review:false});
+};
+document.getElementById("reviewBtn").onclick = ()=>{
+  const c=currentCard(); if(!c) return;
+  const st=stateOf(cardId(c));
+  setState(c,{review:!st.review, mastered:false});
+};
+document.getElementById("starBtn").onclick = ()=>{
+  const c=currentCard(); if(!c) return;
+  const st=stateOf(cardId(c));
+  setState(c,{starred:!st.starred});
+};
+document.getElementById("gridBtn").onclick = ()=>{
+  gridMode=!gridMode;
+  document.getElementById("gridView").style.display = gridMode ? "block" : "none";
+  document.getElementById("cardView").style.display = gridMode ? "none" : "block";
+  if(gridMode) renderGrid();
+};
+document.getElementById("resetBtn").onclick = ()=>{
+  if(confirm("确定要清空所有学习进度、收藏和复习标记吗？")){
+    progress={};
+    saveProgress();
+    renderStats();
+    renderCard();
+    renderChapters();
+    if(gridMode) renderGrid();
+  }
+};
+
+document.addEventListener("keydown", (e)=>{
+  if(e.target && ["INPUT","SELECT","TEXTAREA"].includes(e.target.tagName)) return;
+  if(e.code === "Space"){ e.preventDefault(); flip(); }
+  if(e.code === "ArrowRight"){ next(); }
+  if(e.code === "ArrowLeft"){ prev(); }
+});
+
+initChapters();
+renderStats();
+applyFilters();
+</script>
+</body>
+</html>
