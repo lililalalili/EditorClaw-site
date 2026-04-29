@@ -1,0 +1,2058 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RAG 生产规模部署：在线刷题与模拟考试系统</title>
+<style>
+:root {
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --text: #172033;
+  --muted: #64748b;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --accent: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --border: #e2e8f0;
+  --soft: #eef4ff;
+  --shadow: 0 14px 40px rgba(15, 23, 42, .08);
+  --radius: 18px;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif; background: var(--bg); color: var(--text); }
+.app-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 58%, #2563eb 100%); color: white; padding: 34px 24px 28px; }
+.header-inner { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr .8fr; gap: 22px; align-items: end; }
+h1 { margin: 0 0 10px; font-size: clamp(28px, 4vw, 46px); line-height: 1.12; letter-spacing: -0.04em; }
+.subtitle { margin: 0; color: rgba(255,255,255,.82); font-size: 16px; line-height: 1.7; }
+.header-card { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-radius: var(--radius); padding: 18px; backdrop-filter: blur(8px); }
+.header-card strong { display: block; font-size: 24px; margin-bottom: 6px; }
+.container { max-width: 1180px; margin: -24px auto 40px; padding: 0 20px; }
+.toolbar { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 10px; margin-bottom: 18px; }
+button, select, input { font-family: inherit; }
+.btn { border: 0; border-radius: 14px; padding: 12px 14px; font-weight: 700; cursor: pointer; transition: .16s ease; background: #e2e8f0; color: #0f172a; }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(15,23,42,.1); }
+.btn.primary { background: var(--primary); color: white; }
+.btn.primary:hover { background: var(--primary-dark); }
+.btn.green { background: var(--accent); color: white; }
+.btn.red { background: var(--danger); color: white; }
+.btn.ghost { background: #f8fafc; border: 1px solid var(--border); }
+.grid { display: grid; grid-template-columns: 280px 1fr; gap: 18px; }
+.panel, .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.panel { padding: 16px; align-self: start; position: sticky; top: 16px; }
+.panel h3, .card h2, .card h3 { margin-top: 0; }
+.stat { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border); color: var(--muted); }
+.stat b { color: var(--text); }
+.mode-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: var(--soft); color: #1e40af; font-size: 13px; font-weight: 700; }
+.filters { display: grid; gap: 10px; margin-top: 14px; }
+.filters label { font-size: 13px; color: var(--muted); font-weight: 700; }
+.filters select, .filters input { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: white; }
+.card { padding: 22px; min-height: 520px; }
+.question-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.pill { font-size: 12px; background: #f1f5f9; color: #334155; border-radius: 999px; padding: 6px 10px; font-weight: 700; }
+.pill.single { background: #ecfeff; color: #0e7490; }
+.pill.multiple { background: #fef3c7; color: #92400e; }
+.q-title { font-size: 22px; line-height: 1.55; margin: 12px 0 20px; }
+.option { display: grid; grid-template-columns: 28px 1fr; align-items: start; gap: 12px; padding: 14px 14px; border: 1.5px solid var(--border); border-radius: 14px; margin: 10px 0; cursor: pointer; background: #fff; transition: .12s; }
+.option:hover { border-color: #93c5fd; background: #f8fbff; }
+.option input { margin-top: 4px; transform: scale(1.15); }
+.option.correct { border-color: #34d399; background: #ecfdf5; }
+.option.wrong { border-color: #f87171; background: #fef2f2; }
+.option.missed { border-color: #fbbf24; background: #fffbeb; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.feedback { margin-top: 18px; padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: #f8fafc; display: none; }
+.feedback.show { display: block; }
+.feedback.good { background: #ecfdf5; border-color: #86efac; }
+.feedback.bad { background: #fef2f2; border-color: #fecaca; }
+.explain { line-height: 1.8; color: #334155; }
+.answer-line { font-weight: 800; margin-bottom: 8px; }
+.progress-wrap { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin: 12px 0; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, #2563eb, #10b981); width: 0%; transition: .25s; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border-bottom: 1px solid var(--border); text-align: left; padding: 12px; vertical-align: top; }
+th { background: #f8fafc; font-size: 13px; color: var(--muted); }
+.small { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.result-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+.result-item { background: #f8fafc; border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+.result-item b { display: block; font-size: 26px; margin-top: 4px; }
+.hidden { display: none !important; }
+.footer-note { text-align: center; color: var(--muted); font-size: 13px; margin: 24px 0; }
+@media (max-width: 900px) {
+  .header-inner { grid-template-columns: 1fr; }
+  .toolbar { grid-template-columns: 1fr 1fr; }
+  .grid { grid-template-columns: 1fr; }
+  .panel { position: static; }
+  .result-box { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) { .toolbar, .result-box { grid-template-columns: 1fr; } .card { padding: 16px; } }
+@media print { .toolbar, .panel, .actions { display:none; } .container { margin:0; } .card { box-shadow:none; border:none; } }
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="header-inner">
+    <div>
+      <h1>RAG 生产规模部署<br>在线刷题与模拟考试系统</h1>
+      <p class="subtitle">基于《Introduction to Deploying RAG Pipelines for Production at Scale》教材内容制作。覆盖 RAG 架构、NVIDIA NIM、Kubernetes/Helm、性能优化、监控评估、安全合规与故障排查。</p>
+    </div>
+    <div class="header-card">
+      <strong id="totalQ">96 题</strong>
+      <div>单选 + 多选；多选题正确答案均为 2–4 个。支持本地保存错题与练习进度。</div>
+    </div>
+  </div>
+</header>
+<main class="container">
+  <section class="toolbar">
+    <button class="btn primary" onclick="startPractice()">开始刷题</button>
+    <button class="btn green" onclick="startExam()">模拟考试</button>
+    <button class="btn ghost" onclick="showWrongBook()">错题复习</button>
+    <button class="btn ghost" onclick="showBank()">题库浏览</button>
+    <button class="btn red" onclick="resetLocalData()">清空记录</button>
+  </section>
+
+  <section class="grid">
+    <aside class="panel">
+      <div class="mode-badge" id="modeBadge">待开始</div>
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="stat"><span>当前进度</span><b id="progressText">0 / 0</b></div>
+      <div class="stat"><span>正确</span><b id="rightCount">0</b></div>
+      <div class="stat"><span>错误</span><b id="wrongCount">0</b></div>
+      <div class="stat"><span>错题本</span><b id="wrongBookCount">0</b></div>
+      <div class="stat"><span>考试计时</span><b id="timer">--:--</b></div>
+      <div class="filters">
+        <label>章节筛选</label>
+        <select id="chapterFilter" onchange="applyFilters()"><option value="all">全部章节</option></select>
+        <label>题型筛选</label>
+        <select id="typeFilter" onchange="applyFilters()"><option value="all">全部题型</option><option value="single">单选题</option><option value="multiple">多选题</option></select>
+        <label>关键词搜索</label>
+        <input id="keywordFilter" placeholder="如 Kubernetes、rerank、安全" oninput="applyFilters()" />
+      </div>
+      <p class="small">练习模式：提交后立即显示答案解析。模拟考试：随机抽题，完成后统一评分。</p>
+    </aside>
+
+    <section class="card" id="mainCard">
+      <h2>使用说明</h2>
+      <p class="explain">点击“开始刷题”进入练习模式；点击“模拟考试”进入随机考试。错题会自动保存在浏览器 localStorage 中。该系统为独立 HTML 文件，可离线使用，也可以上传到 GitHub Pages、学校网站或内网服务器。</p>
+      <div class="result-box">
+        <div class="result-item"><span>题库规模</span><b>96</b></div>
+        <div class="result-item"><span>单选题</span><b id="singleCountIntro">60</b></div>
+        <div class="result-item"><span>多选题</span><b id="multiCountIntro">36</b></div>
+        <div class="result-item"><span>章节覆盖</span><b>12</b></div>
+      </div>
+      <h3>建议使用方式</h3>
+      <p class="explain">第一轮按章节练习，第二轮使用错题复习，第三轮进行模拟考试。授课时也可用“题库浏览”导出或打印题目。</p>
+    </section>
+  </section>
+  <p class="footer-note">RAG Production Scale Quiz System · Standalone HTML · v1.0</p>
+</main>
+<script>
+const QUESTIONS = [
+  {
+    "id": "RAG-S-001",
+    "type": "single",
+    "chapter": "第1章 从 RAG 原型到生产系统",
+    "difficulty": "易",
+    "q": "RAG 的核心思想是什么？",
+    "options": [
+      "只依靠大模型参数记忆回答问题",
+      "把检索到的外部知识作为上下文辅助大模型生成答案",
+      "用 Kubernetes 替代大模型推理",
+      "通过人工规则完全生成答案"
+    ],
+    "answer": [
+      1
+    ],
+    "explain": "RAG（Retrieval-Augmented Generation）将信息检索与生成模型结合，使答案基于外部知识库中的相关内容。"
+  },
+  {
+    "id": "RAG-S-002",
+    "type": "single",
+    "chapter": "第1章 从 RAG 原型到生产系统",
+    "difficulty": "易",
+    "q": "生产级 RAG 与 Demo 级 RAG 的主要区别是？",
+    "options": [
+      "生产级 RAG 必须使用 Python Notebook",
+      "生产级 RAG 只关注是否能生成流畅文字",
+      "生产级 RAG 需要同时考虑质量、性能、安全、监控、扩展和运维",
+      "Demo 级 RAG 不能使用向量数据库"
+    ],
+    "answer": [
+      2
+    ],
+    "explain": "Demo 关注能否跑通；生产系统必须满足稳定性、可观测性、权限、安全、扩缩容、回滚和成本控制等要求。"
+  },
+  {
+    "id": "RAG-S-003",
+    "type": "single",
+    "chapter": "第1章 从 RAG 原型到生产系统",
+    "difficulty": "易",
+    "q": "企业应用中使用 RAG 的重要原因之一是？",
+    "options": [
+      "企业知识通常静态不变",
+      "企业不需要答案可追溯",
+      "企业知识经常更新且分布在多种内部数据源中",
+      "RAG 可以完全消除模型幻觉"
+    ],
+    "answer": [
+      2
+    ],
+    "explain": "企业知识往往分布在文档、数据库、知识库、工单等多种来源中，并且持续更新，因此适合通过 RAG 接入。"
+  },
+  {
+    "id": "RAG-S-004",
+    "type": "single",
+    "chapter": "第1章 从 RAG 原型到生产系统",
+    "difficulty": "中",
+    "q": "在生产级 RAG 中，为什么“可追溯性”很重要？",
+    "options": [
+      "因为它可以让答案完全不需要 LLM",
+      "因为用户和审计人员需要知道答案依据来自哪些文档或片段",
+      "因为它可以减少 Kubernetes 配置数量",
+      "因为它可以替代向量检索"
+    ],
+    "answer": [
+      1
+    ],
+    "explain": "可追溯性意味着答案应能链接到来源文档、页码或 chunk，便于验证、审计和纠错。"
+  },
+  {
+    "id": "RAG-S-005",
+    "type": "single",
+    "chapter": "第1章 从 RAG 原型到生产系统",
+    "difficulty": "中",
+    "q": "下面哪项最能体现生产级 RAG 的上线要求？",
+    "options": [
+      "只要在本地命令行能回答问题即可",
+      "只需要一次性导入少量文档",
+      "需要可监控、可回滚、可扩展并支持质量评估",
+      "只需要选择最大的 LLM 模型"
+    ],
+    "answer": [
+      2
+    ],
+    "explain": "生产系统强调工程化能力，而不是单次演示效果；模型大小也不是唯一决定因素。"
+  },
+  {
+    "id": "RAG-M-006",
+    "type": "multiple",
+    "chapter": "第1章 从 RAG 原型到生产系统",
+    "difficulty": "易",
+    "q": "以下哪些属于生产级 RAG 通常需要关注的能力？",
+    "options": [
+      "高并发与低延迟",
+      "权限控制与审计",
+      "离线评估与回归测试",
+      "只在个人电脑上运行即可"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "生产级 RAG 需要性能、安全、评估和运维能力；个人电脑本地运行通常只适合 PoC。"
+  },
+  {
+    "id": "RAG-M-007",
+    "type": "multiple",
+    "chapter": "第1章 从 RAG 原型到生产系统",
+    "difficulty": "中",
+    "q": "企业知识库适合接入 RAG 的原因包括哪些？",
+    "options": [
+      "企业知识经常变化",
+      "需要回答基于内部资料",
+      "需要保留引用来源",
+      "所有企业知识都已经包含在 LLM 预训练参数中"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "企业知识动态变化、具有内部性和可追溯要求；不能假设都已包含在模型参数中。"
+  },
+  {
+    "id": "RAG-M-008",
+    "type": "multiple",
+    "chapter": "第1章 从 RAG 原型到生产系统",
+    "difficulty": "中",
+    "q": "从 Demo 走向生产时，常见新增工作包括哪些？",
+    "options": [
+      "建立监控与告警",
+      "设计权限过滤机制",
+      "建立离线评测集",
+      "删除所有日志以保护性能"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "生产系统需要监控、权限和评估；日志应做合规采集和脱敏，而不是完全删除。"
+  },
+  {
+    "id": "RAG-S-009",
+    "type": "single",
+    "chapter": "第2章 生产级 RAG 总体架构",
+    "difficulty": "易",
+    "q": "标准 RAG 系统通常可以分为哪两条主线？",
+    "options": [
+      "训练管线与微调管线",
+      "离线数据摄取管线与在线查询管线",
+      "图像管线与语音管线",
+      "前端管线与美术管线"
+    ],
+    "answer": [
+      1
+    ],
+    "explain": "RAG 通常包括离线 ingestion pipeline 与在线 query pipeline。"
+  },
+  {
+    "id": "RAG-S-010",
+    "type": "single",
+    "chapter": "第2章 生产级 RAG 总体架构",
+    "difficulty": "易",
+    "q": "在线 query pipeline 中，用户问题通常首先需要做什么？",
+    "options": [
+      "直接删除",
+      "生成最终答案",
+      "问题规范化或 embedding 编码",
+      "立刻写入向量数据库"
+    ],
+    "answer": [
+      2
+    ],
+    "explain": "在线查询通常先进行 query normalization、embedding，然后进入检索和 reranking。"
+  },
+  {
+    "id": "RAG-S-011",
+    "type": "single",
+    "chapter": "第2章 生产级 RAG 总体架构",
+    "difficulty": "中",
+    "q": "离线 ingestion pipeline 的主要目标是？",
+    "options": [
+      "把原始数据处理成可检索、可追踪、可权限过滤的知识索引",
+      "替代所有在线服务",
+      "只负责显示聊天界面",
+      "在每次用户提问时重新解析所有文档"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "离线摄取负责文档解析、清洗、chunking、embedding、索引构建等，为在线检索提供基础。"
+  },
+  {
+    "id": "RAG-S-012",
+    "type": "single",
+    "chapter": "第2章 生产级 RAG 总体架构",
+    "difficulty": "中",
+    "q": "context assembly 的主要作用是？",
+    "options": [
+      "将召回和重排后的片段组织成适合 LLM 使用的上下文",
+      "训练 embedding 模型",
+      "创建 Kubernetes Namespace",
+      "压缩 GPU 驱动"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "context assembly 要选择、排序、裁剪、格式化检索片段，并与 prompt 模板结合。"
+  },
+  {
+    "id": "RAG-S-013",
+    "type": "single",
+    "chapter": "第2章 生产级 RAG 总体架构",
+    "difficulty": "中",
+    "q": "为什么生产级 RAG 中需要为每个 chunk 保存 metadata？",
+    "options": [
+      "为了让 chunk 变得更长",
+      "为了支持来源追踪、权限过滤、版本管理和调试",
+      "为了让 LLM 自动训练",
+      "为了替代用户认证"
+    ],
+    "answer": [
+      1
+    ],
+    "explain": "metadata 包括来源、页码、标题、权限、版本、更新时间等，是可追溯与合规的基础。"
+  },
+  {
+    "id": "RAG-M-014",
+    "type": "multiple",
+    "chapter": "第2章 生产级 RAG 总体架构",
+    "difficulty": "易",
+    "q": "离线 ingestion pipeline 通常包含哪些步骤？",
+    "options": [
+      "文档解析和清洗",
+      "chunk 切分",
+      "embedding 生成",
+      "用户聊天界面动画设计"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "离线摄取主要处理数据源到索引的转换；聊天界面动画不是核心 pipeline 步骤。"
+  },
+  {
+    "id": "RAG-M-015",
+    "type": "multiple",
+    "chapter": "第2章 生产级 RAG 总体架构",
+    "difficulty": "中",
+    "q": "在线 query pipeline 通常包括哪些组件？",
+    "options": [
+      "query embedding",
+      "向量检索或 hybrid retrieval",
+      "reranking",
+      "最终答案生成"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "在线查询从问题编码、召回、重排到生成答案，构成完整链路。"
+  },
+  {
+    "id": "RAG-M-016",
+    "type": "multiple",
+    "chapter": "第2章 生产级 RAG 总体架构",
+    "difficulty": "中",
+    "q": "生产级 RAG 的 chunk metadata 可以包含哪些信息？",
+    "options": [
+      "文档 ID 与页码",
+      "权限标签",
+      "更新时间与版本号",
+      "用户电脑屏幕分辨率"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "metadata 应服务于检索、权限、追踪和版本管理；屏幕分辨率通常无关。"
+  },
+  {
+    "id": "RAG-S-017",
+    "type": "single",
+    "chapter": "第3章 核心模块：Ingestion、Chunking、Embedding、Reranking",
+    "difficulty": "易",
+    "q": "Embedding 模型在 RAG 中的主要功能是？",
+    "options": [
+      "将文本转换为语义向量",
+      "负责生成 Kubernetes 配置",
+      "负责用户登录认证",
+      "将 PDF 转换成图片"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Embedding 将 query 和文档片段映射到向量空间，用于语义相似度检索。"
+  },
+  {
+    "id": "RAG-S-018",
+    "type": "single",
+    "chapter": "第3章 核心模块：Ingestion、Chunking、Embedding、Reranking",
+    "difficulty": "易",
+    "q": "Reranking 的主要作用是？",
+    "options": [
+      "对候选检索结果按照与问题的相关性重新排序",
+      "替代所有文档解析工作",
+      "把 YAML 转成 JSON",
+      "降低所有 GPU 显存占用到 0"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Reranker 对第一阶段召回结果进行精排，使更相关的上下文进入 LLM。"
+  },
+  {
+    "id": "RAG-S-019",
+    "type": "single",
+    "chapter": "第3章 核心模块：Ingestion、Chunking、Embedding、Reranking",
+    "difficulty": "中",
+    "q": "chunk 太小可能导致的问题是？",
+    "options": [
+      "上下文不足，答案片面或缺乏完整依据",
+      "向量数据库无法保存任何数据",
+      "Kubernetes 无法创建 Pod",
+      "模型永远不会幻觉"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "chunk 太小会破坏语义完整性，导致召回内容缺少必要背景。"
+  },
+  {
+    "id": "RAG-S-020",
+    "type": "single",
+    "chapter": "第3章 核心模块：Ingestion、Chunking、Embedding、Reranking",
+    "difficulty": "中",
+    "q": "chunk 太大可能导致的问题是？",
+    "options": [
+      "召回噪声增加并占用过多 prompt token",
+      "召回结果一定更准确",
+      "reranker 不再需要",
+      "文档权限自动消失"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "过大的 chunk 可能包含大量无关内容，降低检索精度并增加上下文成本。"
+  },
+  {
+    "id": "RAG-S-021",
+    "type": "single",
+    "chapter": "第3章 核心模块：Ingestion、Chunking、Embedding、Reranking",
+    "difficulty": "中",
+    "q": "复杂 PDF ingestion 的难点通常不包括哪一项？",
+    "options": [
+      "表格结构保留",
+      "图注和页码关联",
+      "跨页段落识别",
+      "把 Kubernetes 升级为操作系统"
+    ],
+    "answer": [
+      3
+    ],
+    "explain": "PDF 解析涉及结构、表格、图注、版式等；Kubernetes 不是操作系统。"
+  },
+  {
+    "id": "RAG-M-022",
+    "type": "multiple",
+    "chapter": "第3章 核心模块：Ingestion、Chunking、Embedding、Reranking",
+    "difficulty": "中",
+    "q": "合理的 chunking 策略可能包括哪些？",
+    "options": [
+      "按标题层级切分",
+      "滑动窗口切分",
+      "语义切分",
+      "随机每 3 个字符切一次"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "按结构、语义和窗口切分都常见；随意极短切分会破坏语义。"
+  },
+  {
+    "id": "RAG-M-023",
+    "type": "multiple",
+    "chapter": "第3章 核心模块：Ingestion、Chunking、Embedding、Reranking",
+    "difficulty": "中",
+    "q": "第一阶段检索后使用 reranker 的优势包括哪些？",
+    "options": [
+      "提高进入 prompt 的上下文相关性",
+      "降低无关片段进入答案生成的概率",
+      "可整合不同检索器返回的结果",
+      "保证所有答案都百分之百正确"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "reranker 可以显著改善上下文质量，但不能保证所有答案绝对正确。"
+  },
+  {
+    "id": "RAG-M-024",
+    "type": "multiple",
+    "chapter": "第3章 核心模块：Ingestion、Chunking、Embedding、Reranking",
+    "difficulty": "中",
+    "q": "向量数据库在生产级 RAG 中通常需要支持哪些能力？",
+    "options": [
+      "相似度检索",
+      "metadata filter",
+      "增量更新或删除",
+      "自动替代所有人工审核"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "向量库需要检索、过滤、更新、删除、分区等能力；不能替代所有人工审核。"
+  },
+  {
+    "id": "RAG-S-025",
+    "type": "single",
+    "chapter": "第4章 NVIDIA 生产级 RAG 技术栈",
+    "difficulty": "易",
+    "q": "NVIDIA NIM Microservices 的定位更接近于？",
+    "options": [
+      "用于模型生产部署和推理服务化的微服务",
+      "只能用于写论文摘要",
+      "只能运行在浏览器前端",
+      "只是一种文本标注格式"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "NIM 面向生产级模型部署，把模型能力以微服务方式暴露出来。"
+  },
+  {
+    "id": "RAG-S-026",
+    "type": "single",
+    "chapter": "第4章 NVIDIA 生产级 RAG 技术栈",
+    "difficulty": "中",
+    "q": "在 RAG 中，NeMo Retriever Embedding NIM 主要用于？",
+    "options": [
+      "把知识库文本和用户问题编码为 embeddings",
+      "生成 Helm chart 的目录树",
+      "管理用户浏览器缓存",
+      "替代所有数据库"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Embedding NIM 为语义检索提供文本向量化能力。"
+  },
+  {
+    "id": "RAG-S-027",
+    "type": "single",
+    "chapter": "第4章 NVIDIA 生产级 RAG 技术栈",
+    "difficulty": "中",
+    "q": "NeMo Retriever Reranking NIM 主要用于？",
+    "options": [
+      "根据 query 与候选片段的匹配度重新排序检索结果",
+      "自动安装 Windows 驱动",
+      "生成静态 HTML 页面",
+      "给用户分配登录密码"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Reranking NIM 提供候选结果精排能力，提高进入 LLM 的上下文质量。"
+  },
+  {
+    "id": "RAG-S-028",
+    "type": "single",
+    "chapter": "第4章 NVIDIA 生产级 RAG 技术栈",
+    "difficulty": "中",
+    "q": "NVIDIA RAG Blueprint 更适合作为什么使用？",
+    "options": [
+      "企业级 RAG 参考架构和部署模板",
+      "图像压缩工具",
+      "邮件客户端",
+      "人工翻译词典"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "RAG Blueprint 可作为端到端企业 RAG 系统参考实现，用于学习、改造和部署。"
+  },
+  {
+    "id": "RAG-S-029",
+    "type": "single",
+    "chapter": "第4章 NVIDIA 生产级 RAG 技术栈",
+    "difficulty": "中",
+    "q": "NIM Operator 主要解决什么问题？",
+    "options": [
+      "在 Kubernetes 中管理 NIM/NeMo 微服务的生命周期、缓存和扩缩容",
+      "把所有 YAML 文件删除",
+      "只负责前端页面配色",
+      "把向量数据库转换为 Word 文档"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "NIM Operator 用 Kubernetes Operator 模式管理模型服务部署、缓存、autoscaling 等。"
+  },
+  {
+    "id": "RAG-M-030",
+    "type": "multiple",
+    "chapter": "第4章 NVIDIA 生产级 RAG 技术栈",
+    "difficulty": "中",
+    "q": "RAG 系统中可能由 NIM 微服务承担的功能包括哪些？",
+    "options": [
+      "LLM 推理",
+      "Embedding 生成",
+      "Reranking",
+      "文档检索链路中的模型服务化"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "NIM 可以为多类 AI 模型能力提供生产级服务化部署。"
+  },
+  {
+    "id": "RAG-M-031",
+    "type": "multiple",
+    "chapter": "第4章 NVIDIA 生产级 RAG 技术栈",
+    "difficulty": "中",
+    "q": "NIM Operator 在生产环境中的价值包括哪些？",
+    "options": [
+      "简化模型服务生命周期管理",
+      "支持模型缓存以缩短启动等待",
+      "支持自动扩缩容",
+      "替代全部业务逻辑代码"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "Operator 简化基础设施层面的模型部署与运维，但不能替代业务逻辑。"
+  },
+  {
+    "id": "RAG-M-032",
+    "type": "multiple",
+    "chapter": "第4章 NVIDIA 生产级 RAG 技术栈",
+    "difficulty": "中",
+    "q": "使用 NVIDIA 技术栈部署 RAG 时，常见组件包括哪些？",
+    "options": [
+      "Embedding NIM",
+      "Reranking NIM",
+      "LLM NIM",
+      "RAG server 或 blueprint"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些组件共同组成端到端 RAG 服务链路。"
+  },
+  {
+    "id": "RAG-S-033",
+    "type": "single",
+    "chapter": "第5章 Kubernetes 与 Helm 基础",
+    "difficulty": "易",
+    "q": "Kubernetes 中最小的可调度工作负载单元通常是？",
+    "options": [
+      "Pod",
+      "Workbook",
+      "Slide",
+      "Vector"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Pod 是 Kubernetes 中最小的可调度单元，通常包含一个或多个容器。"
+  },
+  {
+    "id": "RAG-S-034",
+    "type": "single",
+    "chapter": "第5章 Kubernetes 与 Helm 基础",
+    "difficulty": "易",
+    "q": "Kubernetes Service 的主要作用是？",
+    "options": [
+      "为一组 Pod 提供稳定访问入口",
+      "把 PDF 转为向量",
+      "训练 LLM",
+      "写答案解析"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Service 提供稳定网络访问地址，屏蔽 Pod 动态变化。"
+  },
+  {
+    "id": "RAG-S-035",
+    "type": "single",
+    "chapter": "第5章 Kubernetes 与 Helm 基础",
+    "difficulty": "易",
+    "q": "Helm 的作用最接近于？",
+    "options": [
+      "Kubernetes 应用包管理器",
+      "GPU 驱动程序",
+      "向量相似度算法",
+      "自然语言分词器"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Helm 使用 chart 和 values.yaml 管理 Kubernetes 应用的模板化部署。"
+  },
+  {
+    "id": "RAG-S-036",
+    "type": "single",
+    "chapter": "第5章 Kubernetes 与 Helm 基础",
+    "difficulty": "中",
+    "q": "Kubernetes Secret 适合保存哪类信息？",
+    "options": [
+      "NGC API Key、数据库密码等敏感配置",
+      "公开产品介绍文案",
+      "CSS 按钮颜色",
+      "普通课程标题"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Secret 用于保存敏感信息；生产环境不应把密钥明文写在代码或 values.yaml 中。"
+  },
+  {
+    "id": "RAG-S-037",
+    "type": "single",
+    "chapter": "第5章 Kubernetes 与 Helm 基础",
+    "difficulty": "中",
+    "q": "ConfigMap 通常用于保存什么？",
+    "options": [
+      "非敏感配置，如模型名、top_k、日志级别",
+      "数据库 root 密码",
+      "用户身份证号",
+      "加密私钥"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "ConfigMap 存储非敏感配置，Secret 存储敏感数据。"
+  },
+  {
+    "id": "RAG-M-038",
+    "type": "multiple",
+    "chapter": "第5章 Kubernetes 与 Helm 基础",
+    "difficulty": "易",
+    "q": "Kubernetes 中与 RAG 服务部署相关的对象包括哪些？",
+    "options": [
+      "Deployment",
+      "Service",
+      "Namespace",
+      "Secret"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些都是生产部署中常用的 Kubernetes 对象。"
+  },
+  {
+    "id": "RAG-M-039",
+    "type": "multiple",
+    "chapter": "第5章 Kubernetes 与 Helm 基础",
+    "difficulty": "中",
+    "q": "使用 Helm 部署 RAG 组件的优势包括哪些？",
+    "options": [
+      "模板化管理复杂 Kubernetes YAML",
+      "通过 values.yaml 区分 dev/staging/prod 配置",
+      "支持 upgrade/rollback",
+      "保证业务代码没有任何 bug"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "Helm 提升部署一致性和可维护性，但不能保证业务代码无 bug。"
+  },
+  {
+    "id": "RAG-M-040",
+    "type": "multiple",
+    "chapter": "第5章 Kubernetes 与 Helm 基础",
+    "difficulty": "中",
+    "q": "生产环境中为 RAG 划分 namespace 的好处包括哪些？",
+    "options": [
+      "环境隔离",
+      "资源与权限管理更清晰",
+      "便于按环境查看服务状态",
+      "让 LLM 自动学会新知识"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "Namespace 有助于隔离和管理；不会改变模型知识。"
+  },
+  {
+    "id": "RAG-S-041",
+    "type": "single",
+    "chapter": "第6章 RAG Pipeline 端到端部署流程",
+    "difficulty": "易",
+    "q": "部署前确认 GPU 节点可用的主要原因是？",
+    "options": [
+      "NIM/LLM/Embedding 等推理服务通常需要 GPU 加速",
+      "因为 HTML 页面必须用 GPU 渲染",
+      "因为 Kubernetes 不能在 CPU 节点运行任何服务",
+      "因为向量数据库一定不能用 CPU"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "大模型推理和部分 embedding/reranking 服务通常依赖 GPU 加速。"
+  },
+  {
+    "id": "RAG-S-042",
+    "type": "single",
+    "chapter": "第6章 RAG Pipeline 端到端部署流程",
+    "difficulty": "中",
+    "q": "部署 NGC 镜像时配置 imagePullSecret 的目的是什么？",
+    "options": [
+      "让 Kubernetes 能够从受保护的镜像仓库拉取镜像",
+      "让向量检索更准确",
+      "把 chunk 自动翻译成中文",
+      "减少题库数量"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "私有或受保护镜像仓库需要凭证，imagePullSecret 提供拉取权限。"
+  },
+  {
+    "id": "RAG-S-043",
+    "type": "single",
+    "chapter": "第6章 RAG Pipeline 端到端部署流程",
+    "difficulty": "中",
+    "q": "RAG Server 在在线服务中通常负责什么？",
+    "options": [
+      "编排 query embedding、检索、rerank、prompt 组装和 LLM 调用",
+      "只负责存储 GPU 驱动",
+      "只负责渲染 Logo",
+      "只负责创建 Word 文档"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "RAG Server 是在线请求编排中心，连接检索、重排和生成服务。"
+  },
+  {
+    "id": "RAG-S-044",
+    "type": "single",
+    "chapter": "第6章 RAG Pipeline 端到端部署流程",
+    "difficulty": "中",
+    "q": "部署后使用 `kubectl get pods -n rag` 主要用于检查什么？",
+    "options": [
+      "查看 rag namespace 下 Pod 状态",
+      "计算答案正确率",
+      "生成课程目录",
+      "训练 reranker"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "该命令用于查看指定 namespace 中 Pod 是否 Running、Pending 或 CrashLoopBackOff。"
+  },
+  {
+    "id": "RAG-S-045",
+    "type": "single",
+    "chapter": "第6章 RAG Pipeline 端到端部署流程",
+    "difficulty": "中",
+    "q": "生产部署中为什么要区分 dev、staging、prod？",
+    "options": [
+      "为了将开发测试与真实生产流量隔离，降低变更风险",
+      "为了让所有环境共用同一个密钥文件",
+      "为了取消测试流程",
+      "为了让用户直接访问开发 Pod"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "多环境隔离可以进行灰度、验证和回滚，避免未经验证的变更影响生产。"
+  },
+  {
+    "id": "RAG-M-046",
+    "type": "multiple",
+    "chapter": "第6章 RAG Pipeline 端到端部署流程",
+    "difficulty": "中",
+    "q": "RAG 部署前应确认哪些条件？",
+    "options": [
+      "Kubernetes 集群可用",
+      "GPU 节点和驱动环境可用",
+      "Helm 与镜像仓库访问可用",
+      "所有用户问题已经提前写死"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "部署前要确认集群、GPU、Helm、镜像、存储、网络和密钥等条件。"
+  },
+  {
+    "id": "RAG-M-047",
+    "type": "multiple",
+    "chapter": "第6章 RAG Pipeline 端到端部署流程",
+    "difficulty": "中",
+    "q": "一个端到端 RAG 部署通常可能包含哪些服务？",
+    "options": [
+      "Embedding 服务",
+      "Reranking 服务",
+      "LLM 推理服务",
+      "RAG API Server"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些服务共同构成在线问答链路。"
+  },
+  {
+    "id": "RAG-M-048",
+    "type": "multiple",
+    "chapter": "第6章 RAG Pipeline 端到端部署流程",
+    "difficulty": "中",
+    "q": "部署后验证时常用的排查命令包括哪些？",
+    "options": [
+      "kubectl get pods",
+      "kubectl logs",
+      "kubectl describe pod",
+      "kubectl get svc"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些命令分别用于查看状态、日志、事件详情和服务暴露情况。"
+  },
+  {
+    "id": "RAG-S-049",
+    "type": "single",
+    "chapter": "第7章 生产级性能优化",
+    "difficulty": "易",
+    "q": "P95 latency 表示什么？",
+    "options": [
+      "95% 的请求延迟低于该值",
+      "系统有 95 个 Pod",
+      "GPU 使用率恒定 95%",
+      "答案正确率一定是 95%"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "P95 是尾延迟指标，表示 95% 请求可在该时间内完成。"
+  },
+  {
+    "id": "RAG-S-050",
+    "type": "single",
+    "chapter": "第7章 生产级性能优化",
+    "difficulty": "中",
+    "q": "RAG 请求总延迟中通常不包括哪一项？",
+    "options": [
+      "query embedding 延迟",
+      "向量检索延迟",
+      "reranking 延迟",
+      "用户显示器品牌识别延迟"
+    ],
+    "answer": [
+      3
+    ],
+    "explain": "RAG 延迟主要来自网关、embedding、检索、rerank、prompt 组装、LLM prefill/decode 和后处理。"
+  },
+  {
+    "id": "RAG-S-051",
+    "type": "single",
+    "chapter": "第7章 生产级性能优化",
+    "difficulty": "中",
+    "q": "为什么不应盲目把 top_k 设置得很大？",
+    "options": [
+      "会增加检索、rerank 和上下文成本，并可能引入噪声",
+      "top_k 越大答案一定越准确",
+      "top_k 只影响 UI 颜色",
+      "top_k 会删除文档"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "top_k 太大可能提高召回但带来噪声、延迟和 token 成本，需要结合评估调优。"
+  },
+  {
+    "id": "RAG-S-052",
+    "type": "single",
+    "chapter": "第7章 生产级性能优化",
+    "difficulty": "中",
+    "q": "LLM 推理中 time to first token 主要影响什么？",
+    "options": [
+      "用户感知到开始响应的速度",
+      "文档解析准确率",
+      "向量维度",
+      "Kubernetes Namespace 数量"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "首 token 延迟影响用户是否感觉系统“开始回答”很快。"
+  },
+  {
+    "id": "RAG-S-053",
+    "type": "single",
+    "chapter": "第7章 生产级性能优化",
+    "difficulty": "中",
+    "q": "缓存策略通常可以用于优化什么？",
+    "options": [
+      "高频 query embedding、检索结果或生成结果的重复计算",
+      "删除所有安全控制",
+      "绕过权限校验",
+      "让过期数据永远不更新"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "缓存能减少重复计算，但必须处理权限、过期和版本一致性。"
+  },
+  {
+    "id": "RAG-M-054",
+    "type": "multiple",
+    "chapter": "第7章 生产级性能优化",
+    "difficulty": "中",
+    "q": "RAG 系统性能监控指标可以包括哪些？",
+    "options": [
+      "QPS",
+      "P95/P99 latency",
+      "GPU utilization",
+      "timeout rate"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些都是衡量服务吞吐、尾延迟、资源利用和稳定性的关键指标。"
+  },
+  {
+    "id": "RAG-M-055",
+    "type": "multiple",
+    "chapter": "第7章 生产级性能优化",
+    "difficulty": "中",
+    "q": "Embedding 优化策略包括哪些？",
+    "options": [
+      "离线预计算文档 embedding",
+      "批量 embedding",
+      "避免重复 embedding",
+      "每次用户提问都重新 embedding 全部文档"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "文档 embedding 应离线生成并缓存；每次全量重算成本极高。"
+  },
+  {
+    "id": "RAG-M-056",
+    "type": "multiple",
+    "chapter": "第7章 生产级性能优化",
+    "difficulty": "中",
+    "q": "LLM 推理优化可以考虑哪些方式？",
+    "options": [
+      "限制 max_tokens",
+      "选择合适大小的模型",
+      "batching 或多副本部署",
+      "无限增加 prompt 长度"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "合理控制输出长度、模型大小和推理并发有助于降低延迟和成本；无限上下文会增加成本和噪声。"
+  },
+  {
+    "id": "RAG-S-057",
+    "type": "single",
+    "chapter": "第8章 可观测性与监控",
+    "difficulty": "易",
+    "q": "可观测性通常包括哪些基本维度？",
+    "options": [
+      "日志、指标、链路追踪",
+      "颜色、字体、边框",
+      "题号、选项、按钮",
+      "文档、图片、动画"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Observability 通常包括 logs、metrics 和 traces。"
+  },
+  {
+    "id": "RAG-S-058",
+    "type": "single",
+    "chapter": "第8章 可观测性与监控",
+    "difficulty": "中",
+    "q": "为什么 RAG 不仅要监控服务是否存活，还要监控质量？",
+    "options": [
+      "因为服务可能正常运行但检索质量或答案忠实性下降",
+      "因为服务存活状态完全没有意义",
+      "因为质量监控可以替代所有安全措施",
+      "因为 RAG 不需要任何系统指标"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "RAG 可能出现“系统没挂但答案变差”的问题，因此需要质量指标和运行指标并行监控。"
+  },
+  {
+    "id": "RAG-S-059",
+    "type": "single",
+    "chapter": "第8章 可观测性与监控",
+    "difficulty": "中",
+    "q": "Grafana 在监控栈中的典型作用是？",
+    "options": [
+      "指标可视化和 dashboard 展示",
+      "替代向量数据库",
+      "生成 embedding",
+      "解析 Word 文档"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Grafana 常用于展示 Prometheus 等数据源中的指标。"
+  },
+  {
+    "id": "RAG-S-060",
+    "type": "single",
+    "chapter": "第8章 可观测性与监控",
+    "difficulty": "中",
+    "q": "RAG 请求日志中记录 retrieved chunks 的好处是？",
+    "options": [
+      "便于复盘答案依据、分析检索错误和构建评估数据",
+      "让日志文件更好看",
+      "让模型自动变小",
+      "避免任何权限校验"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "记录检索片段、分数和答案可帮助 debug、评估和改进系统。"
+  },
+  {
+    "id": "RAG-S-061",
+    "type": "single",
+    "chapter": "第8章 可观测性与监控",
+    "difficulty": "中",
+    "q": "对生产级 RAG 来说，告警规则不应只基于哪一类信息？",
+    "options": [
+      "单一服务存活状态",
+      "错误率",
+      "P99 延迟",
+      "GPU 显存使用"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "只监控存活状态不够，还要关注错误率、延迟、资源利用和质量退化。"
+  },
+  {
+    "id": "RAG-M-062",
+    "type": "multiple",
+    "chapter": "第8章 可观测性与监控",
+    "difficulty": "中",
+    "q": "RAG 请求日志中建议记录哪些信息？",
+    "options": [
+      "query 与检索到的 chunk ID",
+      "rerank scores",
+      "final answer 与 citations",
+      "prompt/version/index version"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些信息是审计、质量评估、回归测试和问题定位的重要基础。"
+  },
+  {
+    "id": "RAG-M-063",
+    "type": "multiple",
+    "chapter": "第8章 可观测性与监控",
+    "difficulty": "中",
+    "q": "可用于 RAG 监控体系的工具包括哪些？",
+    "options": [
+      "Prometheus",
+      "Grafana",
+      "OpenTelemetry",
+      "Alertmanager"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "Prometheus 采集指标，Grafana 展示，OpenTelemetry 支持 tracing，Alertmanager 告警。"
+  },
+  {
+    "id": "RAG-M-064",
+    "type": "multiple",
+    "chapter": "第8章 可观测性与监控",
+    "difficulty": "中",
+    "q": "RAG 质量监控可以关注哪些信号？",
+    "options": [
+      "用户反馈",
+      "citation accuracy",
+      "retrieval hit rate",
+      "faithfulness"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "质量监控应覆盖检索、引用、忠实性和用户反馈等多个层面。"
+  },
+  {
+    "id": "RAG-S-065",
+    "type": "single",
+    "chapter": "第9章 RAG 质量评估",
+    "difficulty": "易",
+    "q": "Recall@k 主要衡量什么？",
+    "options": [
+      "正确文档是否出现在前 k 个检索结果中",
+      "LLM 输出速度",
+      "GPU 温度",
+      "用户登录次数"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Recall@k 衡量检索阶段是否把正确证据召回到前 k 个结果中。"
+  },
+  {
+    "id": "RAG-S-066",
+    "type": "single",
+    "chapter": "第9章 RAG 质量评估",
+    "difficulty": "中",
+    "q": "Faithfulness 主要评估什么？",
+    "options": [
+      "答案是否忠实于检索上下文，是否凭空编造",
+      "网页配色是否美观",
+      "GPU 是否满载",
+      "题目数量是否足够"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Faithfulness 是 RAG 生成评估的核心指标，用于衡量答案是否受证据支持。"
+  },
+  {
+    "id": "RAG-S-067",
+    "type": "single",
+    "chapter": "第9章 RAG 质量评估",
+    "difficulty": "中",
+    "q": "不可回答问题应纳入评估集的原因是？",
+    "options": [
+      "测试系统在缺乏证据时是否能正确拒答",
+      "增加页面长度",
+      "让所有问题都必须回答",
+      "避免做权限测试"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "生产 RAG 必须学会基于证据回答；没有证据时应拒答或说明无法确认。"
+  },
+  {
+    "id": "RAG-S-068",
+    "type": "single",
+    "chapter": "第9章 RAG 质量评估",
+    "difficulty": "中",
+    "q": "每次更新 embedding 模型或 chunking 策略后，为什么需要回归测试？",
+    "options": [
+      "这些变化可能影响召回和答案质量",
+      "因为更新后一定会变差",
+      "因为 Kubernetes 不允许更新模型",
+      "因为回归测试只用于前端页面"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "模型、索引、切分和 prompt 的变化都会影响检索与生成质量，需要用固定评估集对比。"
+  },
+  {
+    "id": "RAG-S-069",
+    "type": "single",
+    "chapter": "第9章 RAG 质量评估",
+    "difficulty": "中",
+    "q": "Citation Accuracy 主要关注什么？",
+    "options": [
+      "答案引用的来源是否真正支持该答案",
+      "页面是否有页脚",
+      "Pod 数量是否为偶数",
+      "模型名称是否足够长"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "引用准确性要求引用片段与答案中的声明相匹配，而不是随意附上来源。"
+  },
+  {
+    "id": "RAG-M-070",
+    "type": "multiple",
+    "chapter": "第9章 RAG 质量评估",
+    "difficulty": "中",
+    "q": "RAG 离线评估集应包含哪些类型的问题？",
+    "options": [
+      "真实用户问题",
+      "多跳问题",
+      "不可回答问题",
+      "权限边界问题"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "完整评估集应覆盖真实、复杂、不可回答和权限敏感场景。"
+  },
+  {
+    "id": "RAG-M-071",
+    "type": "multiple",
+    "chapter": "第9章 RAG 质量评估",
+    "difficulty": "中",
+    "q": "检索评估指标包括哪些？",
+    "options": [
+      "Recall@k",
+      "Precision@k",
+      "MRR",
+      "nDCG"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些都是信息检索中常用的召回和排序质量指标。"
+  },
+  {
+    "id": "RAG-M-072",
+    "type": "multiple",
+    "chapter": "第9章 RAG 质量评估",
+    "difficulty": "中",
+    "q": "生成评估指标可以包括哪些？",
+    "options": [
+      "Answer Correctness",
+      "Faithfulness",
+      "Citation Accuracy",
+      "Refusal Accuracy"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "生成评估不仅要看答案是否正确，还要看是否忠实、引用准确、拒答合理。"
+  },
+  {
+    "id": "RAG-S-073",
+    "type": "single",
+    "chapter": "第10章 安全、权限与合规",
+    "difficulty": "易",
+    "q": "生产级 RAG 中最重要的安全风险之一是？",
+    "options": [
+      "用户通过检索看到无权限访问的文档内容",
+      "按钮颜色不一致",
+      "题库题号不连续",
+      "答案太短"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "权限泄露是企业 RAG 的核心风险，必须在检索和上下文组装阶段控制。"
+  },
+  {
+    "id": "RAG-S-074",
+    "type": "single",
+    "chapter": "第10章 安全、权限与合规",
+    "difficulty": "中",
+    "q": "权限过滤最好在哪些层面实现？",
+    "options": [
+      "只在前端隐藏按钮即可",
+      "检索阶段和上下文进入 LLM 前都应检查",
+      "完全交给 LLM 自己判断",
+      "只在日志中记录但不拦截"
+    ],
+    "answer": [
+      1
+    ],
+    "explain": "权限控制不应只依赖 UI，应在检索和生成前的上下文层严格执行。"
+  },
+  {
+    "id": "RAG-S-075",
+    "type": "single",
+    "chapter": "第10章 安全、权限与合规",
+    "difficulty": "中",
+    "q": "Prompt Injection 在 RAG 中可能通过什么进入系统？",
+    "options": [
+      "用户输入或被检索到的文档内容",
+      "Pod 名称长度",
+      "Grafana 面板标题",
+      "浏览器缩放比例"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "攻击指令可能来自用户 query，也可能隐藏在文档内容中被检索进入 prompt。"
+  },
+  {
+    "id": "RAG-S-076",
+    "type": "single",
+    "chapter": "第10章 安全、权限与合规",
+    "difficulty": "中",
+    "q": "下面哪种做法不符合生产安全要求？",
+    "options": [
+      "把 API key 明文写入代码仓库",
+      "使用 Kubernetes Secret 保存密钥",
+      "为 chunk 添加权限 metadata",
+      "记录审计日志"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "密钥明文入库是严重安全风险；应使用 Secret、Vault 或 KMS 等机制。"
+  },
+  {
+    "id": "RAG-S-077",
+    "type": "single",
+    "chapter": "第10章 安全、权限与合规",
+    "difficulty": "中",
+    "q": "面对包含“忽略之前指令”的文档片段，RAG 系统应如何处理？",
+    "options": [
+      "把文档内容与系统指令隔离，并明确文档不是指令来源",
+      "完全执行文档中的指令",
+      "删除所有文档",
+      "停止所有用户访问"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "文档内容应作为不可信数据处理，不能让其覆盖系统指令或安全策略。"
+  },
+  {
+    "id": "RAG-M-078",
+    "type": "multiple",
+    "chapter": "第10章 安全、权限与合规",
+    "difficulty": "中",
+    "q": "生产级 RAG 的权限控制可使用哪些机制？",
+    "options": [
+      "chunk-level 权限 metadata",
+      "user role/department/project 过滤",
+      "检索阶段 metadata filter",
+      "LLM 输出前再次检查上下文权限"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "权限控制应贯穿数据、检索、上下文和输出链路。"
+  },
+  {
+    "id": "RAG-M-079",
+    "type": "multiple",
+    "chapter": "第10章 安全、权限与合规",
+    "difficulty": "中",
+    "q": "以下哪些属于敏感配置，不应明文写入代码？",
+    "options": [
+      "NGC API key",
+      "数据库密码",
+      "OAuth secret",
+      "公开课程标题"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "API key、密码和 OAuth secret 是敏感信息；公开标题不是密钥。"
+  },
+  {
+    "id": "RAG-M-080",
+    "type": "multiple",
+    "chapter": "第10章 安全、权限与合规",
+    "difficulty": "中",
+    "q": "防御 RAG Prompt Injection 的策略包括哪些？",
+    "options": [
+      "隔离系统指令与文档内容",
+      "对检索内容做风险扫描",
+      "对敏感操作加入 human-in-the-loop",
+      "让任何检索内容都能覆盖系统指令"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "文档内容应被视为不可信输入，不应允许其覆盖系统指令。"
+  },
+  {
+    "id": "RAG-S-081",
+    "type": "single",
+    "chapter": "第11章 常见故障与排查",
+    "difficulty": "易",
+    "q": "Pod 处于 Pending 状态的常见原因是？",
+    "options": [
+      "资源不足或调度条件不满足",
+      "答案解析太长",
+      "题库没有分类",
+      "浏览器没有刷新"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Pending 通常与 GPU/CPU 资源、node selector、PVC、taints/tolerations 等有关。"
+  },
+  {
+    "id": "RAG-S-082",
+    "type": "single",
+    "chapter": "第11章 常见故障与排查",
+    "difficulty": "中",
+    "q": "ImagePullBackOff 通常表示什么？",
+    "options": [
+      "镜像拉取失败",
+      "答案生成失败",
+      "用户密码错误导致前端禁用",
+      "向量检索召回过多"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "ImagePullBackOff 表示 Kubernetes 无法成功拉取容器镜像，常见原因是仓库凭证、网络或镜像名错误。"
+  },
+  {
+    "id": "RAG-S-083",
+    "type": "single",
+    "chapter": "第11章 常见故障与排查",
+    "difficulty": "中",
+    "q": "服务启动慢的常见原因不包括哪一项？",
+    "options": [
+      "模型下载耗时",
+      "没有模型缓存",
+      "PVC 或镜像拉取速度慢",
+      "用户选项文字太短"
+    ],
+    "answer": [
+      3
+    ],
+    "explain": "服务启动慢常与模型、镜像、存储和初始化探针有关；选项文字长度无关。"
+  },
+  {
+    "id": "RAG-S-084",
+    "type": "single",
+    "chapter": "第11章 常见故障与排查",
+    "difficulty": "中",
+    "q": "答案不准确时，优先应检查哪些环节？",
+    "options": [
+      "chunking、embedding、检索、reranking、prompt 和知识库新旧程度",
+      "只检查网页背景色",
+      "只增加字体大小",
+      "只重启浏览器"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "RAG 答案质量取决于数据、切分、检索、重排、prompt 和模型等多环节。"
+  },
+  {
+    "id": "RAG-S-085",
+    "type": "single",
+    "chapter": "第11章 常见故障与排查",
+    "difficulty": "中",
+    "q": "`kubectl describe pod` 相比 `kubectl get pods` 更适合查看什么？",
+    "options": [
+      "Pod 事件、调度失败原因、容器状态等详细信息",
+      "题库正确答案",
+      "用户考试成绩",
+      "LLM 训练曲线"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "describe 可以查看事件、条件、资源请求、挂载、调度失败详情等。"
+  },
+  {
+    "id": "RAG-M-086",
+    "type": "multiple",
+    "chapter": "第11章 常见故障与排查",
+    "difficulty": "中",
+    "q": "GPU 不可见时可能需要检查哪些方面？",
+    "options": [
+      "GPU Operator 或驱动状态",
+      "节点资源是否报告 nvidia.com/gpu",
+      "Pod 是否声明 GPU 资源限制",
+      "题库按钮是否圆角"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "GPU 不可见通常与驱动、运行时、节点资源和 Pod 资源声明有关。"
+  },
+  {
+    "id": "RAG-M-087",
+    "type": "multiple",
+    "chapter": "第11章 常见故障与排查",
+    "difficulty": "中",
+    "q": "答案出现幻觉时，可以考虑哪些改进？",
+    "options": [
+      "减少无关 context",
+      "强化引用和拒答策略",
+      "提高检索与 rerank 质量",
+      "让模型在无证据时自由发挥"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "减少噪声、强化证据约束和优化检索可降低幻觉；无证据自由发挥会加重幻觉。"
+  },
+  {
+    "id": "RAG-M-088",
+    "type": "multiple",
+    "chapter": "第11章 常见故障与排查",
+    "difficulty": "中",
+    "q": "ImagePullBackOff 的排查方向包括哪些？",
+    "options": [
+      "镜像名称是否正确",
+      "imagePullSecret 是否可用",
+      "网络是否能访问镜像仓库",
+      "是否启用了题库随机排序"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ],
+    "explain": "镜像名、认证和网络是镜像拉取失败的常见原因。"
+  },
+  {
+    "id": "RAG-S-089",
+    "type": "single",
+    "chapter": "第12章 实验手册与上线 Checklist",
+    "difficulty": "易",
+    "q": "最小可用 RAG 实验的验收标准通常包括？",
+    "options": [
+      "能上传或接入文档、能提问、能返回答案和引用",
+      "必须支持所有语言和所有文件格式",
+      "必须达到无限 QPS",
+      "必须完全不需要日志"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "最小实验应验证端到端链路跑通，并能提供基于来源的回答。"
+  },
+  {
+    "id": "RAG-S-090",
+    "type": "single",
+    "chapter": "第12章 实验手册与上线 Checklist",
+    "difficulty": "中",
+    "q": "上线前 Checklist 中，“是否可回滚模型、prompt、索引版本”属于哪类检查？",
+    "options": [
+      "架构与运维可控性",
+      "页面美术设计",
+      "题库排版",
+      "普通用户偏好"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "版本可回滚是生产系统稳定性和故障恢复的重要能力。"
+  },
+  {
+    "id": "RAG-S-091",
+    "type": "single",
+    "chapter": "第12章 实验手册与上线 Checklist",
+    "difficulty": "中",
+    "q": "压力测试实验主要用于评估什么？",
+    "options": [
+      "并发、延迟、错误率和资源利用率",
+      "答案文学性",
+      "Logo 识别度",
+      "浏览器主题色"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "压力测试关注系统在负载下的吞吐、尾延迟、错误和资源瓶颈。"
+  },
+  {
+    "id": "RAG-S-092",
+    "type": "single",
+    "chapter": "第12章 实验手册与上线 Checklist",
+    "difficulty": "中",
+    "q": "在加入 reranking 的实验中，较合理的对照方式是？",
+    "options": [
+      "比较有无 rerank 时的检索排序、答案质量和延迟变化",
+      "只比较页面背景颜色",
+      "只比较文件名长度",
+      "只比较用户头像"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "Rerank 实验应同时看质量收益和延迟成本。"
+  },
+  {
+    "id": "RAG-S-093",
+    "type": "single",
+    "chapter": "第12章 实验手册与上线 Checklist",
+    "difficulty": "中",
+    "q": "监控接入实验中，Dashboard 至少应关注什么？",
+    "options": [
+      "请求量、错误率、延迟、GPU、检索和 rerank 延迟",
+      "题目字体是否全部加粗",
+      "用户昵称长度",
+      "HTML 文件大小"
+    ],
+    "answer": [
+      0
+    ],
+    "explain": "监控面板应覆盖系统性能与 RAG 子链路指标。"
+  },
+  {
+    "id": "RAG-M-094",
+    "type": "multiple",
+    "chapter": "第12章 实验手册与上线 Checklist",
+    "difficulty": "中",
+    "q": "生产部署 Checklist 中的安全检查包括哪些？",
+    "options": [
+      "API key 是否进入 Secret",
+      "是否配置 RBAC",
+      "是否做权限过滤",
+      "是否记录审计日志"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "密钥、权限、过滤和审计都是生产安全的基本要求。"
+  },
+  {
+    "id": "RAG-M-095",
+    "type": "multiple",
+    "chapter": "第12章 实验手册与上线 Checklist",
+    "difficulty": "中",
+    "q": "生产部署 Checklist 中的质量检查包括哪些？",
+    "options": [
+      "是否有离线评估集",
+      "是否评估 retrieval recall",
+      "是否评估 faithfulness",
+      "是否包含不可回答问题"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "质量检查应覆盖检索召回、生成忠实性、拒答和引用等方面。"
+  },
+  {
+    "id": "RAG-M-096",
+    "type": "multiple",
+    "chapter": "第12章 实验手册与上线 Checklist",
+    "difficulty": "中",
+    "q": "实验手册中适合作为实践任务的内容包括哪些？",
+    "options": [
+      "部署最小 RAG Pipeline",
+      "加入 Reranking 并比较效果",
+      "进行压力测试",
+      "接入监控与评估"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explain": "这些实验覆盖端到端部署、质量改进、性能和可观测性。"
+  }
+];
+let state = { mode: 'home', pool: [], index: 0, selected: new Set(), submitted: false, right: 0, wrong: 0, examAnswers: {}, examSeconds: 0, timerId: null };
+const letters = ['A','B','C','D','E','F'];
+
+function $(id) { return document.getElementById(id); }
+function shuffle(arr) { return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]); }
+function getWrongBook() { try { return JSON.parse(localStorage.getItem('ragWrongBook') || '[]'); } catch(e) { return []; } }
+function setWrongBook(ids) { localStorage.setItem('ragWrongBook', JSON.stringify([...new Set(ids)])); updateStats(); }
+function addWrong(id) { const w = getWrongBook(); if(!w.includes(id)) w.push(id); setWrongBook(w); }
+function removeWrong(id) { setWrongBook(getWrongBook().filter(x=>x!==id)); }
+function sameSet(a,b) { if(a.size !== b.length) return false; return b.every(x=>a.has(x)); }
+function answerText(q) { return q.answer.map(i => letters[i] + '. ' + q.options[i]).join('；'); }
+function updateStats() {
+  $('totalQ').textContent = QUESTIONS.length + ' 题';
+  if($('singleCountIntro')) $('singleCountIntro').textContent = QUESTIONS.filter(q=>q.type==='single').length;
+  if($('multiCountIntro')) $('multiCountIntro').textContent = QUESTIONS.filter(q=>q.type==='multiple').length;
+  $('rightCount').textContent = state.right;
+  $('wrongCount').textContent = state.wrong;
+  $('wrongBookCount').textContent = getWrongBook().length;
+  const total = state.pool.length || 0;
+  $('progressText').textContent = total ? `${Math.min(state.index+1,total)} / ${total}` : '0 / 0';
+  const pct = total ? Math.round((state.index)/total*100) : 0;
+  $('progressBar').style.width = (state.mode==='exam' ? Math.round(Object.keys(state.examAnswers).length/total*100) : pct) + '%';
+}
+function chapters() { return [...new Set(QUESTIONS.map(q=>q.chapter))]; }
+function initFilters() {
+  const sel = $('chapterFilter');
+  chapters().forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; sel.appendChild(opt); });
+}
+function filterQuestions() {
+  const c = $('chapterFilter').value, t = $('typeFilter').value, kw = $('keywordFilter').value.trim().toLowerCase();
+  return QUESTIONS.filter(q => (c==='all'||q.chapter===c) && (t==='all'||q.type===t) && (!kw || (q.q+q.options.join(' ')+q.chapter+q.explain).toLowerCase().includes(kw)));
+}
+function applyFilters() { if(state.mode === 'practice' || state.mode === 'bank') { showBank(); } }
+function setModeBadge(text) { $('modeBadge').textContent = text; }
+function stopTimer() { if(state.timerId) clearInterval(state.timerId); state.timerId = null; $('timer').textContent='--:--'; }
+
+function startPractice(pool=null) {
+  stopTimer();
+  state = { mode:'practice', pool: pool || filterQuestions(), index:0, selected:new Set(), submitted:false, right:0, wrong:0, examAnswers:{}, examSeconds:0, timerId:null };
+  setModeBadge('练习模式');
+  renderQuestion();
+}
+function startExam() {
+  stopTimer();
+  let pool = filterQuestions();
+  pool = shuffle(pool).slice(0, Math.min(50, pool.length));
+  state = { mode:'exam', pool, index:0, selected:new Set(), submitted:false, right:0, wrong:0, examAnswers:{}, examSeconds:75*60, timerId:null };
+  setModeBadge('模拟考试');
+  state.timerId = setInterval(() => {
+    state.examSeconds--;
+    const m = String(Math.floor(state.examSeconds/60)).padStart(2,'0');
+    const s = String(state.examSeconds%60).padStart(2,'0');
+    $('timer').textContent = `${m}:${s}`;
+    if(state.examSeconds <= 0) finishExam();
+  }, 1000);
+  renderQuestion();
+}
+function showWrongBook() {
+  stopTimer();
+  const ids = getWrongBook();
+  const pool = QUESTIONS.filter(q => ids.includes(q.id));
+  setModeBadge('错题复习');
+  if(pool.length === 0) {
+    $('mainCard').innerHTML = '<h2>错题本为空</h2><p class="explain">完成练习或考试后，答错的题目会自动加入错题本。</p>';
+    state = { mode:'wrong', pool:[], index:0, selected:new Set(), submitted:false, right:0, wrong:0, examAnswers:{}, examSeconds:0, timerId:null };
+    updateStats(); return;
+  }
+  startPractice(pool);
+  setModeBadge('错题复习');
+}
+function resetLocalData() {
+  if(confirm('确认清空错题本和本地记录吗？')) { localStorage.removeItem('ragWrongBook'); updateStats(); alert('已清空。'); }
+}
+function toggleOption(i) {
+  const q = state.pool[state.index];
+  if(state.mode==='exam') {
+    const current = new Set(state.examAnswers[q.id] || []);
+    if(q.type==='single') { current.clear(); current.add(i); } else { current.has(i) ? current.delete(i) : current.add(i); }
+    state.examAnswers[q.id] = [...current];
+    state.selected = current;
+    renderQuestion(false);
+    return;
+  }
+  if(state.submitted) return;
+  if(q.type==='single') { state.selected.clear(); state.selected.add(i); }
+  else { state.selected.has(i) ? state.selected.delete(i) : state.selected.add(i); }
+  renderQuestion(false);
+}
+function submitPractice() {
+  const q = state.pool[state.index];
+  if(state.selected.size === 0) { alert('请先选择答案。'); return; }
+  const correct = sameSet(state.selected, q.answer);
+  state.submitted = true;
+  if(correct) { state.right++; removeWrong(q.id); } else { state.wrong++; addWrong(q.id); }
+  renderQuestion(false);
+  showFeedback(correct);
+}
+function showFeedback(correct) {
+  const q = state.pool[state.index];
+  const fb = $('feedback');
+  fb.className = 'feedback show ' + (correct ? 'good' : 'bad');
+  fb.innerHTML = `<div class="answer-line">${correct ? '回答正确' : '回答错误'}｜正确答案：${answerText(q)}</div><div class="explain">${q.explain}</div>`;
+}
+function nextQuestion() {
+  if(state.index < state.pool.length-1) { state.index++; state.selected = new Set(state.mode==='exam' ? (state.examAnswers[state.pool[state.index].id] || []) : []); state.submitted=false; renderQuestion(); }
+  else { state.mode === 'exam' ? finishExam() : showPracticeDone(); }
+}
+function prevQuestion() {
+  if(state.index > 0) { state.index--; state.selected = new Set(state.mode==='exam' ? (state.examAnswers[state.pool[state.index].id] || []) : []); state.submitted=false; renderQuestion(); }
+}
+function renderQuestion(reset=true) {
+  updateStats();
+  if(!state.pool.length) { $('mainCard').innerHTML = '<h2>没有匹配题目</h2><p class="explain">请调整章节、题型或关键词筛选。</p>'; return; }
+  const q = state.pool[state.index];
+  if(reset && state.mode!=='exam') state.selected = new Set();
+  if(state.mode==='exam') state.selected = new Set(state.examAnswers[q.id] || []);
+  const typeName = q.type==='single' ? '单选题' : '多选题';
+  const typeClass = q.type==='single' ? 'single' : 'multiple';
+  const optionsHtml = q.options.map((op,i)=>{
+    let cls = 'option';
+    if(state.submitted && state.mode!=='exam') {
+      if(q.answer.includes(i)) cls += ' correct';
+      if(state.selected.has(i) && !q.answer.includes(i)) cls += ' wrong';
+      if(!state.selected.has(i) && q.answer.includes(i)) cls += ' missed';
+    }
+    const checked = state.selected.has(i) ? 'checked' : '';
+    const inputType = q.type==='single' ? 'radio' : 'checkbox';
+    return `<label class="${cls}"><input type="${inputType}" name="opt" ${checked} onchange="toggleOption(${i})"><span><b>${letters[i]}.</b> ${op}</span></label>`;
+  }).join('');
+  let actions = '';
+  if(state.mode==='exam') {
+    actions = `<button class="btn ghost" onclick="prevQuestion()">上一题</button><button class="btn primary" onclick="nextQuestion()">下一题</button><button class="btn red" onclick="finishExam()">交卷</button>`;
+  } else {
+    actions = `<button class="btn ghost" onclick="prevQuestion()">上一题</button><button class="btn primary" onclick="submitPractice()">提交答案</button><button class="btn green" onclick="nextQuestion()">下一题</button>`;
+  }
+  $('mainCard').innerHTML = `
+    <div class="question-meta">
+      <span class="pill">${q.id}</span><span class="pill ${typeClass}">${typeName}</span><span class="pill">${q.difficulty}</span><span class="pill">${q.chapter}</span>
+    </div>
+    <div class="q-title">${q.q}</div>
+    <div>${optionsHtml}</div>
+    <div class="actions">${actions}</div>
+    <div id="feedback" class="feedback"></div>`;
+  updateStats();
+}
+function showPracticeDone() {
+  const total = state.right + state.wrong;
+  const score = total ? Math.round(state.right/total*100) : 0;
+  $('progressBar').style.width = '100%';
+  $('mainCard').innerHTML = `<h2>练习完成</h2><div class="result-box"><div class="result-item"><span>完成题数</span><b>${total}</b></div><div class="result-item"><span>正确</span><b>${state.right}</b></div><div class="result-item"><span>错误</span><b>${state.wrong}</b></div><div class="result-item"><span>正确率</span><b>${score}%</b></div></div><p class="explain">可进入“错题复习”继续巩固。</p><button class="btn primary" onclick="showWrongBook()">复习错题</button>`;
+  updateStats();
+}
+function finishExam() {
+  if(state.mode !== 'exam') return;
+  stopTimer();
+  let right=0, wrong=0, unanswered=0;
+  const rows = state.pool.map((q,idx)=>{
+    const sel = new Set(state.examAnswers[q.id] || []);
+    if(sel.size === 0) unanswered++;
+    const ok = sameSet(sel, q.answer);
+    if(ok) { right++; removeWrong(q.id); } else { wrong++; addWrong(q.id); }
+    const userAns = sel.size ? [...sel].sort().map(i=>letters[i]).join(', ') : '未答';
+    const correctAns = q.answer.map(i=>letters[i]).join(', ');
+    return `<tr><td>${idx+1}</td><td>${q.type==='single'?'单选':'多选'}</td><td>${q.q}</td><td>${userAns}</td><td>${correctAns}</td><td>${ok?'✅':'❌'}</td><td>${q.explain}</td></tr>`;
+  }).join('');
+  state.right = right; state.wrong = wrong;
+  const score = Math.round(right/state.pool.length*100);
+  $('progressBar').style.width = '100%';
+  setModeBadge('考试结果');
+  $('mainCard').innerHTML = `<h2>模拟考试结果</h2><div class="result-box"><div class="result-item"><span>得分</span><b>${score}</b></div><div class="result-item"><span>正确</span><b>${right}</b></div><div class="result-item"><span>错误</span><b>${wrong}</b></div><div class="result-item"><span>未答</span><b>${unanswered}</b></div></div><div class="actions"><button class="btn green" onclick="startExam()">再考一次</button><button class="btn primary" onclick="showWrongBook()">复习错题</button><button class="btn ghost" onclick="window.print()">打印结果</button></div><h3>答案解析</h3><div class="table-wrap"><table><thead><tr><th>#</th><th>题型</th><th>题目</th><th>你的答案</th><th>正确答案</th><th>结果</th><th>解析</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  updateStats();
+}
+function showBank() {
+  stopTimer();
+  state.mode='bank'; setModeBadge('题库浏览');
+  const pool = filterQuestions();
+  const rows = pool.map((q,idx)=>`<tr><td>${idx+1}</td><td>${q.id}</td><td>${q.chapter}</td><td>${q.type==='single'?'单选':'多选'}</td><td>${q.q}</td><td>${answerText(q)}</td><td>${q.explain}</td></tr>`).join('');
+  $('mainCard').innerHTML = `<h2>题库浏览</h2><p class="small">当前筛选：${pool.length} / ${QUESTIONS.length} 题。可使用左侧筛选。需要纸质版时可点击打印。</p><div class="actions"><button class="btn primary" onclick="startPractice(state.pool)">练习当前筛选题</button><button class="btn ghost" onclick="window.print()">打印题库</button></div><div class="table-wrap"><table><thead><tr><th>#</th><th>ID</th><th>章节</th><th>题型</th><th>题目</th><th>正确答案</th><th>解析</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  state.pool = pool; state.index = 0; state.right = 0; state.wrong = 0; updateStats();
+}
+
+initFilters(); updateStats();
+</script>
+</body>
+</html>
