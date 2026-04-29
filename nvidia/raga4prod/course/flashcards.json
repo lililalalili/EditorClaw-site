@@ -1,0 +1,578 @@
+[
+  {
+    "id": "fc001",
+    "front": "RAG",
+    "en": "Retrieval-Augmented Generation",
+    "zh": "检索增强生成",
+    "explain": "将检索系统与大语言模型结合，让模型基于外部知识证据生成答案。",
+    "chapter": "第1章 从 RAG 原型到生产级系统"
+  },
+  {
+    "id": "fc002",
+    "front": "LLM",
+    "en": "Large Language Model",
+    "zh": "大语言模型",
+    "explain": "能够理解和生成自然语言的基础模型，在 RAG 中负责根据检索上下文生成答案。",
+    "chapter": "第1章 从 RAG 原型到生产级系统"
+  },
+  {
+    "id": "fc003",
+    "front": "NIM",
+    "en": "NVIDIA Inference Microservice",
+    "zh": "NVIDIA 推理微服务",
+    "explain": "NVIDIA 提供的面向生产部署的模型推理微服务形态。",
+    "chapter": "第1章 从 RAG 原型到生产级系统"
+  },
+  {
+    "id": "fc004",
+    "front": "NeMo Retriever",
+    "en": "NVIDIA NeMo Retriever",
+    "zh": "NVIDIA NeMo 检索组件",
+    "explain": "面向企业检索和 RAG 的 NVIDIA 组件集合，包含 embedding 与 reranking 等能力。",
+    "chapter": "第1章 从 RAG 原型到生产级系统"
+  },
+  {
+    "id": "fc005",
+    "front": "Embedding",
+    "en": "Text Embedding",
+    "zh": "文本嵌入/向量表示",
+    "explain": "把文本转换为向量，使系统可以计算语义相似度并进行向量检索。",
+    "chapter": "第1章 从 RAG 原型到生产级系统"
+  },
+  {
+    "id": "fc006",
+    "front": "Reranking",
+    "en": "Text Reranking",
+    "zh": "文本重排序",
+    "explain": "对初始检索候选结果进行精排，提高进入 LLM 上下文的证据质量。",
+    "chapter": "第1章 从 RAG 原型到生产级系统"
+  },
+  {
+    "id": "fc007",
+    "front": "Vector Store",
+    "en": "Vector Database",
+    "zh": "向量数据库",
+    "explain": "存储 embedding 并支持相似度检索、metadata filter 和索引管理的数据库。",
+    "chapter": "第2章 生产级 RAG 总体架构"
+  },
+  {
+    "id": "fc008",
+    "front": "Chunk",
+    "en": "Text Chunk",
+    "zh": "文本片段",
+    "explain": "文档被切分后的检索基本单元。",
+    "chapter": "第2章 生产级 RAG 总体架构"
+  },
+  {
+    "id": "fc009",
+    "front": "Chunking",
+    "en": "Text Chunking",
+    "zh": "文本切分",
+    "explain": "将文档按长度、标题、段落或语义切分成多个 chunk 的过程。",
+    "chapter": "第2章 生产级 RAG 总体架构"
+  },
+  {
+    "id": "fc010",
+    "front": "Metadata",
+    "en": "Metadata",
+    "zh": "元数据",
+    "explain": "描述文档或 chunk 的来源、页码、权限、版本、更新时间等信息。",
+    "chapter": "第2章 生产级 RAG 总体架构"
+  },
+  {
+    "id": "fc011",
+    "front": "Context Assembly",
+    "en": "Context Assembly",
+    "zh": "上下文组装",
+    "explain": "将检索和重排序后的片段组合进 prompt 的过程。",
+    "chapter": "第2章 生产级 RAG 总体架构"
+  },
+  {
+    "id": "fc012",
+    "front": "Prompt Template",
+    "en": "Prompt Template",
+    "zh": "提示词模板",
+    "explain": "组织系统指令、用户问题、上下文和输出格式要求的模板。",
+    "chapter": "第2章 生产级 RAG 总体架构"
+  },
+  {
+    "id": "fc013",
+    "front": "Kubernetes",
+    "en": "Kubernetes",
+    "zh": "容器编排平台",
+    "explain": "用于部署、调度、扩缩容和管理容器化应用的平台。",
+    "chapter": "第3章 NVIDIA NIM 与 NeMo Retriever 技术栈"
+  },
+  {
+    "id": "fc014",
+    "front": "K8s",
+    "en": "Kubernetes",
+    "zh": "Kubernetes 缩写",
+    "explain": "Kubernetes 的常用缩写，常用于生产级 AI 服务部署。",
+    "chapter": "第3章 NVIDIA NIM 与 NeMo Retriever 技术栈"
+  },
+  {
+    "id": "fc015",
+    "front": "Pod",
+    "en": "Kubernetes Pod",
+    "zh": "Kubernetes 最小调度单元",
+    "explain": "运行一个或多个容器的基本单位。",
+    "chapter": "第3章 NVIDIA NIM 与 NeMo Retriever 技术栈"
+  },
+  {
+    "id": "fc016",
+    "front": "Deployment",
+    "en": "Kubernetes Deployment",
+    "zh": "部署控制器",
+    "explain": "声明和维护一组 Pod 副本，支持滚动更新和回滚。",
+    "chapter": "第3章 NVIDIA NIM 与 NeMo Retriever 技术栈"
+  },
+  {
+    "id": "fc017",
+    "front": "Service",
+    "en": "Kubernetes Service",
+    "zh": "服务暴露对象",
+    "explain": "为 Pod 提供稳定访问入口和负载均衡。",
+    "chapter": "第3章 NVIDIA NIM 与 NeMo Retriever 技术栈"
+  },
+  {
+    "id": "fc018",
+    "front": "Ingress",
+    "en": "Kubernetes Ingress",
+    "zh": "入口路由",
+    "explain": "将外部 HTTP/HTTPS 请求路由到内部服务。",
+    "chapter": "第3章 NVIDIA NIM 与 NeMo Retriever 技术栈"
+  },
+  {
+    "id": "fc019",
+    "front": "Namespace",
+    "en": "Kubernetes Namespace",
+    "zh": "命名空间",
+    "explain": "用于隔离 Kubernetes 资源的逻辑空间。",
+    "chapter": "第4章 Kubernetes 与 Helm 基础"
+  },
+  {
+    "id": "fc020",
+    "front": "Secret",
+    "en": "Kubernetes Secret",
+    "zh": "密钥对象",
+    "explain": "保存 API key、数据库密码等敏感信息。",
+    "chapter": "第4章 Kubernetes 与 Helm 基础"
+  },
+  {
+    "id": "fc021",
+    "front": "ConfigMap",
+    "en": "Kubernetes ConfigMap",
+    "zh": "配置映射",
+    "explain": "保存非敏感配置，如模型名称、top_k 和日志级别。",
+    "chapter": "第4章 Kubernetes 与 Helm 基础"
+  },
+  {
+    "id": "fc022",
+    "front": "PVC",
+    "en": "PersistentVolumeClaim",
+    "zh": "持久卷声明",
+    "explain": "为应用申请持久化存储的 Kubernetes 对象。",
+    "chapter": "第4章 Kubernetes 与 Helm 基础"
+  },
+  {
+    "id": "fc023",
+    "front": "Helm",
+    "en": "Helm",
+    "zh": "Kubernetes 应用包管理器",
+    "explain": "用于模板化、参数化和部署 Kubernetes 应用。",
+    "chapter": "第4章 Kubernetes 与 Helm 基础"
+  },
+  {
+    "id": "fc024",
+    "front": "Helm Chart",
+    "en": "Helm Chart",
+    "zh": "Helm 应用包",
+    "explain": "一组模板化 Kubernetes 资源文件和默认配置。",
+    "chapter": "第4章 Kubernetes 与 Helm 基础"
+  },
+  {
+    "id": "fc025",
+    "front": "values.yaml",
+    "en": "Helm Values File",
+    "zh": "Helm 参数配置文件",
+    "explain": "为 Helm chart 提供环境相关参数的配置文件。",
+    "chapter": "第5章 端到端部署流程"
+  },
+  {
+    "id": "fc026",
+    "front": "GPU Operator",
+    "en": "NVIDIA GPU Operator",
+    "zh": "NVIDIA GPU 运维算子",
+    "explain": "自动化管理 Kubernetes GPU 驱动、设备插件和运行环境。",
+    "chapter": "第5章 端到端部署流程"
+  },
+  {
+    "id": "fc027",
+    "front": "RAG Server",
+    "en": "RAG Server",
+    "zh": "RAG 服务端",
+    "explain": "编排 embedding、检索、rerank、LLM 和后处理的核心服务。",
+    "chapter": "第5章 端到端部署流程"
+  },
+  {
+    "id": "fc028",
+    "front": "Ingestor Server",
+    "en": "Ingestor Server",
+    "zh": "数据摄取服务端",
+    "explain": "负责文档导入、解析、切分、向量化和索引写入。",
+    "chapter": "第5章 端到端部署流程"
+  },
+  {
+    "id": "fc029",
+    "front": "QPS",
+    "en": "Queries Per Second",
+    "zh": "每秒查询数",
+    "explain": "衡量系统吞吐能力的指标。",
+    "chapter": "第5章 端到端部署流程"
+  },
+  {
+    "id": "fc030",
+    "front": "P95 Latency",
+    "en": "95th Percentile Latency",
+    "zh": "第 95 百分位延迟",
+    "explain": "95% 请求的响应时间低于该值。",
+    "chapter": "第5章 端到端部署流程"
+  },
+  {
+    "id": "fc031",
+    "front": "P99 Latency",
+    "en": "99th Percentile Latency",
+    "zh": "第 99 百分位延迟",
+    "explain": "99% 请求的响应时间低于该值。",
+    "chapter": "第6章 性能优化与容量规划"
+  },
+  {
+    "id": "fc032",
+    "front": "TTFT",
+    "en": "Time To First Token",
+    "zh": "首 token 延迟",
+    "explain": "从请求发起到生成第一个 token 的时间。",
+    "chapter": "第6章 性能优化与容量规划"
+  },
+  {
+    "id": "fc033",
+    "front": "tokens/s",
+    "en": "Tokens Per Second",
+    "zh": "每秒生成 token 数",
+    "explain": "衡量 LLM 解码吞吐速度的指标。",
+    "chapter": "第6章 性能优化与容量规划"
+  },
+  {
+    "id": "fc034",
+    "front": "GPU Utilization",
+    "en": "GPU Utilization",
+    "zh": "GPU 利用率",
+    "explain": "GPU 计算资源被使用的比例。",
+    "chapter": "第6章 性能优化与容量规划"
+  },
+  {
+    "id": "fc035",
+    "front": "Batching",
+    "en": "Request Batching",
+    "zh": "请求批处理",
+    "explain": "将多个请求合并执行以提升 GPU 吞吐。",
+    "chapter": "第6章 性能优化与容量规划"
+  },
+  {
+    "id": "fc036",
+    "front": "KV Cache",
+    "en": "Key-Value Cache",
+    "zh": "键值缓存",
+    "explain": "LLM 推理中缓存历史 token 的注意力键值以减少重复计算。",
+    "chapter": "第6章 性能优化与容量规划"
+  },
+  {
+    "id": "fc037",
+    "front": "Autoscaling",
+    "en": "Autoscaling",
+    "zh": "自动扩缩容",
+    "explain": "根据负载或指标自动增加或减少服务副本。",
+    "chapter": "第7章 可观测性、日志与监控"
+  },
+  {
+    "id": "fc038",
+    "front": "top_k",
+    "en": "Top-K Retrieval",
+    "zh": "前 K 个检索结果",
+    "explain": "检索阶段返回的候选结果数量。",
+    "chapter": "第7章 可观测性、日志与监控"
+  },
+  {
+    "id": "fc039",
+    "front": "rerank_k",
+    "en": "Top-K After Reranking",
+    "zh": "重排序后保留数量",
+    "explain": "reranker 精排后进入上下文的候选数量。",
+    "chapter": "第7章 可观测性、日志与监控"
+  },
+  {
+    "id": "fc040",
+    "front": "Observability",
+    "en": "Observability",
+    "zh": "可观测性",
+    "explain": "通过指标、日志和链路追踪了解系统状态的能力。",
+    "chapter": "第7章 可观测性、日志与监控"
+  },
+  {
+    "id": "fc041",
+    "front": "Metrics",
+    "en": "Metrics",
+    "zh": "指标",
+    "explain": "QPS、延迟、错误率、GPU 使用率等可量化数据。",
+    "chapter": "第7章 可观测性、日志与监控"
+  },
+  {
+    "id": "fc042",
+    "front": "Logs",
+    "en": "Logs",
+    "zh": "日志",
+    "explain": "系统运行时记录的事件、请求和错误信息。",
+    "chapter": "第7章 可观测性、日志与监控"
+  },
+  {
+    "id": "fc043",
+    "front": "Tracing",
+    "en": "Distributed Tracing",
+    "zh": "分布式链路追踪",
+    "explain": "记录一次请求跨多个服务的调用链和耗时。",
+    "chapter": "第8章 RAG 质量评估与回归测试"
+  },
+  {
+    "id": "fc044",
+    "front": "Prometheus",
+    "en": "Prometheus",
+    "zh": "指标采集系统",
+    "explain": "常用的开源监控和指标采集工具。",
+    "chapter": "第8章 RAG 质量评估与回归测试"
+  },
+  {
+    "id": "fc045",
+    "front": "Grafana",
+    "en": "Grafana",
+    "zh": "可视化看板",
+    "explain": "展示监控指标、日志和告警状态的平台。",
+    "chapter": "第8章 RAG 质量评估与回归测试"
+  },
+  {
+    "id": "fc046",
+    "front": "OpenTelemetry",
+    "en": "OpenTelemetry",
+    "zh": "开放遥测框架",
+    "explain": "统一采集 metrics、logs 和 traces 的标准。",
+    "chapter": "第8章 RAG 质量评估与回归测试"
+  },
+  {
+    "id": "fc047",
+    "front": "Recall@k",
+    "en": "Recall at K",
+    "zh": "前 K 召回率",
+    "explain": "正确证据是否出现在前 K 个检索结果中的比例。",
+    "chapter": "第8章 RAG 质量评估与回归测试"
+  },
+  {
+    "id": "fc048",
+    "front": "Precision@k",
+    "en": "Precision at K",
+    "zh": "前 K 精确率",
+    "explain": "前 K 个结果中真正相关结果所占比例。",
+    "chapter": "第8章 RAG 质量评估与回归测试"
+  },
+  {
+    "id": "fc049",
+    "front": "MRR",
+    "en": "Mean Reciprocal Rank",
+    "zh": "平均倒数排名",
+    "explain": "衡量第一个相关结果排名位置的指标。",
+    "chapter": "第9章 安全、权限与合规"
+  },
+  {
+    "id": "fc050",
+    "front": "nDCG",
+    "en": "Normalized Discounted Cumulative Gain",
+    "zh": "归一化折损累计增益",
+    "explain": "考虑相关性等级和排序位置的检索排序指标。",
+    "chapter": "第9章 安全、权限与合规"
+  },
+  {
+    "id": "fc051",
+    "front": "Faithfulness",
+    "en": "Faithfulness",
+    "zh": "忠实性",
+    "explain": "答案是否严格由检索上下文支持。",
+    "chapter": "第9章 安全、权限与合规"
+  },
+  {
+    "id": "fc052",
+    "front": "Answer Correctness",
+    "en": "Answer Correctness",
+    "zh": "答案正确性",
+    "explain": "答案是否准确回答用户问题。",
+    "chapter": "第9章 安全、权限与合规"
+  },
+  {
+    "id": "fc053",
+    "front": "Citation Accuracy",
+    "en": "Citation Accuracy",
+    "zh": "引用准确性",
+    "explain": "引用来源是否真正支持对应答案结论。",
+    "chapter": "第9章 安全、权限与合规"
+  },
+  {
+    "id": "fc054",
+    "front": "Refusal Accuracy",
+    "en": "Refusal Accuracy",
+    "zh": "拒答准确性",
+    "explain": "不可回答或越权时系统是否正确拒答。",
+    "chapter": "第9章 安全、权限与合规"
+  },
+  {
+    "id": "fc055",
+    "front": "LLM-as-a-Judge",
+    "en": "Large Language Model as a Judge",
+    "zh": "以大模型作为评判器",
+    "explain": "使用 LLM 辅助评估答案质量和忠实性的方法。",
+    "chapter": "第10章 常见故障与排查"
+  },
+  {
+    "id": "fc056",
+    "front": "Regression Testing",
+    "en": "Regression Testing",
+    "zh": "回归测试",
+    "explain": "变更后重新运行评估集，确认已有能力未被破坏。",
+    "chapter": "第10章 常见故障与排查"
+  },
+  {
+    "id": "fc057",
+    "front": "RBAC",
+    "en": "Role-Based Access Control",
+    "zh": "基于角色的访问控制",
+    "explain": "根据用户角色分配访问权限。",
+    "chapter": "第10章 常见故障与排查"
+  },
+  {
+    "id": "fc058",
+    "front": "ABAC",
+    "en": "Attribute-Based Access Control",
+    "zh": "基于属性的访问控制",
+    "explain": "根据用户、资源和环境属性动态决定权限。",
+    "chapter": "第10章 常见故障与排查"
+  },
+  {
+    "id": "fc059",
+    "front": "Prompt Injection",
+    "en": "Prompt Injection",
+    "zh": "提示注入攻击",
+    "explain": "通过输入或文档中的恶意指令诱导模型违反规则。",
+    "chapter": "第10章 常见故障与排查"
+  },
+  {
+    "id": "fc060",
+    "front": "PII",
+    "en": "Personally Identifiable Information",
+    "zh": "个人可识别信息",
+    "explain": "可识别个人身份的信息，如姓名、电话、邮箱和证件号。",
+    "chapter": "第10章 常见故障与排查"
+  },
+  {
+    "id": "fc061",
+    "front": "Audit Log",
+    "en": "Audit Log",
+    "zh": "审计日志",
+    "explain": "记录访问、操作、引用和答案的合规日志。",
+    "chapter": "第11章 实验手册与工程实践"
+  },
+  {
+    "id": "fc062",
+    "front": "Guardrails",
+    "en": "AI Guardrails",
+    "zh": "AI 安全护栏",
+    "explain": "对模型输入、输出和行为施加安全约束的机制。",
+    "chapter": "第11章 实验手册与工程实践"
+  },
+  {
+    "id": "fc063",
+    "front": "ImagePullBackOff",
+    "en": "ImagePullBackOff",
+    "zh": "镜像拉取失败状态",
+    "explain": "Pod 因无法拉取容器镜像而进入的错误状态。",
+    "chapter": "第11章 实验手册与工程实践"
+  },
+  {
+    "id": "fc064",
+    "front": "CrashLoopBackOff",
+    "en": "CrashLoopBackOff",
+    "zh": "容器反复崩溃状态",
+    "explain": "容器启动后不断崩溃，Kubernetes 反复重启。",
+    "chapter": "第11章 实验手册与工程实践"
+  },
+  {
+    "id": "fc065",
+    "front": "OOMKilled",
+    "en": "Out Of Memory Killed",
+    "zh": "内存不足被杀死",
+    "explain": "容器因超过内存限制而被终止。",
+    "chapter": "第11章 实验手册与工程实践"
+  },
+  {
+    "id": "fc066",
+    "front": "Cold Start",
+    "en": "Cold Start",
+    "zh": "冷启动",
+    "explain": "服务从未运行状态启动到可接收请求的过程。",
+    "chapter": "第11章 实验手册与工程实践"
+  },
+  {
+    "id": "fc067",
+    "front": "CI/CD",
+    "en": "Continuous Integration / Continuous Delivery",
+    "zh": "持续集成/持续交付",
+    "explain": "自动化构建、测试、部署和发布流程。",
+    "chapter": "第12章 生产上线 Checklist 与持续改进"
+  },
+  {
+    "id": "fc068",
+    "front": "Canary Release",
+    "en": "Canary Release",
+    "zh": "金丝雀发布",
+    "explain": "先向少量流量发布新版本，观察稳定后逐步扩大。",
+    "chapter": "第12章 生产上线 Checklist 与持续改进"
+  },
+  {
+    "id": "fc069",
+    "front": "Blue-Green Deployment",
+    "en": "Blue-Green Deployment",
+    "zh": "蓝绿部署",
+    "explain": "维护两个环境并通过切换流量实现快速发布和回滚。",
+    "chapter": "第12章 生产上线 Checklist 与持续改进"
+  },
+  {
+    "id": "fc070",
+    "front": "Data Flywheel",
+    "en": "Data Flywheel",
+    "zh": "数据飞轮",
+    "explain": "用日志、反馈和评估结果持续改进系统的闭环机制。",
+    "chapter": "第12章 生产上线 Checklist 与持续改进"
+  },
+  {
+    "id": "fc071",
+    "front": "SLA",
+    "en": "Service Level Agreement",
+    "zh": "服务等级协议",
+    "explain": "对服务可用性和响应时间等指标的正式承诺。",
+    "chapter": "第12章 生产上线 Checklist 与持续改进"
+  },
+  {
+    "id": "fc072",
+    "front": "SLO",
+    "en": "Service Level Objective",
+    "zh": "服务等级目标",
+    "explain": "服务需要达到的可量化目标。",
+    "chapter": "第12章 生产上线 Checklist 与持续改进"
+  }
+]

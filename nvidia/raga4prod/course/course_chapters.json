@@ -1,0 +1,302 @@
+[
+  {
+    "id": "ch01",
+    "title": "第1章 从 RAG 原型到生产级系统",
+    "objectives": [
+      "理解 RAG 的基本思想与企业级价值",
+      "区分 Demo 级 RAG 与生产级 RAG 的核心差异",
+      "掌握生产部署需要关注的质量、性能、安全和运维维度"
+    ],
+    "content": [
+      {
+        "heading": "1.1 RAG 的核心思想",
+        "body": "RAG（Retrieval-Augmented Generation，检索增强生成）把外部知识检索系统与大语言模型结合起来。用户提问后，系统先从知识库中召回相关证据，再把这些证据作为上下文交给 LLM 生成答案。这样可以降低模型仅依赖参数记忆造成的幻觉，并让答案具备可追溯来源。"
+      },
+      {
+        "heading": "1.2 企业为什么需要 RAG",
+        "body": "企业知识通常不断变化，并分布在 PDF、网页、内部文档、数据库、工单系统和知识库中。RAG 允许模型在受控权限下使用最新、可审计、可引用的企业知识，而不必频繁重新训练大模型。"
+      },
+      {
+        "heading": "1.3 生产级 RAG 的要求",
+        "body": "生产级系统不仅要“能回答”，还要稳定、低延迟、可扩展、可监控、可回滚、可评估、可审计，并能处理权限、安全和成本问题。这是本课程区别于普通 RAG 入门课程的关键。"
+      }
+    ],
+    "exercise": "请列出 Demo 级 RAG 与生产级 RAG 的 5 个差异，并说明为什么这些差异会影响上线。",
+    "answer": "可从数据规模、部署方式、监控、权限控制、评估体系、回滚机制、并发性能和成本管理等方面回答。Demo 级 RAG 关注跑通流程，生产级 RAG 关注真实业务条件下的可靠运行。"
+  },
+  {
+    "id": "ch02",
+    "title": "第2章 生产级 RAG 总体架构",
+    "objectives": [
+      "理解离线 ingestion pipeline 与在线 query pipeline",
+      "掌握 chunk、metadata、embedding、vector store、rerank、generation 的角色",
+      "能够画出端到端 RAG 架构图"
+    ],
+    "content": [
+      {
+        "heading": "2.1 两条主线",
+        "body": "生产级 RAG 通常包含离线数据摄取管线和在线查询管线。离线管线负责文档解析、清洗、切分、向量化和索引构建；在线管线负责问题处理、检索、重排序、上下文组装、生成和引用返回。"
+      },
+      {
+        "heading": "2.2 Chunk 与 Metadata",
+        "body": "chunk 是检索的基本单元。每个 chunk 应记录来源文档、页码、标题层级、更新时间、版本号和权限标签等 metadata。metadata 是权限过滤、引用溯源和索引维护的基础。"
+      },
+      {
+        "heading": "2.3 Context Assembly",
+        "body": "上下文组装不是简单拼接文本，而是要综合排序、去重、token 限制、引用标记、权限边界和 prompt 模板要求。好的上下文组装决定最终答案是否准确、完整和可引用。"
+      }
+    ],
+    "exercise": "画出一个包含 ingestion pipeline 与 query pipeline 的 RAG 架构图，并标出每个组件输入输出。",
+    "answer": "图中应包含数据源、解析、清洗、chunking、embedding、向量库、用户问题、query embedding、检索、rerank、prompt/context assembly、LLM、答案与引用。"
+  },
+  {
+    "id": "ch03",
+    "title": "第3章 NVIDIA NIM 与 NeMo Retriever 技术栈",
+    "objectives": [
+      "理解 NVIDIA NIM microservices 的生产部署价值",
+      "掌握 Embedding NIM、Reranking NIM 和 LLM NIM 在 RAG 中的作用",
+      "理解 RAG Blueprint 与 NIM Operator 的工程意义"
+    ],
+    "content": [
+      {
+        "heading": "3.1 NIM Microservices",
+        "body": "NIM 是 NVIDIA 面向生产部署的模型推理微服务形态。它把模型服务封装为可部署、可扩展、可调用的 API 服务，适合在云端或数据中心运行。"
+      },
+      {
+        "heading": "3.2 NeMo Retriever",
+        "body": "NeMo Retriever 关注企业信息检索与 RAG。Embedding NIM 负责把问题和文档片段编码为向量；Reranking NIM 负责对初始召回结果重新排序，提高进入 LLM 的上下文质量。"
+      },
+      {
+        "heading": "3.3 Blueprint 与 Operator",
+        "body": "RAG Blueprint 可作为端到端 RAG 架构参考；NIM Operator 则帮助在 Kubernetes 中管理 NIM 服务的生命周期、模型缓存、扩缩容和运维配置。"
+      }
+    ],
+    "exercise": "解释 Embedding NIM 与 Reranking NIM 的区别，并说明二者如何协同提高 RAG 质量。",
+    "answer": "Embedding NIM 用于召回候选文档，Reranking NIM 用于对候选文档进行精排。前者追求召回，后者提高排序质量和上下文相关性。"
+  },
+  {
+    "id": "ch04",
+    "title": "第4章 Kubernetes 与 Helm 基础",
+    "objectives": [
+      "理解 Kubernetes 中 Pod、Deployment、Service、Ingress、Secret、ConfigMap 的作用",
+      "理解 Helm chart 与 values.yaml 的意义",
+      "掌握为什么生产级 RAG 适合在 Kubernetes 上部署"
+    ],
+    "content": [
+      {
+        "heading": "4.1 Kubernetes 的价值",
+        "body": "RAG pipeline 由多个服务组成，包括 embedding、reranker、LLM、RAG server、向量数据库、对象存储和监控服务。Kubernetes 提供统一的调度、健康检查、滚动更新和弹性扩缩容能力。"
+      },
+      {
+        "heading": "4.2 配置与密钥",
+        "body": "ConfigMap 用于保存非敏感配置，如 top_k、模型名称和日志级别；Secret 用于保存 NGC API key、数据库密码和服务 token。生产系统应避免把密钥写入代码或明文配置。"
+      },
+      {
+        "heading": "4.3 Helm 的价值",
+        "body": "Helm 将多个 Kubernetes YAML 文件组织为 chart，并通过 values.yaml 参数化部署。它让同一套 RAG 服务可以更容易地部署到 dev、staging 和 prod 环境。"
+      }
+    ],
+    "exercise": "说明为什么不建议直接手写并手动维护大量 Kubernetes YAML 文件。",
+    "answer": "手动维护 YAML 易出错、难复用、难版本化、难跨环境迁移。Helm 可以模板化和参数化部署，提高一致性和可维护性。"
+  },
+  {
+    "id": "ch05",
+    "title": "第5章 端到端部署流程",
+    "objectives": [
+      "掌握部署前的环境准备清单",
+      "理解 namespace、secret、NIM 服务、RAG server 的部署顺序",
+      "能够用 kubectl 检查服务状态"
+    ],
+    "content": [
+      {
+        "heading": "5.1 部署前准备",
+        "body": "部署前应确认 Kubernetes 集群、GPU 节点、NVIDIA GPU Operator、Helm、NGC 凭据、镜像网络、存储类和监控组件可用。任何一个基础设施问题都可能导致服务启动失败。"
+      },
+      {
+        "heading": "5.2 推荐部署顺序",
+        "body": "通常先创建 namespace 和 secret，再部署 embedding、reranker、LLM、向量数据库、RAG server 和 ingestor server，最后配置入口路由和监控。"
+      },
+      {
+        "heading": "5.3 验证与回滚",
+        "body": "部署后应使用 kubectl get pods、kubectl describe pod、kubectl logs 和服务健康检查确认状态。上线系统应支持版本回滚，包括服务版本、模型版本、prompt 版本和索引版本。"
+      }
+    ],
+    "exercise": "写出你会在 RAG 部署后执行的 6 个验证命令或检查点。",
+    "answer": "可包括 kubectl get pods、get svc、describe pod、logs、检查 GPU 资源、访问健康检查接口、发起测试 query、查看监控 dashboard 等。"
+  },
+  {
+    "id": "ch06",
+    "title": "第6章 性能优化与容量规划",
+    "objectives": [
+      "理解 QPS、P95/P99、TTFT、tokens/s 等指标",
+      "掌握 RAG 总延迟的拆解方式",
+      "能够提出 embedding、检索、rerank 和 LLM 推理优化策略"
+    ],
+    "content": [
+      {
+        "heading": "6.1 延迟拆解",
+        "body": "一次 RAG 请求的总延迟包括网关、query embedding、向量检索、reranking、上下文组装、LLM prefill、LLM decode 和后处理。优化必须定位瓶颈，而不是只盯着 LLM。"
+      },
+      {
+        "heading": "6.2 检索与 Rerank 优化",
+        "body": "top_k 太小会漏召回，太大会增加噪声和延迟。rerank 能提高上下文质量，但候选集过大会显著增加耗时。生产系统应通过评估集和压力测试找到平衡点。"
+      },
+      {
+        "heading": "6.3 LLM 推理优化",
+        "body": "常见策略包括选择合适模型、限制 max_tokens、启用缓存、批处理、优化 KV cache、流式输出和自动扩缩容。GPU 利用率过低或过高都可能说明资源配置不合理。"
+      }
+    ],
+    "exercise": "如果 RAG 系统 P95 latency 过高，你会如何逐层定位瓶颈？",
+    "answer": "应拆分记录 embedding、vector search、rerank、prompt assembly、LLM prefill/decode 和后处理耗时，再结合 GPU、队列长度、top_k、rerank_k、token 数和错误日志定位。"
+  },
+  {
+    "id": "ch07",
+    "title": "第7章 可观测性、日志与监控",
+    "objectives": [
+      "理解 metrics、logs、tracing 的差异与互补关系",
+      "掌握 RAG 应记录的质量日志",
+      "能够设计一个基础 Grafana 监控面板"
+    ],
+    "content": [
+      {
+        "heading": "7.1 为什么 RAG 需要可观测性",
+        "body": "RAG 的问题不一定表现为服务宕机，也可能是答案质量下降、检索召回变差、引用不准或权限过滤异常。因此可观测性必须覆盖系统指标与质量指标。"
+      },
+      {
+        "heading": "7.2 系统指标",
+        "body": "应监控请求数、错误率、P95/P99 延迟、GPU 利用率、显存、tokens/s、embedding latency、rerank latency、vector search latency、Pod 重启次数和超时率。"
+      },
+      {
+        "heading": "7.3 质量日志",
+        "body": "建议记录 query、retrieved chunks、rerank scores、final context、answer、citations、model version、prompt version、index version 和用户反馈。这些数据构成后续评估和数据飞轮。"
+      }
+    ],
+    "exercise": "设计一个 RAG 监控 dashboard，至少列出 10 个指标。",
+    "answer": "可包括 QPS、错误率、P95/P99、TTFT、tokens/s、GPU 使用率、显存、retrieval latency、rerank latency、LLM latency、timeout rate、cache hit rate、citation accuracy 等。"
+  },
+  {
+    "id": "ch08",
+    "title": "第8章 RAG 质量评估与回归测试",
+    "objectives": [
+      "掌握 Recall@k、Precision@k、MRR、nDCG 等检索指标",
+      "理解 faithfulness、answer correctness、citation accuracy 等生成指标",
+      "能够设计 RAG 离线评估集"
+    ],
+    "content": [
+      {
+        "heading": "8.1 检索评估",
+        "body": "检索阶段需要回答：正确证据是否被召回？是否排在足够靠前的位置？常用指标包括 Recall@k、Precision@k、MRR、nDCG 和 Hit Rate。"
+      },
+      {
+        "heading": "8.2 生成评估",
+        "body": "生成阶段需要回答：答案是否正确？是否忠实于上下文？引用是否支持结论？不可回答时是否拒答？这些指标决定 RAG 是否可信。"
+      },
+      {
+        "heading": "8.3 回归测试",
+        "body": "每次更换模型、修改 prompt、更新 chunking 策略、重建索引或接入新数据源后，都应运行评估集，防止新版本破坏已有能力。"
+      }
+    ],
+    "exercise": "设计一个包含 20 个问题的小型 RAG 评估集，应覆盖哪些问题类型？",
+    "answer": "应覆盖普通事实问题、多跳问题、同义表达问题、不可回答问题、权限边界问题、时间敏感问题、引用要求问题和高相似文档干扰问题。"
+  },
+  {
+    "id": "ch09",
+    "title": "第9章 安全、权限与合规",
+    "objectives": [
+      "理解 RAG 中权限过滤必须进入检索层",
+      "掌握 prompt injection、数据泄露和 PII 风险",
+      "能够提出生产环境中的密钥与审计方案"
+    ],
+    "content": [
+      {
+        "heading": "9.1 权限过滤",
+        "body": "生产级 RAG 最危险的问题之一是用户通过模型间接访问无权限文档。因此每个 chunk 应带权限 metadata，检索阶段和上下文组装阶段都应执行权限检查。"
+      },
+      {
+        "heading": "9.2 Prompt Injection",
+        "body": "被检索文档可能包含恶意指令，例如要求模型忽略系统提示、泄露密钥或输出内部信息。应把文档内容视为不可信数据，并通过 guardrails 与提示隔离降低风险。"
+      },
+      {
+        "heading": "9.3 审计与密钥管理",
+        "body": "生产系统应使用 Secret、Vault 或 KMS 管理密钥，并记录谁在何时访问了哪些数据、系统返回了哪些引用和答案，以满足审计与合规要求。"
+      }
+    ],
+    "exercise": "说明为什么只在前端 UI 做权限控制不足以保护 RAG 知识库。",
+    "answer": "因为用户请求仍可能绕过 UI 或通过检索与模型间接访问数据。权限必须在检索层、上下文组装层和服务端审计层执行。"
+  },
+  {
+    "id": "ch10",
+    "title": "第10章 常见故障与排查",
+    "objectives": [
+      "识别 Pod Pending、ImagePullBackOff、CrashLoopBackOff、OOMKilled 等状态",
+      "掌握 kubectl describe/logs 的排查思路",
+      "能够从系统、模型、索引和配置多个层面定位 RAG 问题"
+    ],
+    "content": [
+      {
+        "heading": "10.1 部署故障",
+        "body": "Pod Pending 常由 GPU 不足、PVC 未绑定、node selector 不匹配或资源请求过高导致。ImagePullBackOff 常由镜像名、凭据或网络问题导致。"
+      },
+      {
+        "heading": "10.2 运行故障",
+        "body": "CrashLoopBackOff 说明容器反复崩溃，OOMKilled 说明资源限制不足。模型服务常因模型下载、显存不足、配置错误或依赖不可用而失败。"
+      },
+      {
+        "heading": "10.3 质量故障",
+        "body": "答案不准可能来自 chunking、embedding、检索 top_k、rerank、prompt、知识库过期或评估集不足。排查时应分离检索问题与生成问题。"
+      }
+    ],
+    "exercise": "如果用户反馈答案引用错误，你会如何定位原因？",
+    "answer": "检查 retrieved chunks、rerank scores、context assembly、citation mapping、prompt 模板和答案生成逻辑，确认引用是否在后处理阶段错配或检索本身不相关。"
+  },
+  {
+    "id": "ch11",
+    "title": "第11章 实验手册与工程实践",
+    "objectives": [
+      "能够完成最小 RAG pipeline 的实验设计",
+      "掌握压力测试、监控接入、回归评估和故障演练的实践流程",
+      "形成从实验到上线的工程闭环"
+    ],
+    "content": [
+      {
+        "heading": "11.1 实验设计原则",
+        "body": "每个实验应包含目标、环境、步骤、预期结果、验证命令、常见问题和思考题。生产课程的实验不应只追求跑通，还要训练排查与评估能力。"
+      },
+      {
+        "heading": "11.2 压力测试",
+        "body": "可使用 k6、Locust 或自写异步脚本模拟并发请求，记录 QPS、P95/P99、错误率、GPU 使用率和各阶段耗时。"
+      },
+      {
+        "heading": "11.3 上线演练",
+        "body": "上线前应完成配置检查、权限检查、评估集回归、监控告警、备份恢复、回滚演练和灾难恢复预案。"
+      }
+    ],
+    "exercise": "为本课程设计一个 2 小时实验课安排，包括实验目标、步骤和验收标准。",
+    "answer": "可安排部署前检查、创建 namespace/secret、部署 mock embedding/rerank/RAG server、导入测试文档、发起查询、查看日志、压测和填写上线 checklist。"
+  },
+  {
+    "id": "ch12",
+    "title": "第12章 生产上线 Checklist 与持续改进",
+    "objectives": [
+      "掌握生产上线前的架构、性能、质量、安全和运维检查项",
+      "理解数据飞轮和持续改进机制",
+      "能够设计 RAG 系统的版本管理与发布策略"
+    ],
+    "content": [
+      {
+        "heading": "12.1 上线 Checklist",
+        "body": "上线前应检查数据摄取、索引版本、模型版本、prompt 版本、权限规则、监控告警、备份、回滚、评估结果和安全扫描。Checklist 是将工程经验制度化的工具。"
+      },
+      {
+        "heading": "12.2 数据飞轮",
+        "body": "生产日志、用户反馈、错误分析和专家标注应持续进入评估集与改进流程。RAG 系统不是一次性上线，而是持续评估和迭代的系统。"
+      },
+      {
+        "heading": "12.3 发布策略",
+        "body": "重要变更应使用 staging 验证、回归测试、金丝雀发布、灰度放量和回滚预案。模型、prompt、索引和配置都应有版本记录。"
+      }
+    ],
+    "exercise": "请为一个企业知识库 RAG 系统制定上线前 15 项检查清单。",
+    "answer": "可包括数据源、解析、chunk、metadata、权限、embedding、索引、rerank、prompt、LLM、引用、评估集、性能压测、监控告警、日志审计、备份、回滚、密钥和网络策略。"
+  }
+]

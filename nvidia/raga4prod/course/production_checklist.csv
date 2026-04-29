@@ -1,0 +1,20 @@
+﻿类别,检查项,通过标准
+架构,区分 ingestion pipeline 与 query pipeline,离线与在线链路清晰，服务职责明确
+数据,文档解析与清洗可重复,解析规则、失败日志和重试机制可用
+Chunk,chunk 大小与策略经过评估,召回和上下文质量达到目标
+Metadata,每个 chunk 带来源、页码、版本、权限,支持引用、过滤和审计
+Embedding,embedding 模型与领域匹配,评估集召回达标
+Vector Store,索引支持增量更新与回滚,索引版本可追踪
+Rerank,rerank_k 与延迟平衡,质量提升明显且延迟可接受
+LLM,模型、上下文长度和 max_tokens 合理,P95/P99 与成本达标
+Prompt,prompt 模板版本化,通过回归测试
+引用,答案引用可追溯,citation accuracy 达标
+权限,检索层和上下文层均有权限过滤,越权测试通过
+安全,Secret、RBAC、NetworkPolicy 已配置,无明文密钥和过宽权限
+监控,Grafana/Prometheus 或等价监控可用,覆盖系统和质量指标
+日志,记录 query、chunks、scores、answer、versions,支持排查与审计
+评估,离线评估集覆盖关键场景,上线前回归通过
+性能,完成压力测试,QPS、P95/P99、错误率达标
+回滚,模型、prompt、索引、服务可回滚,演练成功
+备份,原始数据、索引、配置有备份,恢复流程验证
+发布,使用 staging/canary 或等价流程,有 Go/No-Go 机制
