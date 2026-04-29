@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RAG Production Diagram Suite（非官方学习图解）</title>
+<style>
+body{margin:0;font-family:Segoe UI,Microsoft YaHei,Arial,sans-serif;background:#f6f7fb;color:#172033}
+header{padding:34px 28px;background:linear-gradient(135deg,#4f46e5,#06b6d4);color:white}
+header h1{margin:0 0 8px;font-size:34px} header p{margin:0;opacity:.92;line-height:1.7}
+main{padding:24px;max-width:1380px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+.card{background:white;border:1px solid #e5e7eb;border-radius:22px;padding:18px;box-shadow:0 16px 45px rgba(15,23,42,.08)}
+.card img{width:100%;border-radius:16px;border:1px solid #e5e7eb;background:white}
+.card h2{font-size:22px;margin:14px 0 6px} .card p{color:#64748b;line-height:1.7}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.links a{text-decoration:none;color:#3730a3;background:#eef2ff;border:1px solid #c7d2fe;padding:9px 12px;border-radius:12px;font-weight:700}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+.legal-banner{margin:0;padding:12px 20px;background:#fffbeb;color:#78350f;border-bottom:1px solid #fde68a;font-size:13px;line-height:1.7;font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif}.legal-banner strong{font-weight:800}.legal-banner + .app{min-height:calc(100vh - 54px)}
+
+</style></head>
+<body>
+<div class="legal-banner"><strong>免责声明：</strong>本资料为非官方学习资料，基于公开资料、通用工程知识和原创教学扩展编写；不是 NVIDIA 官方资料，也未获得 NVIDIA 官方授权或背书；不包含 NVIDIA DLI 课程内部课件、视频、实验环境、测验题或官方教材内容。NVIDIA、NVIDIA NIM、NeMo、DLI、RAG Blueprint 等名称可能是 NVIDIA Corporation 的商标或注册商标，本文仅用于技术说明和学习引用。请以 NVIDIA 官方课程、文档和许可条款为准。</div>
+<header><h1>RAG Production Diagram Suite（非官方学习图解）</h1>
+<p>生产级 RAG Pipeline 部署架构图与流程图套件。图解为原创教学整理，非官方资料。每张图提供 SVG、PNG 和 Mermaid 源文件，可用于教材、PPT、培训、网页和 WeChat 推文。</p></header>
+<main><div class="grid">
+    <article class="card">
+      <img src="svg/01_rag_offline_ingestion_pipeline.svg" alt="RAG 离线 Ingestion Pipeline 图"/>
+      <h2>RAG 离线 Ingestion Pipeline 图</h2>
+      <p>从多源数据到可检索向量索引：解析、清洗、切分、向量化、metadata 与审计</p>
+      <div class="links">
+        <a href="svg/01_rag_offline_ingestion_pipeline.svg" download>下载 SVG</a>
+        <a href="png/01_rag_offline_ingestion_pipeline.png" download>下载 PNG</a>
+        <a href="mermaid/01_rag_offline_ingestion_pipeline.mmd" download>下载 Mermaid</a>
+      </div>
+    </article>
+    
+    <article class="card">
+      <img src="svg/02_rag_online_query_pipeline.svg" alt="RAG 在线 Query Pipeline 图"/>
+      <h2>RAG 在线 Query Pipeline 图</h2>
+      <p>从用户问题到带引用答案：检索、rerank、上下文组装、LLM 生成与反馈闭环</p>
+      <div class="links">
+        <a href="svg/02_rag_online_query_pipeline.svg" download>下载 SVG</a>
+        <a href="png/02_rag_online_query_pipeline.png" download>下载 PNG</a>
+        <a href="mermaid/02_rag_online_query_pipeline.mmd" download>下载 Mermaid</a>
+      </div>
+    </article>
+    
+    <article class="card">
+      <img src="svg/03_kubernetes_deployment_topology.svg" alt="Kubernetes 部署拓扑图"/>
+      <h2>Kubernetes 部署拓扑图</h2>
+      <p>生产环境中 RAG 应用、NIM GPU 服务、向量库、存储与监控的典型拓扑</p>
+      <div class="links">
+        <a href="svg/03_kubernetes_deployment_topology.svg" download>下载 SVG</a>
+        <a href="png/03_kubernetes_deployment_topology.png" download>下载 PNG</a>
+        <a href="mermaid/03_kubernetes_deployment_topology.mmd" download>下载 Mermaid</a>
+      </div>
+    </article>
+    
+    <article class="card">
+      <img src="svg/04_nim_microservices_call_graph.svg" alt="NIM 微服务调用关系图"/>
+      <h2>NIM 微服务调用关系图</h2>
+      <p>RAG 编排服务如何调用 Embedding、Reranking、LLM、OCR、Guardrails 与 Evaluator 服务</p>
+      <div class="links">
+        <a href="svg/04_nim_microservices_call_graph.svg" download>下载 SVG</a>
+        <a href="png/04_nim_microservices_call_graph.png" download>下载 PNG</a>
+        <a href="mermaid/04_nim_microservices_call_graph.mmd" download>下载 Mermaid</a>
+      </div>
+    </article>
+    
+    <article class="card">
+      <img src="svg/05_helm_deployment_flow.svg" alt="Helm 部署流程图"/>
+      <h2>Helm 部署流程图</h2>
+      <p>从环境准备到 helm 部署、验证、监控、灰度发布与回滚的标准流程</p>
+      <div class="links">
+        <a href="svg/05_helm_deployment_flow.svg" download>下载 SVG</a>
+        <a href="png/05_helm_deployment_flow.png" download>下载 PNG</a>
+        <a href="mermaid/05_helm_deployment_flow.mmd" download>下载 Mermaid</a>
+      </div>
+    </article>
+    
+    <article class="card">
+      <img src="svg/06_monitoring_logging_architecture.svg" alt="监控与日志架构图"/>
+      <h2>监控与日志架构图</h2>
+      <p>系统指标、日志、链路追踪、质量指标与告警如何形成可观测性闭环</p>
+      <div class="links">
+        <a href="svg/06_monitoring_logging_architecture.svg" download>下载 SVG</a>
+        <a href="png/06_monitoring_logging_architecture.png" download>下载 PNG</a>
+        <a href="mermaid/06_monitoring_logging_architecture.mmd" download>下载 Mermaid</a>
+      </div>
+    </article>
+    
+    <article class="card">
+      <img src="svg/07_rag_evaluation_feedback_loop.svg" alt="RAG 质量评估闭环图"/>
+      <h2>RAG 质量评估闭环图</h2>
+      <p>从生产日志到评估集、自动评测、改进策略、灰度发布与持续监控的数据飞轮</p>
+      <div class="links">
+        <a href="svg/07_rag_evaluation_feedback_loop.svg" download>下载 SVG</a>
+        <a href="png/07_rag_evaluation_feedback_loop.png" download>下载 PNG</a>
+        <a href="mermaid/07_rag_evaluation_feedback_loop.mmd" download>下载 Mermaid</a>
+      </div>
+    </article>
+    
+    <article class="card">
+      <img src="svg/08_security_permission_control_flow.svg" alt="安全权限控制链路图"/>
+      <h2>安全权限控制链路图</h2>
+      <p>身份认证、RBAC/ABAC、metadata filter、上下文二次检查、prompt injection 防护与审计</p>
+      <div class="links">
+        <a href="svg/08_security_permission_control_flow.svg" download>下载 SVG</a>
+        <a href="png/08_security_permission_control_flow.png" download>下载 PNG</a>
+        <a href="mermaid/08_security_permission_control_flow.mmd" download>下载 Mermaid</a>
+      </div>
+    </article>
+    
+    <article class="card">
+      <img src="svg/09_troubleshooting_decision_flow.svg" alt="故障排查流程图"/>
+      <h2>故障排查流程图</h2>
+      <p>从告警和用户反馈出发，按系统、性能、质量、安全四类问题分层定位与验证</p>
+      <div class="links">
+        <a href="svg/09_troubleshooting_decision_flow.svg" download>下载 SVG</a>
+        <a href="png/09_troubleshooting_decision_flow.png" download>下载 PNG</a>
+        <a href="mermaid/09_troubleshooting_decision_flow.mmd" download>下载 Mermaid</a>
+      </div>
+    </article>
+    </div></main></body></html>
