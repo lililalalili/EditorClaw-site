@@ -88,14 +88,19 @@ th { background: #f8fafc; font-size: 13px; color: var(--muted); }
 }
 @media (max-width: 560px) { .toolbar, .result-box { grid-template-columns: 1fr; } .card { padding: 16px; } }
 @media print { .toolbar, .panel, .actions { display:none; } .container { margin:0; } .card { box-shadow:none; border:none; } }
+
+.legal-banner{margin:0;padding:12px 20px;background:#fffbeb;color:#78350f;border-bottom:1px solid #fde68a;font-size:13px;line-height:1.7;font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif}.legal-banner strong{font-weight:800}.legal-banner + .app{min-height:calc(100vh - 54px)}
+
 </style>
 </head>
 <body>
+<div class="legal-banner"><strong>免责声明：</strong>本资料为非官方学习资料，基于公开资料、通用工程知识和原创教学扩展编写；不是 NVIDIA 官方资料，也未获得 NVIDIA 官方授权或背书；不包含 NVIDIA DLI 课程内部课件、视频、实验环境、测验题或官方教材内容。NVIDIA、NVIDIA NIM、NeMo、DLI、RAG Blueprint 等名称可能是 NVIDIA Corporation 的商标或注册商标，本文仅用于技术说明和学习引用。请以 NVIDIA 官方课程、文档和许可条款为准。</div>
+
 <header class="app-header">
   <div class="header-inner">
     <div>
       <h1>RAG 生产规模部署<br>在线刷题与模拟考试系统</h1>
-      <p class="subtitle">基于《Introduction to Deploying RAG Pipelines for Production at Scale》教材内容制作。覆盖 RAG 架构、NVIDIA NIM、Kubernetes/Helm、性能优化、监控评估、安全合规与故障排查。</p>
+      <p class="subtitle">基于《参考公开课程主题：Deploying RAG Pipelines for Production at Scale》教材内容制作。覆盖 RAG 架构、NVIDIA NIM、Kubernetes/Helm、性能优化、监控评估、安全合规与故障排查。</p>
     </div>
     <div class="header-card">
       <strong id="totalQ">96 题</strong>
