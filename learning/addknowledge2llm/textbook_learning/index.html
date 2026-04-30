@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大语言模型知识增强与模型定制｜在线教材学习页（非官方版）</title>
+<style>
+:root{--bg:#f6f7fb;--panel:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--brand:#315be8;--brand2:#7c3aed;--soft:#eef2ff;--green:#16a34a;--orange:#f59e0b;--shadow:0 12px 36px rgba(15,23,42,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;background:linear-gradient(180deg,#111f5c 0,#6048dd 290px,#f6f7fb 290px);color:var(--ink);line-height:1.75}button,input{font:inherit}.wrap{max-width:1180px;margin:auto;padding:32px 22px 70px}.hero{color:white;padding:34px 0 46px}.kicker{letter-spacing:.12em;text-transform:uppercase;font-weight:800;font-size:13px;opacity:.82}.hero h1{font-size:42px;line-height:1.12;margin:12px 0}.hero p{max-width:860px;font-size:17px;opacity:.92}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}.btn{display:inline-block;border:0;text-decoration:none;border-radius:12px;padding:10px 15px;font-weight:800;background:#eef2ff;color:#3730a3;cursor:pointer}.btn.primary{background:linear-gradient(135deg,#315be8,#06b6d4);color:white}.btn.dark{background:#0f172a;color:white}.layout{display:grid;grid-template-columns:250px 1fr;gap:24px;align-items:start}.side{position:sticky;top:18px;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow)}.brand{font-weight:900;color:#315be8;margin:8px 10px 12px}.nav button{width:100%;text-align:left;border:0;background:transparent;border-radius:12px;padding:11px 13px;font-weight:800;color:#0f172a;cursor:pointer}.nav button.active,.nav button:hover{background:#eef2ff;color:#3730a3}.panel{background:white;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow);margin-bottom:20px}.notice{border-left:5px solid var(--brand);background:#fff;border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);margin-bottom:20px}.hide{display:none!important}h2{margin:0 0 14px;font-size:26px}h3{margin:20px 0 8px;color:#312e81}.module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:15px}.mini{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:16px}.mini b{color:#312e81}.tag{display:inline-block;background:#eef2ff;color:#3730a3;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:900}.table{width:100%;border-collapse:collapse}.table th,.table td{border-bottom:1px solid var(--line);padding:12px;text-align:left;vertical-align:top}.table th{background:#f8fafc}.callout{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}.checklist li{margin:8px 0}.footer{text-align:center;color:var(--muted);font-size:13px;margin-top:30px}.search{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:12px}.chapter-result{border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0;background:#fff}.kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:2px 6px}@media(max-width:900px){.layout{grid-template-columns:1fr}.side{position:static}.hero h1{font-size:34px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="kicker">参考公开课程简介的学习资料 · Online Textbook</div>
+    <h1>大语言模型知识增强与模型定制<br>在线教材学习页（非官方版）</h1>
+    <p>本页把 Word 教材中的核心内容整理为可在线阅读的章节化学习页面，便于在浏览器中学习、复习和跳转到题库或知识卡片系统。</p>
+    <div class="actions">
+      <button class="btn primary" data-target="overview" type="button">开始学习</button>
+      <button class="btn" data-target="labs" type="button">实验手册</button>
+      <a class="btn" href="../quiz_exam_system/index.html">进入题库系统</a>
+      <a class="btn" href="../flashcard_system/index.html">进入知识卡片</a>
+      <a class="btn dark" href="../index.html">返回平台首页</a>
+    </div>
+  </section>
+  <div class="layout">
+    <aside class="side">
+      <div class="brand">Textbook Learning</div>
+      <nav class="nav">
+        <button class="active" data-target="overview" type="button">课程总览</button>
+        <button data-target="data" type="button">1. 数据筛选与合成数据</button>
+        <button data-target="eval" type="button">2. LLM 评估</button>
+        <button data-target="custom" type="button">3. CPT / SFT / DPO</button>
+        <button data-target="deploy" type="button">4. 部署优化</button>
+        <button data-target="labs" type="button">5. 实验手册</button>
+        <button data-target="practice" type="button">6. 课堂练习</button>
+        <button data-target="review" type="button">7. 复习与自测</button>
+        <button data-target="search" type="button">章节检索</button>
+      </nav>
+    </aside>
+    <main>
+      <div class="notice"><b>引用与免责声明：</b>本页为参考公开课程简介和用户上传课程大纲整理、改写与扩展的非官方学习资料。它不是 NVIDIA 或其授权方发布的官方教材、题库、考试或证书培训资料。NVIDIA、NeMo、TensorRT-LLM、MLflow 等名称仅用于说明相关技术主题。</div>
+      <section id="overview" data-view>
+        <div class="panel"><h2>课程总览</h2><p>本课程主题是“如何为通用大语言模型补充领域知识、教授任务技能、对齐行为偏好，并在部署阶段降低成本、提升效率”。推荐把整个流程理解为一个闭环：</p><div class="module-grid"><div class="mini"><span class="tag">Step 1</span><h3>数据治理</h3><p>清洗、过滤、去重、PII 去除、合成问答对，为后续训练和评估准备高质量数据。</p></div><div class="mini"><span class="tag">Step 2</span><h3>模型评估</h3><p>使用基准测试、LLM-as-a-judge、zero-shot/few-shot 对比和实验追踪，建立可复现评估体系。</p></div><div class="mini"><span class="tag">Step 3</span><h3>模型定制</h3><p>用 CPT 注入领域知识，用 SFT 教授具体技能，用 DPO 调整风格、语气和偏好。</p></div><div class="mini"><span class="tag">Step 4</span><h3>部署优化</h3><p>通过量化、剪枝、知识蒸馏和推理引擎优化，在质量、速度和成本之间取得平衡。</p></div></div></div>
+        <div class="panel"><h2>学习目标</h2><ul class="checklist"><li>理解数据质量为什么决定 LLM 定制上限。</li><li>能够区分 CPT、SFT、DPO 的适用场景、输入数据和风险。</li><li>能够设计从主观目测到系统量化的 LLM 评估方案。</li><li>能够解释量化、剪枝、知识蒸馏对推理成本和准确率的影响。</li><li>能够把数据、训练、评估、部署串成可复现的端到端工程流程。</li></ul></div>
+      </section>
+      <section id="data" data-view class="hide"><div class="panel"><h2>第 1 章：数据筛选与合成数据</h2><h3>学习目标</h3><p>掌握从原始语料到可训练数据集的基本流程，理解文本清洗、过滤、去重、隐私处理和合成问答对的作用。</p><h3>核心知识</h3><p>LLM 的知识增强不是简单“多喂数据”。低质量数据会引入噪声、偏见、重复记忆和合规风险。高质量数据集应具备相关性、准确性、多样性、可追踪性和许可清晰性。</p><table class="table"><tr><th>任务</th><th>目的</th><th>常见检查点</th></tr><tr><td>文本清洗</td><td>去除乱码、HTML 残留、模板噪声和异常换行</td><td>编码、语言、长度、重复符号、段落结构</td></tr><tr><td>数据过滤</td><td>筛掉低质量、无关或有害样本</td><td>主题相关性、毒性、广告、低信息量文本</td></tr><tr><td>PII 去除</td><td>降低隐私泄露风险</td><td>邮箱、电话、地址、身份证号、真实姓名</td></tr><tr><td>合成数据</td><td>补充任务覆盖，构建 SFT 问答对</td><td>问题多样性、答案准确性、格式一致性、事实核查</td></tr></table><div class="callout"><b>课堂练习：</b>给定一段企业文档，列出至少 5 类需要清洗或脱敏的内容，并说明是否适合进入 CPT 数据集或 SFT 数据集。</div></div></section>
+      <section id="eval" data-view class="hide"><div class="panel"><h2>第 2 章：大语言模型评估</h2><h3>学习目标</h3><p>从“看起来不错”的主观判断升级为可量化、可复现、可比较的评估体系。</p><h3>核心知识</h3><p>模型定制前后都必须评估。没有基线与回归测试，就很难判断模型是否真正变好，也难以发现定制过程带来的副作用。</p><div class="module-grid"><div class="mini"><b>Benchmark</b><p>适合有标准答案的知识和推理任务，如 MMLU 类多学科测试。</p></div><div class="mini"><b>LLM-as-a-judge</b><p>适合开放式回答、风格、完整性和偏好评估；需要清晰 rubric。</p></div><div class="mini"><b>Zero-shot / Few-shot</b><p>比较模型在无示例与少量示例提示下的表现，观察上下文学习能力。</p></div><div class="mini"><b>MLflow</b><p>记录参数、指标、数据版本和结果，支持多轮实验比较。</p></div></div><div class="callout"><b>课堂练习：</b>设计一个用于评估“医学文献摘要模型”的 rubric，至少包含准确性、完整性、幻觉、语言清晰度和安全性 5 个维度。</div></div></section>
+      <section id="custom" data-view class="hide"><div class="panel"><h2>第 3 章：LLM 定制：CPT、SFT 与 DPO</h2><h3>学习目标</h3><p>理解三类定制方法分别解决什么问题，以及它们所需的数据类型和评估重点。</p><table class="table"><tr><th>方法</th><th>主要目标</th><th>典型数据</th><th>主要风险</th></tr><tr><td>CPT 持续预训练</td><td>注入领域知识和表达方式</td><td>领域语料、技术文档、学科文本</td><td>灾难性遗忘、数据污染、版权与隐私风险</td></tr><tr><td>SFT 监督微调</td><td>教授任务技能和输出格式</td><td>指令-回答、问答对、代码模板、结构化示例</td><td>过拟合、格式僵化、样本质量不足</td></tr><tr><td>DPO 直接偏好优化</td><td>对齐人类偏好、风格和安全边界</td><td>chosen/rejected 成对偏好样本</td><td>偏好定义不清、奖励黑客、风格过度</td></tr></table><h3>选择建议</h3><p>需要补充事实和术语时，优先考虑 CPT 或检索增强；需要模型学会固定任务时，优先考虑 SFT；需要改变回答风格、礼貌程度、安全偏好或口吻时，可考虑 DPO。</p><div class="callout"><b>课堂练习：</b>判断以下需求分别更适合 CPT、SFT 还是 DPO：①让模型熟悉公司内部产品文档；②让模型按 JSON 输出质控报告；③让模型回答更正式、更保守。</div></div></section>
+      <section id="deploy" data-view class="hide"><div class="panel"><h2>第 4 章：为部署优化 LLM</h2><h3>学习目标</h3><p>理解部署阶段不仅看模型效果，也要看延迟、吞吐量、显存占用、稳定性和成本。</p><div class="module-grid"><div class="mini"><b>量化 Quantization</b><p>将权重或激活转换为低精度表示，例如 FP8/INT8，以降低显存并提高速度。</p></div><div class="mini"><b>剪枝 Pruning</b><p>删除不重要结构。层级剪枝可直接减少 Transformer 层数，但可能损失能力。</p></div><div class="mini"><b>知识蒸馏 Distillation</b><p>让小型学生模型学习大型教师模型的输出，在成本和质量之间折中。</p></div><div class="mini"><b>推理优化</b><p>使用推理引擎、批处理、KV cache 管理等技术提升吞吐和响应速度。</p></div></div><div class="callout"><b>课堂练习：</b>如果一个模型准确率高但显存占用过大、延迟过高，你会如何组合量化、剪枝和蒸馏？请说明每一步的评估指标。</div></div></section>
+      <section id="labs" data-view class="hide"><div class="panel"><h2>第 5 章：实验手册</h2><h3>实验 1：数据治理流水线</h3><ol><li>准备一批领域文档样本。</li><li>执行清洗、去重、长度过滤、PII 检测。</li><li>输出训练集、验证集和处理日志。</li></ol><h3>实验 2：评估基线</h3><ol><li>选择一个基线模型和固定测试集。</li><li>分别运行 zero-shot 与 few-shot 测试。</li><li>记录准确率、人工评分、延迟和失败案例。</li></ol><h3>实验 3：SFT 问答数据构建</h3><ol><li>从文档生成问答对。</li><li>人工抽样检查事实准确性和覆盖范围。</li><li>划分训练/验证/测试集并记录数据来源。</li></ol><h3>实验 4：DPO 偏好对齐</h3><ol><li>构建 chosen/rejected 成对样本。</li><li>明确偏好标准：正式、简洁、安全或特定风格。</li><li>比较对齐前后的回答质量与风格一致性。</li></ol><h3>实验 5：部署优化评估</h3><ol><li>对同一模型比较原始、量化、剪枝/蒸馏后的性能。</li><li>记录延迟、吞吐量、显存占用和质量指标。</li><li>写出准确率–效率权衡结论。</li></ol></div></section>
+      <section id="practice" data-view class="hide"><div class="panel"><h2>第 6 章：课堂练习</h2><ol><li><b>概念辨析：</b>说明数据清洗、数据过滤、数据去重和 PII 去除的区别。</li><li><b>方案设计：</b>为一个“企业客服 LLM”设计评估方案，包括自动指标和人工评估。</li><li><b>方法选择：</b>给出 3 个业务需求，并判断应使用 CPT、SFT、DPO 或部署优化。</li><li><b>风险审查：</b>列出模型定制过程中最需要检查的版权、隐私和安全问题。</li><li><b>部署决策：</b>在准确率下降 1% 但吞吐提升 40% 的情况下，如何决定是否上线？</li></ol></div></section>
+      <section id="review" data-view class="hide"><div class="panel"><h2>第 7 章：复习与自测</h2><p>完成教材学习后，建议按以下顺序复习：</p><ol><li>用知识卡片复习术语，重点掌握缩写的英文全称、中文含义和适用场景。</li><li>进入题库系统完成随机刷题，重点查看错题解析。</li><li>完成一次模拟考试，检验是否理解端到端工作流。</li></ol><div class="actions"><a class="btn primary" href="../flashcard_system/index.html">打开知识卡片</a><a class="btn" href="../quiz_exam_system/index.html">打开题库系统</a><a class="btn" href="../textbook/大语言模型知识增强与模型定制_非官方学习教材.docx">下载 Word 教材</a></div></div></section>
+      <section id="search" data-view class="hide"><div class="panel"><h2>章节检索</h2><input id="q" class="search" placeholder="输入关键词，例如：CPT、DPO、量化、PII、评估……"><div id="results"></div></div></section>
+    </main>
+  </div>
+  <div class="footer">© 2026 非官方学习资料；仅供个人学习、自测与教学辅助使用。</div>
+</div>
+<script>
+const $=s=>document.querySelector(s);const $$=s=>Array.from(document.querySelectorAll(s));
+const CHAPTERS=[
+{id:'overview',title:'课程总览',text:'数据治理 模型评估 CPT SFT DPO 部署优化 端到端工作流'},
+{id:'data',title:'数据筛选与合成数据',text:'文本清洗 过滤 去重 PII 去除 合成数据 问答对 SFT 数据集 数据质量'},
+{id:'eval',title:'大语言模型评估',text:'Benchmark MMLU LLM-as-a-judge rubric zero-shot few-shot MLflow 评估指标 回归测试'},
+{id:'custom',title:'LLM 定制：CPT SFT DPO',text:'持续预训练 监督微调 直接偏好优化 知识注入 技能习得 偏好对齐 chosen rejected'},
+{id:'deploy',title:'为部署优化 LLM',text:'TensorRT-LLM 量化 FP8 INT8 剪枝 层级剪枝 知识蒸馏 教师模型 学生模型 延迟 吞吐量'},
+{id:'labs',title:'实验手册',text:'数据治理流水线 评估基线 SFT 问答数据 DPO 偏好对齐 部署优化评估'},
+{id:'practice',title:'课堂练习',text:'概念辨析 方案设计 方法选择 风险审查 部署决策'},
+{id:'review',title:'复习与自测',text:'知识卡片 题库 模拟考试 错题解析 Word 教材'}
+];
+function setView(id){const view=$('#'+id);if(!view)return;$$('[data-view]').forEach(v=>v.classList.add('hide'));view.classList.remove('hide');$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.target===id));window.scrollTo({top:0,behavior:'smooth'});}
+document.body.addEventListener('click',e=>{const b=e.target.closest('[data-target]');if(b){setView(b.dataset.target)}});
+$('#q')?.addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();const arr=q?CHAPTERS.filter(c=>(c.title+c.text).toLowerCase().includes(q)):[];$('#results').innerHTML=arr.length?arr.map(c=>`<div class="chapter-result"><b>${c.title}</b><p>${c.text}</p><button class="btn" data-target="${c.id}" type="button">打开本章</button></div>`).join(''):'<p class="small">请输入关键词进行检索。</p>';});
+</script>
+</body>
+</html>

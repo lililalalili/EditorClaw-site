@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>大语言模型知识增强与模型定制｜在线题库与模拟考试系统（非官方学习资料）</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">参考公开课程简介的学习资料 · Static Web Quiz System</div>
+      <h1>大语言模型知识增强与模型定制<br><span>在线题库与模拟考试系统</span></h1>
+      <p>覆盖数据筛选、合成数据、LLM 评估、CPT、SFT、DPO、量化、剪枝、知识蒸馏与端到端工程化流程。支持本地打开、局域网部署、GitHub Pages 发布。</p>
+      <div class="hero-actions">
+        <button type="button" class="primary" data-goto="practice">开始刷题</button>
+        <button type="button" class="secondary" data-goto="exam">模拟考试</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="brand">LLM Knowledge</div>
+      <button type="button" class="nav active" data-view="home">首页</button>
+      <button type="button" class="nav" data-view="bank">题库浏览</button>
+      <button type="button" class="nav" data-view="practice">在线刷题</button>
+      <button type="button" class="nav" data-view="exam">模拟考试</button>
+      <button type="button" class="nav" data-view="mistakes">错题本</button>
+      <button type="button" class="nav" data-view="stats">学习统计</button>
+      <button type="button" class="nav" data-view="about">使用说明</button>
+    </aside>
+
+    <section class="content">
+      <section id="home" class="view active">
+        <div class="notice">
+          <strong>引用与免责声明：</strong>本系统为参考公开课程简介、用户上传课程大纲与已整理教材扩展制作的非官方学习/自测材料。不是由 NVIDIA 或其授权方发布的教材、题库、考试或证书培训材料，也不代表任何第三方机构立场。NVIDIA、NeMo、TensorRT-LLM、MLflow 等名称仅用于说明相关技术主题。
+        </div>
+        <div class="cards" id="summaryCards"></div>
+        <div class="panel">
+          <h2>建议学习路径</h2>
+          <ol class="path">
+            <li><b>先建立全局框架：</b>理解数据 → 评估 → CPT/SFT/DPO → 部署优化的端到端闭环。</li>
+            <li><b>再按模块刷题：</b>每学完一章，在“在线刷题”中选择对应模块进行即时练习。</li>
+            <li><b>最后模拟考试：</b>从题库随机抽题，完成计时考试并查看错题解析。</li>
+          </ol>
+        </div>
+        <div class="panel two-col">
+          <div>
+            <h2>题型说明</h2>
+            <p>题库包含单选题与多选题。多选题的正确答案均为 2–4 个。提交后可查看正确答案、解析与知识点模块。</p>
+          </div>
+          <div>
+            <h2>数据保存</h2>
+            <p>系统使用浏览器 localStorage 保存错题、收藏与练习统计。换浏览器或清理缓存后数据可能丢失。</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="bank" class="view">
+        <div class="toolbar">
+          <select id="bankModule"></select>
+          <select id="bankType">
+            <option value="all">全部题型</option>
+            <option value="single">单选题</option>
+            <option value="multiple">多选题</option>
+          </select>
+          <input id="bankSearch" type="search" placeholder="搜索关键词，如 DPO、量化、PII..." />
+          <button type="button" id="expandAll" class="secondary small">展开解析</button>
+        </div>
+        <div id="bankList" class="question-list"></div>
+      </section>
+
+      <section id="practice" class="view">
+        <div class="panel">
+          <h2>在线刷题设置</h2>
+          <div class="grid-form">
+            <label>模块<select id="practiceModule"></select></label>
+            <label>题型<select id="practiceType"><option value="all">全部</option><option value="single">单选</option><option value="multiple">多选</option></select></label>
+            <label>题数<input id="practiceCount" type="number" min="5" max="80" value="20" /></label>
+            <label>顺序<select id="practiceOrder"><option value="random">随机</option><option value="ordered">按题库顺序</option></select></label>
+          </div>
+          <button type="button" id="startPractice" class="primary">生成练习</button>
+        </div>
+        <div id="practiceArea"></div>
+      </section>
+
+      <section id="exam" class="view">
+        <div class="panel">
+          <h2>模拟考试设置</h2>
+          <p>默认从全题库随机抽题，可设置题量和考试时间。交卷后显示得分、正确率、逐题解析，并自动记录错题。</p>
+          <div class="grid-form">
+            <label>题数<input id="examCount" type="number" min="10" max="80" value="50" /></label>
+            <label>时间（分钟）<input id="examMinutes" type="number" min="5" max="180" value="60" /></label>
+            <label>模块<select id="examModule"></select></label>
+            <label>题型<select id="examType"><option value="all">全部</option><option value="single">单选</option><option value="multiple">多选</option></select></label>
+          </div>
+          <button type="button" id="startExam" class="primary">开始模拟考试</button>
+        </div>
+        <div id="examArea"></div>
+      </section>
+
+      <section id="mistakes" class="view">
+        <div class="toolbar">
+          <button type="button" id="reviewMistakes" class="primary small">错题再练</button>
+          <button type="button" id="clearMistakes" class="danger small">清空错题本</button>
+        </div>
+        <div id="mistakeList" class="question-list"></div>
+      </section>
+
+      <section id="stats" class="view">
+        <div class="cards" id="statsCards"></div>
+        <div class="panel">
+          <h2>模块正确率</h2>
+          <div id="moduleStats"></div>
+        </div>
+        <button type="button" id="resetStats" class="danger small">重置学习统计</button>
+      </section>
+
+      <section id="about" class="view">
+        <div class="panel">
+          <h2>如何使用</h2>
+          <ol class="path">
+            <li><b>本地使用：</b>解压 ZIP 后，双击 <code>index.html</code> 即可在浏览器中使用。</li>
+            <li><b>GitHub Pages：</b>把本文件夹上传到 GitHub 仓库，启用 Pages，入口文件保持为 <code>index.html</code>。</li>
+            <li><b>局域网使用：</b>在文件夹中运行 <code>python -m http.server 8000</code>，同一网络内访问本机 IP 的 8000 端口。</li>
+            <li><b>修改题库：</b>编辑 <code>assets/data.js</code> 中的 <code>QUESTION_BANK</code> 数组即可增删题目。</li>
+          </ol>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 非官方学习资料。仅供课程学习、内部培训和自测使用。</p>
+  </footer>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
