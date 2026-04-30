@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Agentic AI Professional 非官方中文学习教材</title>
+<style>
+:root{--bg:#f7f9fc;--card:#fff;--text:#132033;--muted:#667085;--primary:#2563eb;--line:#dbe3ef;--shadow:0 16px 40px rgba(15,23,42,.08)}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#f8fafc,#eef2ff);font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif;color:var(--text);line-height:1.8}
+
+.legal-banner{margin:0;padding:12px 18px;background:#fff7ed;color:#7c2d12;border-bottom:1px solid #fed7aa;font-size:13px;line-height:1.75;font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif}
+.legal-banner strong{font-weight:800}
+.citation-note{margin:22px;padding:14px 16px;border:1px solid #dbeafe;border-radius:16px;background:#eff6ff;color:#1e3a8a;font-size:13px;line-height:1.8}
+
+.wrap{max-width:1100px;margin:0 auto;padding:24px}
+.top{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:24px;margin-bottom:18px;box-shadow:var(--shadow)}
+.top h1{margin:0 0 8px;font-size:30px;letter-spacing:-.03em}
+.top p{color:var(--muted);margin:0}
+.content{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:24px;padding:26px;box-shadow:var(--shadow)}
+h1{font-size:32px;margin:20px 0 10px;color:#0f172a}
+h2{font-size:25px;margin:34px 0 12px;padding-top:16px;border-top:1px solid var(--line);color:#1e3a8a}
+h3{font-size:20px;margin:24px 0 10px;color:#1d4ed8}
+h4{font-size:17px;margin:20px 0 8px}
+p{margin:8px 0}
+.indent{padding-left:12px;border-left:3px solid #dbeafe;background:#f8fbff;border-radius:8px}
+.tablewrap{overflow:auto;margin:16px 0}
+table{border-collapse:collapse;width:100%;background:white}
+td,th{border:1px solid var(--line);padding:9px;vertical-align:top;font-size:14px}
+th{background:#eff6ff;color:#1e3a8a}
+a.btn{display:inline-flex;align-items:center;padding:10px 14px;border-radius:12px;background:#2563eb;color:white;text-decoration:none;margin-right:8px}
+</style>
+</head>
+<body>
+
+<div class="legal-banner">
+  <strong>免责声明：</strong>
+  本平台为非官方学习资料，基于公开认证简介、公开学习指南、公开技术文档、通用工程实践和原创教学扩展整理；
+  不是 NVIDIA 出品或授权的课程、教材、题库或考试材料，也未获得 NVIDIA 授权、认证、合作或背书；
+  不包含 NVIDIA DLI 等受限课程的内部课件、视频、实验环境、测验题、考试真题或受限资料。
+  NVIDIA、NVIDIA NIM、NeMo、Triton、TensorRT-LLM、DLI 等名称可能是 NVIDIA Corporation 的商标或注册商标；
+  本资料仅为学习、教学和技术说明中的合理引用。请以 NVIDIA 官网、官方文档、考试服务商说明和相关许可条款为准。
+</div>
+
+<div class="wrap">
+  <div class="top">
+    <h1>Agentic AI Professional 非官方中文学习教材</h1>
+    <p>网页阅读版。内容为原创整理和教学扩展，可配合题库与知识卡片系统使用。</p>
+    <p style="margin-top:10px"><a class="btn" href="docs/AAI_Professional_NonOfficial_Textbook.docx">下载 Word 教材</a><a class="btn" href="index.html" style="background:#475569">返回平台首页</a></p>
+  </div>
+  <div class="content">
+    <h1>Agentic AI Professional</h1><h1>Agentic AI Professional 非官方中文学习教材</h1><p>参考 NVIDIA 官网公开认证简介与公开学习指南，并结合通用工程实践原创扩展整理</p><p>适用对象：AI/ML 工程师、软件开发者、解决方案架构师、数据科学家、技术负责人</p><p>内容包括：考试地图、详细讲义、课堂练习、代码模板、课后测试题与答案解析</p><div class='tablewrap'><table><tr><th>项目</th><th>说明</th></tr><tr><td>考试主题</td><td>Agentic AI / 代理式 AI</td></tr><tr><td>考试形式</td><td>线下考试；单选/多选题；约 60-70 题；120 分钟</td></tr><tr><td>教材定位</td><td>非官方复习教材。用于系统复习、课堂授课和模拟训练；最终考试要求以 NVIDIA 官网为准。</td></tr><tr><td>版本</td><td>2026-04 扩展版</td></tr></table></div><p>引用说明：本教材参考 NVIDIA 官网公开认证简介、公开学习指南和相关公开技术文档，并结合通用 Agentic AI 工程实践原创扩展整理；不是 NVIDIA 出品或授权的教材、课程或题库。</p><h2>非官方使用说明</h2><p>本教材为非官方学习资料，基于公开认证简介、公开学习指南、公开技术文档、通用工程实践和原创教学扩展整理；不是 参考 NVIDIA 公开课程/认证简介的学习资料、出品或授权教材、出品或授权题库或公开考试材料，也未获得 NVIDIA 授权、认证、合作或背书；不包含 NVIDIA DLI 等受限课程的内部课件、视频、实验环境、测验题、公开考试真题或受限资料。NVIDIA、NVIDIA NIM、NeMo、Triton、TensorRT-LLM、DLI 等名称可能是 NVIDIA Corporation 的商标或注册商标；本资料仅为学习、教学和技术说明中的合理引用。请以 NVIDIA 官网、官方文档、考试服务商说明和相关许可条款为准。</p><h2>前言：如何使用本教材</h2><p>本教材面向学习 Agentic AI Professional 方向知识、准备相关认证/考试或进行企业内训的学习者。教材参考公开考试主题说明组织，并进行原创教学扩展；每章包含学习目标、考点拆解、核心讲义、课堂练习、代码模板、课后测试题和答案解析。</p><p>复习时建议采用“先理解架构，再掌握开发，再做评估和部署，最后补齐安全与人机监督”的路径。考试更偏场景判断而不是单纯名词记忆，因此每章的课堂练习和测试题应结合真实系统问题反复演练。</p><div class='tablewrap'><table><tr><th>权重说明<br>NVIDIA 官网认证页面与 PDF 学习指南在“部署和扩展”“运行、监测和维护”的权重上存在差异。本教材保留两个来源中的关键考点，实际考试以 NVIDIA 官网和考试中心最新说明为准。</th></tr></table></div><h2>目录</h2><h2>前言：如何使用本教材</h2><h2>考试总体知识地图</h2><h2>第1章  智能体架构和设计</h2><h2>第2章  智能体开发</h2><h2>第3章  评估和调优</h2><h2>第4章  部署和扩展</h2><h2>第5章  认知、规划和记忆</h2><h2>第6章  知识整合和数据处理</h2><h2>第7章  NVIDIA 相关平台工具概览</h2><h2>第8章  运行、监控和维护</h2><h2>第9章  安全、道德与合规</h2><h2>第10章  人类-AI 交互和监督</h2><h2>附录 A：核心术语速查表</h2><h2>附录 B：综合模拟考试与答案解析</h2><h2>参考资料</h2><div class='tablewrap'><table><tr><th>Word 使用提示<br>本文件已使用 Word 标题样式。若需要带页码的动态目录，可在 Word 中使用“引用 - 目录”自动生成或更新。</th></tr></table></div><h2>考试总体知识地图</h2><p>NVIDIA 官网公开认证简介说明，该方向关注设计、开发、部署和管理先进代理式 AI 解决方案的能力，主题涉及多智能体交互、分布式推理、可扩展性和安全/道德保障等。学习时应把智能体看作一个生产系统，而不是单一模型调用。学习时应把智能体看作一个生产系统，而不是单一模型调用。</p><div class='tablewrap'><table><tr><th>模块</th><th>核心问题</th><th>复习关键词</th></tr><tr><td>智能体架构和设计</td><td>系统如何组织？</td><td>ReAct、多智能体、记忆、通信、知识图谱、状态编排</td></tr><tr><td>智能体开发</td><td>如何构建并集成？</td><td>Prompt、工具调用、API、多模态、错误处理、流式反馈</td></tr><tr><td>评估和调优</td><td>如何判断好坏？</td><td>benchmark、任务成功率、反馈、A/B、延迟成本权衡</td></tr><tr><td>部署和扩展</td><td>如何上线和规模化？</td><td>Docker、Kubernetes、CI/CD、MLOps、负载均衡、高可用</td></tr><tr><td>认知、规划和记忆</td><td>如何计划和保持上下文？</td><td>任务分解、规划、短期/长期记忆、状态机</td></tr><tr><td>知识整合和数据处理</td><td>如何接入外部知识？</td><td>RAG、向量数据库、混合检索、ETL、数据质量</td></tr><tr><td>NVIDIA 相关平台工具概览</td><td>如何使用 NVIDIA 工具链？</td><td>NIM、NeMo Guardrails、Triton、TensorRT-LLM</td></tr><tr><td>运行、监控和维护</td><td>上线后如何稳定运行？</td><td>trace、日志、RCA、版本控制、自动调优</td></tr><tr><td>安全、道德与合规</td><td>如何控制风险？</td><td>权限、隐私、偏见、有害内容、许可、审计</td></tr><tr><td>人类-AI 交互和监督</td><td>人如何监督？</td><td>HITL、反馈闭环、透明机制、可追溯</td></tr></table></div><h3>推荐学习路径</h3><p>第一轮：快速通读十章，建立“智能体=模型+工具+记忆+编排+安全+监控”的整体框架。</p><p>第二轮：逐章完成课堂练习，尝试把每个概念映射到一个真实业务系统。</p><p>第三轮：完成每章课后测试题，重点复盘错题的场景判断逻辑。</p><p>第四轮：完成附录综合模拟考试，并根据错题回到对应章节复习。</p><h2>第1章  智能体架构和设计</h2><div class='tablewrap'><table><tr><th>本章在考试中的位置<br>官方大纲将本模块列为高权重模块之一，重点考查智能体系统的结构设计、智能体之间的交互、推理和通信，以及多智能体工作流、记忆和知识图谱等能力。</th></tr></table></div><h3>学习目标</h3><p>区分反应式、推理式与混合式智能体架构，并判断适用场景。</p><p>解释 ReAct、工具调用、观察反馈和状态更新之间的关系。</p><p>设计多智能体系统中的角色、通信协议、终止条件和冲突处理机制。</p><p>说明短期记忆、长期记忆和知识图谱在智能体系统中的作用。</p><h3>考试考点拆解</h3><div class='tablewrap'><table><tr><th>考点</th><th>应掌握内容</th><th>易错点</th></tr><tr><td>Agentic AI 基础结构</td><td>理解 UI、LLM、工具、记忆、规划器、执行器、环境、监控和护栏之间的边界。</td><td>把聊天机器人等同于智能体；忽略工具和状态。</td></tr><tr><td>ReAct 与有状态编排</td><td>掌握 Reasoning-Acting-Observation 循环，知道何时需要状态机或图编排。</td><td>让模型“自己想办法”而没有最大步数和终止条件。</td></tr><tr><td>多智能体协作</td><td>会设计 supervisor-worker、planner-executor、critic-reviewer 等模式。</td><td>多智能体没有角色边界，导致重复调用和死循环。</td></tr><tr><td>记忆与知识图谱</td><td>能够把上下文记忆、语义记忆、任务日志和实体关系图结合。</td><td>把上下文窗口误认为长期记忆。</td></tr></table></div><h3>核心讲义</h3><h4>1.1 Agentic AI 系统的组成</h4><p>代理式 AI 系统的目标不是简单回答一句话，而是在给定目标、约束和环境的情况下持续感知、计划、行动并调整。一个可生产运行的智能体通常由用户界面、推理核心、工具层、记忆层、规划器、执行器、外部环境、监控系统和安全护栏组成。考试题经常通过一个故障场景考查你是否能判断缺失的是记忆、编排、工具 schema、错误恢复还是安全控制。</p><p>从工程角度看，智能体架构应把“模型推理”和“系统执行”分开。LLM 可以负责意图理解、任务分解和候选行动选择；系统层负责权限、状态、工具调用、幂等性、审计和回滚。这种分层能减少幻觉导致的真实世界副作用。</p><h4>1.2 反应式、推理式与混合式智能体</h4><p>反应式智能体适合短路径、低风险、低不确定性的任务，例如根据用户问题选择一个固定工具并返回结果。推理式智能体适合信息不完整、需要多步计划和环境反馈的任务，例如“检索文档、比较方案、生成报告并请求审批”。混合式智能体会先判断任务复杂度，简单任务直接执行，复杂任务进入计划-执行-检查循环。</p><p>考试中如果场景强调“实时响应、低延迟、固定动作”，通常不需要复杂规划；如果场景强调“多步骤、工具失败、上下文保持、人工审批”，则应选择有状态编排和规划机制。</p><h4>1.3 ReAct 与智能体循环</h4><p>ReAct 是将推理和行动交替进行的典型范式。智能体先分析当前目标和信息缺口，再选择工具或下一步动作，观察工具返回结果，然后更新内部状态并继续。它的价值在于让模型不只生成文本，而能利用外部环境反馈修正方向。</p><p>生产系统中不应暴露完整内部推理链，但可以暴露可审计的操作轨迹，例如“已检索哪些数据源、调用过哪些工具、当前完成到哪一步”。这既能提升用户信任，也能支持故障定位。</p><h4>1.4 多智能体架构设计</h4><p>多智能体系统的核心不是数量，而是分工。Supervisor-worker 适合流程分派；planner-executor 适合复杂任务；researcher-writer-reviewer 适合报告生成；critic 或 reviewer 智能体适合质量控制。多智能体系统需要明确输入输出协议、状态共享方式、冲突解决机制、最大轮数和终止标准。</p><p>常见失败模式包括：多个智能体重复执行相同工具、缺少最终决策者、所有智能体都能写入同一资源、没有任务锁和幂等检查、没有错误升级路径。</p><h4>1.5 记忆、状态与知识图谱</h4><p>短期记忆用于当前任务上下文和中间状态；长期记忆用于用户偏好、历史任务和组织知识。语义记忆通常由向量数据库实现，结构化记忆可由关系数据库或键值存储实现，关系推理则可通过知识图谱表达实体和边。</p><p>知识图谱适合处理“谁和谁相关”“某团队做过哪些方向”“某流程依赖哪些系统”这类关系型问题。它经常与 RAG 搭配：向量检索提供语义片段，知识图谱提供实体关系和约束，LLM 负责综合解释。</p><h3>课堂练习</h3><div class='tablewrap'><table><tr><th>课堂练习 1.1<br>给出一个“论文初审智能体”的架构图：列出 UI、检索、工具、记忆、人工审批和日志模块，并说明每个模块的输入输出。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 1.2<br>将“自动生成会议纪要并发送给参会人”拆成至少 6 个智能体步骤，并标出哪些步骤必须人工确认。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 1.3<br>比较 planner-executor 与 researcher-writer-reviewer 两种架构，说明它们分别适合什么任务，以及可能的失败模式。</th></tr></table></div><h3>代码模板</h3><h4>模板 1：最小智能体循环</h4><p>from typing import Any, Dict, List
+
+class Tool:
+    name: str
+    description: str
+    def run(self, **kwargs) -&gt; Dict[str, Any]:
+        raise NotImplementedError
+
+class AgentState(dict):
+    # 保存目标、历史观察、工具结果和终止标记。
+
+class Agent:
+    def __init__(self, model, tools: List[Tool], max_steps: int = 8):
+        self.model = model
+        self.tools = {t.name: t for t in tools}
+        self.max_steps = max_steps
+
+    def decide(self, state: AgentState) -&gt; Dict[str, Any]:
+        # 返回格式示例：{&quot;action&quot;: &quot;search&quot;, &quot;args&quot;: {&quot;query&quot;: &quot;...&quot;}}
+        return self.model.plan(state, available_tools=list(self.tools))
+
+    def run(self, user_goal: str) -&gt; Dict[str, Any]:
+        state = AgentState(goal=user_goal, observations=[], done=False)
+        for step in range(self.max_steps):
+            decision = self.decide(state)
+            if decision.get(&quot;action&quot;) == &quot;final&quot;:
+                state[&quot;done&quot;] = True
+                state[&quot;answer&quot;] = decision.get(&quot;answer&quot;)
+                break
+            tool = self.tools[decision[&quot;action&quot;]]
+            result = tool.run(**decision.get(&quot;args&quot;, {}))
+            state[&quot;observations&quot;].append({&quot;step&quot;: step, &quot;decision&quot;: decision, &quot;result&quot;: result})
+        return state</p><h4>模板 2：多智能体角色定义</h4><p>AGENTS = {
+    &quot;supervisor&quot;: {
+        &quot;goal&quot;: &quot;拆分任务、分派子任务、检查终止条件&quot;,
+        &quot;can_write&quot;: False,
+        &quot;handoff_to&quot;: [&quot;researcher&quot;, &quot;executor&quot;, &quot;reviewer&quot;]
+    },
+    &quot;researcher&quot;: {
+        &quot;goal&quot;: &quot;检索证据并返回来源&quot;,
+        &quot;can_write&quot;: False,
+        &quot;handoff_to&quot;: [&quot;supervisor&quot;]
+    },
+    &quot;executor&quot;: {
+        &quot;goal&quot;: &quot;调用经过授权的工具执行动作&quot;,
+        &quot;can_write&quot;: True,
+        &quot;requires_approval&quot;: [&quot;send_email&quot;, &quot;delete_file&quot;, &quot;update_database&quot;]
+    },
+    &quot;reviewer&quot;: {
+        &quot;goal&quot;: &quot;检查事实、合规性和输出格式&quot;,
+        &quot;can_write&quot;: False,
+        &quot;handoff_to&quot;: [&quot;supervisor&quot;]
+    }
+}</p><h3>课后测试题</h3><p class='indent'>1.1 单选：某客服助手能回答 FAQ，但在需要查询订单、修改地址、通知仓库时经常失败。最可能缺失的架构能力是什么？</p><p>A. 更大的上下文窗口</p><p>B. 工具调用、权限和状态编排</p><p>C. 更漂亮的 UI</p><p>D. 更高温度参数</p><p class='indent'>1.2 多选：多智能体系统上线前应重点定义哪些内容？</p><p>A. 每个智能体的角色边界</p><p>B. 共享状态和通信协议</p><p>C. 最大轮数和终止条件</p><p>D. 让所有智能体都可以无审批写入数据库</p><p class='indent'>1.3 单选：短期记忆最适合保存什么？</p><p>A. 当前会话的任务状态和中间工具结果</p><p>B. 所有用户多年的历史偏好</p><p>C. 公开互联网知识全集</p><p>D. 模型参数</p><p class='indent'>1.4 单选：知识图谱相比纯向量检索最明显的优势是什么？</p><p>A. 一定能降低 GPU 成本</p><p>B. 更适合表达实体关系与关系推理</p><p>C. 不需要数据清洗</p><p>D. 可以完全替代 LLM</p><p class='indent'>1.5 多选：ReAct 循环中通常包含哪些环节？</p><p>A. 推理或决策</p><p>B. 行动或工具调用</p><p>C. 观察工具返回</p><p>D. 忽略环境反馈直接输出</p><h3>答案与解析</h3><p class='indent'>1.1 答案：B</p><p>解析：该场景需要和外部系统交互并保持状态，核心是工具层、权限、编排和审计，而不是单纯扩大上下文。</p><p class='indent'>1.2 答案：A/B/C</p><p>解析：多智能体最容易出问题的是边界、通信、状态和终止条件。无审批写入数据库会放大风险。</p><p class='indent'>1.3 答案：A</p><p>解析：短期记忆关注当前会话或当前任务上下文；长期偏好应进入长期记忆并受权限和过期策略控制。</p><p class='indent'>1.4 答案：B</p><p>解析：知识图谱擅长结构化实体和关系，常与 RAG 互补。</p><p class='indent'>1.5 答案：A/B/C</p><p>解析：ReAct 的核心是推理、行动、观察和继续更新状态。</p><h2>第2章  智能体开发</h2><div class='tablewrap'><table><tr><th>本章在考试中的位置<br>本模块强调真正构建智能体的能力，包括提示词、动态提示链、多模态模型、自定义工具、API、错误处理、流式交互和决策策略优化。</th></tr></table></div><h3>学习目标</h3><p>设计包含角色、任务、工具、约束和输出 schema 的生产级提示词。</p><p>为工具和 API 定义清晰参数、返回格式、错误处理和权限边界。</p><p>解释 retry、timeout、fallback、circuit breaker 与 graceful degradation 的区别。</p><p>构建支持流式输出和用户反馈的多轮对话流程。</p><h3>考试考点拆解</h3><div class='tablewrap'><table><tr><th>考点</th><th>应掌握内容</th><th>易错点</th></tr><tr><td>Prompt 与动态提示链</td><td>提示词应包含目标、输入、输出、工具、约束、示例和失败策略；提示链应根据状态分支。</td><td>把 Prompt 当成一次性自然语言描述。</td></tr><tr><td>工具/API/函数调用</td><td>定义 JSON schema、参数校验、错误码、超时、重试、幂等性和审计。</td><td>让 LLM 自由拼接 API 参数且不校验。</td></tr><tr><td>多模态集成</td><td>处理文本、图像、音频或结构化数据输入，并进行预处理和结果对齐。</td><td>忽略 OCR/转写错误和隐私信息。</td></tr><tr><td>故障恢复</td><td>区分临时错误、权限错误、数据为空和模型格式错误。</td><td>所有错误都盲目重试。</td></tr></table></div><h3>核心讲义</h3><h4>2.1 生产级 Prompt 的结构</h4><p>生产级 Prompt 不是“请你认真回答”这样一句话，而是一个可维护的接口说明。它应描述智能体角色、业务目标、可用工具、工具选择规则、输入输出格式、边界条件、引用要求、安全限制和错误处理策略。对于下游系统需要解析的输出，应使用 JSON schema 或严格字段规范。</p><p>动态提示链会根据任务状态选择不同路径。例如简单事实问答可以直接回答；企业文档问题先检索再生成；高风险写操作先检查权限和请求确认；工具失败时进入重试、降级或人工升级。</p><h4>2.2 工具调用设计</h4><p>工具调用的工程质量决定智能体是否能稳定落地。每个工具都应有明确名称、描述、输入 schema、返回 schema、错误码、超时策略和权限要求。写操作工具还应具备幂等键，避免由于重试导致重复发送邮件、重复扣款或重复写入。</p><p>工具调用题常考“为什么智能体重复提交”“为什么删除了错误文件”“为什么调用了未授权 API”。正确思路通常是：最小权限、参数校验、人工确认、审计日志、幂等性和事务边界。</p><h4>2.3 错误处理和故障恢复</h4><p>临时网络错误可以通过指数退避重试；持续失败应触发熔断；权限错误不应重试，而应返回授权提示或升级；检索为空可以改写 query 或请求补充信息；输出格式错误可用 schema 校验后重生成。</p><p>优雅降级意味着在主要能力不可用时提供次优但安全的服务。例如向量库不可用时返回“当前无法访问知识库”，而不是编造答案；邮件系统不可用时保存草稿而不是假称已发送。</p><h4>2.4 多模态与流式交互</h4><p>多模态智能体可能处理截图、PDF、音频、视频和传感器数据。开发时要考虑预处理、隐私检测、模型选择、模态对齐、置信度和延迟。多模态输入可能包含隐私信息或识别错误，因此应在进入 LLM 前进行必要的清洗和标注。</p><p>流式输出能改善用户体验，但不能牺牲安全。高风险场景中，应先完成工具权限检查和输出安全检查，再向用户展示最终结论或执行动作。</p><h3>课堂练习</h3><div class='tablewrap'><table><tr><th>课堂练习 2.1<br>把“根据上传 PDF 生成摘要并发送邮件”的流程设计成动态提示链，标出每个分支的触发条件。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 2.2<br>为一个“查询订单状态”工具写出工具名称、输入参数、返回字段、错误码和权限要求。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 2.3<br>分析一个工具失败案例：网络超时、权限不足、参数缺失、结果为空分别应如何处理？</th></tr></table></div><h3>代码模板</h3><h4>模板 1：工具 schema 与参数校验</h4><p>from pydantic import BaseModel, Field, ValidationError
+from typing import Literal
+
+class OrderStatusArgs(BaseModel):
+    order_id: str = Field(min_length=6, description=&quot;订单号&quot;)
+    user_id: str = Field(description=&quot;当前登录用户 ID&quot;)
+
+class ToolResult(BaseModel):
+    ok: bool
+    code: Literal[&quot;OK&quot;, &quot;NOT_FOUND&quot;, &quot;FORBIDDEN&quot;, &quot;TIMEOUT&quot;, &quot;BAD_ARGS&quot;]
+    data: dict | None = None
+    message: str = &quot;&quot;
+
+def query_order_status(raw_args: dict, requester_roles: list[str]) -&gt; ToolResult:
+    try:
+        args = OrderStatusArgs(**raw_args)
+    except ValidationError as e:
+        return ToolResult(ok=False, code=&quot;BAD_ARGS&quot;, message=str(e))
+    if &quot;order_reader&quot; not in requester_roles:
+        return ToolResult(ok=False, code=&quot;FORBIDDEN&quot;, message=&quot;无权查询订单&quot;)
+    # 调用真实系统前应设置 timeout，并记录审计日志。
+    return ToolResult(ok=True, code=&quot;OK&quot;, data={&quot;status&quot;: &quot;shipped&quot;})</p><h4>模板 2：重试与熔断伪代码</h4><p>import time
+
+class CircuitBreaker:
+    def __init__(self, failure_threshold=3, cooldown_seconds=30):
+        self.failures = 0
+        self.open_until = 0
+        self.threshold = failure_threshold
+        self.cooldown = cooldown_seconds
+
+    def allow(self):
+        return time.time() &gt;= self.open_until
+
+    def record(self, ok: bool):
+        if ok:
+            self.failures = 0
+        else:
+            self.failures += 1
+            if self.failures &gt;= self.threshold:
+                self.open_until = time.time() + self.cooldown
+
+def call_with_retry(fn, retries=3):
+    for i in range(retries):
+        try:
+            return fn(timeout=10)
+        except TimeoutError:
+            time.sleep(2 ** i)
+    raise RuntimeError(&quot;工具持续超时，进入降级或人工升级&quot;)</p><h3>课后测试题</h3><p class='indent'>2.1 单选：哪个元素最能提高 LLM 输出被下游系统可靠解析的能力？</p><p>A. 更长的寒暄语</p><p>B. 结构化输出 schema 和校验</p><p>C. 更高 temperature</p><p>D. 更少上下文</p><p class='indent'>2.2 多选：写操作工具应具备哪些保护？</p><p>A. 权限检查</p><p>B. 幂等键</p><p>C. 审计日志</p><p>D. 绕过确认以提高速度</p><p class='indent'>2.3 单选：遇到权限错误时最合适的策略是？</p><p>A. 无限重试</p><p>B. 提高模型温度</p><p>C. 停止执行并提示授权或升级</p><p>D. 让另一个智能体绕过权限</p><p class='indent'>2.4 多选：多模态输入进入模型前常见预处理包括？</p><p>A. OCR 或转写质量检查</p><p>B. 隐私信息识别</p><p>C. 模态结果对齐</p><p>D. 删除所有元数据后不做记录</p><p class='indent'>2.5 单选：circuit breaker 主要解决什么问题？</p><p>A. 让系统在下游持续失败时停止继续冲击故障服务</p><p>B. 提高回答创造性</p><p>C. 替代用户认证</p><p>D. 自动生成向量索引</p><h3>答案与解析</h3><p class='indent'>2.1 答案：B</p><p>解析：机器可解析流程依赖稳定字段、类型和校验机制。</p><p class='indent'>2.2 答案：A/B/C</p><p>解析：写操作会产生真实副作用，应有权限、幂等、审计和必要的人工确认。</p><p class='indent'>2.3 答案：C</p><p>解析：权限错误不是临时故障，重试不能解决，应按合规流程处理。</p><p class='indent'>2.4 答案：A/B/C</p><p>解析：多模态系统需控制识别质量和隐私风险，同时保留必要审计信息。</p><p class='indent'>2.5 答案：A</p><p>解析：熔断用于保护故障服务和调用方，避免级联失败。</p><h2>第3章  评估和调优</h2><div class='tablewrap'><table><tr><th>本章在考试中的位置<br>本模块考查如何衡量、比较和优化智能体表现。重点是评估工作流、任务基准测试、结构化用户反馈、模型参数权衡和针对性优化。</th></tr></table></div><h3>学习目标</h3><p>建立覆盖多轮、工具调用、RAG、安全和故障场景的评估集。</p><p>区分任务成功率、检索指标、工具调用指标、安全指标、成本与延迟指标。</p><p>使用离线回放、A/B 测试和回归测试比较智能体版本。</p><p>根据评估结果定位改进对象，而不是盲目换模型。</p><h3>考试考点拆解</h3><div class='tablewrap'><table><tr><th>考点</th><th>应掌握内容</th><th>易错点</th></tr><tr><td>评估工作流</td><td>定义任务、金标准、评分规则、自动评估和人工复核流程。</td><td>只凭演示样例判断质量。</td></tr><tr><td>任务基准测试</td><td>覆盖正常、边界、失败、安全和长上下文任务。</td><td>测试集只包含简单 FAQ。</td></tr><tr><td>反馈闭环</td><td>收集结构化用户反馈，并映射到 Prompt、检索、工具或编排问题。</td><td>只有点赞/点踩，没有失败原因标签。</td></tr><tr><td>参数与系统调优</td><td>权衡精度、延迟、成本、吞吐和安全。</td><td>把所有问题都归因于模型不够大。</td></tr></table></div><h3>核心讲义</h3><h4>3.1 评价智能体不能只看回答流畅度</h4><p>智能体评价应关注“任务是否完成”和“过程是否可信”。一个答案写得很流畅但调用了错误工具、引用了错误文档或越权访问数据，仍然是失败。常见指标包括任务成功率、工具调用正确率、检索召回与精确度、事实准确性、幻觉率、安全拦截率、延迟、成本和用户满意度。</p><p>考试中若问如何比较两个系统版本，应使用相同测试集、相同指标和可复现执行环境。对于生产流量，可使用 A/B 测试或影子流量；对于历史任务，可使用离线回放和回归测试。</p><h4>3.2 Benchmark 的设计</h4><p>一个合格的 Agent benchmark 应覆盖简单问答、多轮上下文、工具调用、RAG、模糊输入、工具失败、安全边界、长上下文和多智能体协作等场景。每个样例应包含输入、预期行为、允许工具、禁止行为、评分标准和必要证据。</p><p>基准测试不仅用于上线前验收，也用于每次 Prompt、模型、工具 schema、向量库和 guardrail 更新之后的回归测试。</p><h4>3.3 调优对象</h4><p>调优对象包括 Prompt、模型、检索参数、chunk size、embedding 模型、reranker、工具 schema、记忆写入策略、编排图、重试规则和安全阈值。系统性调优应从错误分析开始：错误发生在理解、检索、工具、推理、输出格式还是安全拦截？</p><p>模型参数也需要权衡。较低 temperature 通常更稳定，适合事实和工具调用；较高 temperature 可用于创意任务但可能增加不确定性。模型精度、延迟和成本之间也常有 trade-off。</p><h4>3.4 用户反馈与持续改进</h4><p>结构化反馈比单纯满意度更有价值。反馈标签可以包括：事实错误、引用错误、没按格式、工具调用错误、遗漏约束、语气不合适、安全误拦截、需要人工接管等。反馈应回流到测试集和调优计划中，形成数据飞轮。</p><p>生产系统中还应保留评估版本、Prompt 版本、模型版本、检索索引版本和工具版本，确保问题可复现。</p><h3>课堂练习</h3><div class='tablewrap'><table><tr><th>课堂练习 3.1<br>为“企业知识问答智能体”设计 12 条 benchmark 样例，要求覆盖普通问题、权限边界、检索为空和引用错误。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 3.2<br>给出一个智能体失败日志，判断错误发生在检索、工具调用、Prompt 还是输出格式，并提出一个最小修改方案。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 3.3<br>设计一个结构化用户反馈表单，至少包括 8 个失败原因标签。</th></tr></table></div><h3>代码模板</h3><h4>模板 1：离线评估框架</h4><p>from dataclasses import dataclass
+from typing import Callable
+
+@dataclass
+class TestCase:
+    id: str
+    user_input: str
+    expected_behavior: str
+    forbidden_behavior: str
+    required_tools: list[str]
+
+@dataclass
+class EvalResult:
+    id: str
+    success: bool
+    score: float
+    reason: str
+    latency_ms: int
+    tool_trace: list[dict]
+
+def evaluate_case(agent_run: Callable[[str], dict], case: TestCase) -&gt; EvalResult:
+    output = agent_run(case.user_input)
+    used_tools = [t[&quot;name&quot;] for t in output.get(&quot;tool_trace&quot;, [])]
+    has_required = all(t in used_tools for t in case.required_tools)
+    violates = case.forbidden_behavior.lower() in output.get(&quot;answer&quot;, &quot;&quot;).lower()
+    success = has_required and not violates and output.get(&quot;final_ok&quot;, False)
+    return EvalResult(case.id, success, 1.0 if success else 0.0,
+                      output.get(&quot;failure_reason&quot;, &quot;&quot;), output.get(&quot;latency_ms&quot;, 0),
+                      output.get(&quot;tool_trace&quot;, []))</p><h4>模板 2：结构化反馈记录</h4><p>FEEDBACK_SCHEMA = {
+    &quot;task_id&quot;: &quot;string&quot;,
+    &quot;rating&quot;: &quot;integer:1-5&quot;,
+    &quot;failure_tags&quot;: [
+        &quot;fact_error&quot;, &quot;citation_error&quot;, &quot;wrong_tool&quot;, &quot;bad_format&quot;,
+        &quot;missed_constraint&quot;, &quot;unsafe&quot;, &quot;too_slow&quot;, &quot;needs_human&quot;
+    ],
+    &quot;user_comment&quot;: &quot;string&quot;,
+    &quot;prompt_version&quot;: &quot;string&quot;,
+    &quot;model_version&quot;: &quot;string&quot;,
+    &quot;retrieval_index_version&quot;: &quot;string&quot;
+}</p><h3>课后测试题</h3><p class='indent'>3.1 单选：评价智能体最核心的指标之一是？</p><p>A. 回答字数</p><p>B. 任务成功率</p><p>C. 模型名称是否最新</p><p>D. 界面颜色</p><p class='indent'>3.2 多选：一个好的 benchmark 应覆盖哪些类型？</p><p>A. 多轮任务</p><p>B. 工具失败场景</p><p>C. 安全边界场景</p><p>D. 只有最简单的正例</p><p class='indent'>3.3 单选：比较两个 Prompt 版本时，最合理的方法是？</p><p>A. 换不同测试集看哪个更顺眼</p><p>B. 相同测试集、相同指标、离线回放或 A/B 测试</p><p>C. 只看一次演示</p><p>D. 只问模型自评</p><p class='indent'>3.4 多选：RAG 系统调优可能涉及哪些参数？</p><p>A. chunk size</p><p>B. embedding 模型</p><p>C. top-k 和 reranker</p><p>D. 显示器分辨率</p><p class='indent'>3.5 单选：用户反馈中最有助于改进系统的是？</p><p>A. 只有点赞或点踩</p><p>B. 结构化失败原因标签和任务上下文</p><p>C. 匿名一句“很好”</p><p>D. 删除所有日志</p><h3>答案与解析</h3><p class='indent'>3.1 答案：B</p><p>解析：智能体系统的目标是完成任务，任务成功率是核心指标之一。</p><p class='indent'>3.2 答案：A/B/C</p><p>解析：真实系统需覆盖正常、边界、失败和安全场景。</p><p class='indent'>3.3 答案：B</p><p>解析：可重复、可对比的实验条件是版本评估的前提。</p><p class='indent'>3.4 答案：A/B/C</p><p>解析：RAG 质量与切分、嵌入、召回和重排密切相关。</p><p class='indent'>3.5 答案：B</p><p>解析：结构化反馈能定位问题来源，并转化为评估集和改进项。</p><h2>第4章  部署和扩展</h2><div class='tablewrap'><table><tr><th>本章在考试中的位置<br>部署和扩展考查生产环境落地能力，包括容器化、Kubernetes、CI/CD、MLOps/AgentOps、负载均衡、可靠性分析、高可用和成本优化。官网页面与 PDF 学习指南在本模块权重上有差异，复习时应同时覆盖两者。</th></tr></table></div><h3>学习目标</h3><p>说明从原型到生产部署需要补齐哪些工程能力。</p><p>理解 Docker、Kubernetes、负载均衡和自动扩缩容在智能体系统中的作用。</p><p>设计 CI/CD 与 MLOps/AgentOps 流程。</p><p>识别高可用、可靠性和成本优化的关键策略。</p><h3>考试考点拆解</h3><div class='tablewrap'><table><tr><th>考点</th><th>应掌握内容</th><th>易错点</th></tr><tr><td>生产化差异</td><td>原型到生产需补身份、权限、日志、监控、回滚、灰度和审计。</td><td>Notebook demo 能跑就认为可上线。</td></tr><tr><td>容器与编排</td><td>Docker 封装环境，Kubernetes 管理副本、滚动更新、服务发现和弹性。</td><td>把所有组件塞进单进程。</td></tr><tr><td>CI/CD 与治理</td><td>Prompt、模型、工具、配置、索引和 guardrail 都要版本化。</td><td>只管理代码版本，不管理 Prompt 和数据。</td></tr><tr><td>高可用与成本</td><td>缓存、批处理、模型路由、自动扩缩容、限流和降级。</td><td>只扩 GPU，不分析瓶颈。</td></tr></table></div><h3>核心讲义</h3><h4>4.1 从原型到生产</h4><p>原型智能体通常只需要一个脚本或 Notebook；生产系统需要支持多用户并发、身份认证、权限隔离、可观测性、错误恢复、灰度发布、回滚和合规审计。部署题经常考“为什么 demo 能跑但上线不稳定”，答案通常不是再写一个 Prompt，而是工程化能力不足。</p><p>生产系统应把前端、API 网关、智能体编排服务、推理服务、向量数据库、任务队列、工具服务、监控和日志系统分层部署。这样能独立扩展、隔离故障并支持安全边界。</p><h4>4.2 Docker 与 Kubernetes</h4><p>Docker 用于封装应用依赖，确保开发、测试和生产环境一致。Kubernetes 用于容器编排，支持 Deployment、副本管理、Service、Ingress、ConfigMap、Secret、滚动更新、健康检查和水平自动扩缩容。</p><p>智能体系统中的推理服务、检索服务和工具服务负载模式不同。推理服务可能受 GPU 和显存限制；检索服务可能受 I/O 和索引性能限制；工具服务可能受外部 API 限流影响。因此扩展策略应针对瓶颈而定。</p><h4>4.3 MLOps 与 AgentOps</h4><p>MLOps 关注模型训练、部署和监控；AgentOps 还需要管理 Prompt、工具调用轨迹、检索上下文、记忆写入、编排状态和 guardrail 结果。一次智能体回答可能跨越多个组件，只有完整 trace 才能支持排错。</p><p>CI/CD 中应包含单元测试、Prompt 回归测试、工具 schema 校验、索引版本检查、安全测试、性能测试和灰度发布。对于高风险业务，应设置人工审批和变更审计。</p><h4>4.4 可靠性与成本优化</h4><p>可靠性设计包括健康检查、超时、重试、熔断、降级、负载均衡、限流和多副本部署。成本优化包括选择合适模型、缓存重复请求、批处理推理、模型路由、减少无效工具调用和优化检索参数。</p><p>高可用不是简单增加机器数量。若共享向量数据库、认证服务或队列成为单点故障，系统仍可能不可用。考试中看到“单点故障”“流量峰值”“延迟上升”，应考虑水平扩展、队列、缓存、限流和故障隔离。</p><h3>课堂练习</h3><div class='tablewrap'><table><tr><th>课堂练习 4.1<br>为一个 RAG 智能体绘制生产部署组件图，并标注哪些组件需要独立扩缩容。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 4.2<br>写出一个智能体系统 CI/CD checklist，覆盖代码、Prompt、索引、工具 schema 和 guardrail。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 4.3<br>给定“推理延迟高、GPU 利用率低”的现象，列出至少 5 个可能原因和排查指标。</th></tr></table></div><h3>代码模板</h3><h4>模板 1：Dockerfile</h4><p>FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+ENV PYTHONUNBUFFERED=1
+EXPOSE 8000
+CMD [&quot;uvicorn&quot;, &quot;app.main:api&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;]</p><h4>模板 2：Kubernetes Deployment 片段</h4><p>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-orchestrator
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agent-orchestrator
+  template:
+    metadata:
+      labels:
+        app: agent-orchestrator
+    spec:
+      containers:
+      - name: api
+        image: registry.example.com/agent-orchestrator:1.0.0
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: agent-secrets
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 15</p><h3>课后测试题</h3><p class='indent'>4.1 单选：从原型到生产最需要补齐的是？</p><p>A. 更多形容词</p><p>B. 认证、权限、日志、监控、回滚和审计</p><p>C. 只换更大模型</p><p>D. 删除测试集</p><p class='indent'>4.2 多选：Kubernetes 可帮助实现哪些能力？</p><p>A. 副本管理</p><p>B. 滚动更新</p><p>C. 服务发现</p><p>D. 自动保证答案正确</p><p class='indent'>4.3 单选：AgentOps 相比传统 MLOps 额外关注什么？</p><p>A. 工具调用轨迹、Prompt、记忆和编排状态</p><p>B. 只关注模型训练损失</p><p>C. 只关注硬盘容量</p><p>D. 只关注 UI 颜色</p><p class='indent'>4.4 多选：降低推理成本的策略可能包括？</p><p>A. 缓存</p><p>B. 模型路由</p><p>C. 批处理</p><p>D. 无限增加 top-k</p><p class='indent'>4.5 单选：灰度发布的主要价值是？</p><p>A. 让所有用户同时承担新版本风险</p><p>B. 小流量验证新版本并可回滚</p><p>C. 取消监控</p><p>D. 隐藏日志</p><h3>答案与解析</h3><p class='indent'>4.1 答案：B</p><p>解析：生产系统必须具备可用性、安全性和可追踪性。</p><p class='indent'>4.2 答案：A/B/C</p><p>解析：Kubernetes 管理容器化应用，但不直接保证模型质量。</p><p class='indent'>4.3 答案：A</p><p>解析：智能体系统的行为来自模型、工具、检索、记忆和编排的组合。</p><p class='indent'>4.4 答案：A/B/C</p><p>解析：无限增加 top-k 会增加上下文和重排成本，不一定提升效果。</p><p class='indent'>4.5 答案：B</p><p>解析：灰度发布能降低变更风险。</p><h2>第5章  认知、规划和记忆</h2><div class='tablewrap'><table><tr><th>本章在考试中的位置<br>本模块关注智能体的核心认知过程，包括短期/长期上下文保留、思维链和任务分解、顺序与多步骤决策、有状态编排，以及依据经验反馈调整推理策略。</th></tr></table></div><h3>学习目标</h3><p>将复杂目标拆解为可执行、可检查、可恢复的子任务。</p><p>区分计划、执行、反思、重规划和终止条件。</p><p>设计短期、长期、语义、情节和程序性记忆。</p><p>说明如何避免记忆污染、过期记忆和权限越界。</p><h3>考试考点拆解</h3><div class='tablewrap'><table><tr><th>考点</th><th>应掌握内容</th><th>易错点</th></tr><tr><td>任务分解</td><td>把大目标拆成子任务、依赖关系、工具和验收标准。</td><td>一次性让模型完成所有步骤。</td></tr><tr><td>规划策略</td><td>顺序、条件、层级、反思式、约束和重规划。</td><td>没有终止条件。</td></tr><tr><td>记忆机制</td><td>会话、语义、情节、程序性和结构化记忆。</td><td>把所有用户输入都写入长期记忆。</td></tr><tr><td>状态编排</td><td>通过状态机或图保存执行进度和失败恢复点。</td><td>只依赖自然语言上下文。</td></tr></table></div><h3>核心讲义</h3><h4>5.1 任务分解与计划</h4><p>复杂任务需要拆解。一个好的计划应包含子任务、顺序、依赖、需要的工具、预期输出、失败处理和终止条件。例如“准备一份市场分析报告”可拆为需求确认、资料检索、数据清洗、分析、撰写、引用检查和人工审核。</p><p>任务分解降低了模型一次性推理负担，也让系统更容易监控和恢复。若第 4 步失败，不必重做所有步骤，可以从最近的状态恢复。</p><h4>5.2 规划策略和重规划</h4><p>顺序规划适合 SOP 明确的任务；条件分支适合根据中间结果选择路径；层级规划适合长任务；反思式规划会在执行后自检并修正；约束规划会考虑预算、时间、权限和风险；重规划则在工具失败或环境变化后更新计划。</p><p>考试中若出现“智能体陷入循环”“不断重复检索”“永远不输出最终答案”，应想到最大步数、终止条件、状态判断和人工升级。</p><h4>5.3 记忆分类</h4><p>会话记忆保存当前对话；语义记忆保存知识性内容；情节记忆保存过去任务和事件；程序性记忆保存工作流、SOP 和工具使用策略；结构化记忆保存在数据库或知识图谱中。不同记忆应有不同写入、检索、过期和权限策略。</p><p>长期记忆不是“多存一点”。错误、过时或未经确认的信息会造成记忆污染，影响后续任务。敏感信息还会带来隐私风险。</p><h4>5.4 根据反馈调整推理策略</h4><p>智能体可以根据历史失败调整策略，例如当某类检索经常召回错误文档时增加关键词过滤或 reranker；当工具参数经常缺失时先提问澄清；当某类任务经常需要人工确认时把审批节点前置。</p><p>反馈调整应通过可控规则和评估验证完成，而不是让系统无审计地自我修改关键策略。</p><h3>课堂练习</h3><div class='tablewrap'><table><tr><th>课堂练习 5.1<br>把“NB 每月目录邮件自动生成与发送”拆解为可执行计划，标出检索、生成、审核、发送和监控节点。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 5.2<br>设计一个长期记忆写入策略：哪些信息可以保存，哪些必须确认，哪些不应保存。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 5.3<br>给一个会陷入循环的 agent 伪流程，添加终止条件和重规划机制。</th></tr></table></div><h3>代码模板</h3><h4>模板 1：任务计划数据结构</h4><p>from dataclasses import dataclass, field
+from typing import Literal
+
+@dataclass
+class Step:
+    id: str
+    goal: str
+    tool: str | None = None
+    depends_on: list[str] = field(default_factory=list)
+    status: Literal[&quot;pending&quot;, &quot;running&quot;, &quot;done&quot;, &quot;failed&quot;] = &quot;pending&quot;
+    result_ref: str | None = None
+    retry_count: int = 0
+
+@dataclass
+class Plan:
+    task_id: str
+    objective: str
+    steps: list[Step]
+    max_steps: int = 20
+    require_human_approval: bool = False</p><h4>模板 2：记忆写入策略</h4><p>def should_write_memory(event: dict) -&gt; tuple[bool, str]:
+    if event.get(&quot;contains_sensitive_personal_data&quot;):
+        return False, &quot;涉及敏感个人信息，不写入长期记忆&quot;
+    if event.get(&quot;user_confirmed&quot;) and event.get(&quot;long_term_relevance&quot;):
+        return True, &quot;用户确认且具有长期价值&quot;
+    if event.get(&quot;source&quot;) == &quot;tool_result&quot; and event.get(&quot;confidence&quot;, 0) &gt;= 0.9:
+        return True, &quot;高置信工具结果，可写入项目记忆&quot;
+    return False, &quot;短期信息或未经确认，仅保留在会话状态中&quot;</p><h3>课后测试题</h3><p class='indent'>5.1 单选：复杂任务分解的主要价值是？</p><p>A. 让系统可监控、可恢复、减少遗漏</p><p>B. 让答案更长</p><p>C. 避免使用工具</p><p>D. 取消评估</p><p class='indent'>5.2 多选：长期记忆设计应考虑？</p><p>A. 写入条件</p><p>B. 过期机制</p><p>C. 权限隔离</p><p>D. 把所有对话永久保存</p><p class='indent'>5.3 单选：智能体不断重复检索但不结束，最直接的改进是什么？</p><p>A. 增加最大步数和终止条件</p><p>B. 删除日志</p><p>C. 提高 temperature</p><p>D. 关闭所有工具</p><p class='indent'>5.4 多选：程序性记忆可保存什么？</p><p>A. 固定工作流</p><p>B. SOP</p><p>C. 工具使用策略</p><p>D. 模型权重</p><p class='indent'>5.5 单选：记忆污染指什么？</p><p>A. 保存了错误、过时或未经确认的信息并影响后续决策</p><p>B. 显存不足</p><p>C. 用户界面颜色太深</p><p>D. 数据库备份完成</p><h3>答案与解析</h3><p class='indent'>5.1 答案：A</p><p>解析：任务分解提升可控性和可恢复性。</p><p class='indent'>5.2 答案：A/B/C</p><p>解析：长期记忆要防止污染、过期和隐私风险。</p><p class='indent'>5.3 答案：A</p><p>解析：循环问题需要状态判断和终止条件。</p><p class='indent'>5.4 答案：A/B/C</p><p>解析：程序性记忆是“如何做事”的知识，不是模型参数。</p><p class='indent'>5.5 答案：A</p><p>解析：记忆污染会造成持续性错误。</p><h2>第6章  知识整合和数据处理</h2><div class='tablewrap'><table><tr><th>本章在考试中的位置<br>本模块关注外部知识接入和多类型数据管理，包括 RAG、嵌入搜索、混合检索、向量数据库优化、ETL、数据质量检查、结构化与非结构化知识访问。</th></tr></table></div><h3>学习目标</h3><p>描述 RAG 从数据采集到答案生成的完整流程。</p><p>区分向量检索、关键词检索和混合检索的适用场景。</p><p>设计向量数据库索引、metadata 过滤和 reranking 策略。</p><p>建立 ETL 和数据质量检查流程。</p><h3>考试考点拆解</h3><div class='tablewrap'><table><tr><th>考点</th><th>应掌握内容</th><th>易错点</th></tr><tr><td>RAG 管道</td><td>抽取、清洗、切分、嵌入、索引、检索、重排、生成和引用。</td><td>直接把原始文档塞给模型。</td></tr><tr><td>检索策略</td><td>向量、关键词、混合检索和 reranker。</td><td>只用单一检索方式处理所有问题。</td></tr><tr><td>向量数据库</td><td>top-k、metadata、过滤、索引更新和权限控制。</td><td>忽略文档版本和权限标签。</td></tr><tr><td>ETL 与数据质量</td><td>去重、格式、缺失、版本、敏感信息、可追溯。</td><td>脏数据直接入库。</td></tr></table></div><h3>核心讲义</h3><h4>6.1 RAG 基本流程</h4><p>RAG 的目标是用外部知识增强生成。典型流程是数据采集、清洗、切分、生成 embedding、写入向量数据库、用户问题向量化、检索、重排、上下文组装、LLM 生成、引用和答案校验。</p><p>RAG 的质量不仅由 LLM 决定，还取决于文档质量、chunking、embedding、检索策略、reranker、上下文排序和输出约束。考试中遇到“答案引用错误”“检索不到关键内容”，应从数据和检索管道排查。</p><h4>6.2 向量检索、关键词检索和混合检索</h4><p>向量检索擅长语义相似；关键词检索擅长精确匹配编号、术语、缩写和人名；混合检索结合两者，适合企业知识库、法规、医学、科研文献等需要语义和精确性并重的场景。</p><p>检索结果还应经过 metadata 过滤，例如用户权限、项目、时间、文档版本和语言。否则智能体可能引用过期或未授权文档。</p><h4>6.3 向量数据库和索引优化</h4><p>向量数据库需要考虑 embedding 模型、维度、索引类型、top-k、过滤条件、更新策略和删除策略。对于知识库更新频繁的业务，必须处理增量更新、文档失效和索引版本一致性。</p><p>Reranker 常用于提升排序质量。第一阶段召回较多候选，第二阶段重排选出最相关片段，可提高答案质量但会增加延迟和成本。</p><h4>6.4 ETL 和数据质量</h4><p>ETL 即抽取、转换、加载。智能体使用企业数据前，应检查重复、缺失、格式不一致、编码错误、版本冲突、权限标签缺失和敏感信息未脱敏等问题。</p><p>数据质量决定上限。一个高能力模型接入低质量知识库，仍然会产生错误答案。数据处理和治理是 Agentic AI 生产化的重要部分。</p><h3>课堂练习</h3><div class='tablewrap'><table><tr><th>课堂练习 6.1<br>为一个期刊内部知识库设计 RAG 数据流程：包括网页、PDF、Word、Excel 和邮件模板的处理策略。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 6.2<br>比较 BM25、向量检索和混合检索在论文题名、作者、机构、研究领域查询中的表现。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 6.3<br>设计一个文档入库前的数据质量检查表。</th></tr></table></div><h3>代码模板</h3><h4>模板 1：RAG 检索管道伪代码</h4><p>def rag_answer(question: str, user_context: dict) -&gt; dict:
+    # 1. query rewrite
+    query = rewrite_query(question)
+    # 2. hybrid retrieval with permission filter
+    candidates = hybrid_search(
+        query=query,
+        top_k=30,
+        filters={&quot;org&quot;: user_context[&quot;org&quot;], &quot;allowed_roles&quot;: user_context[&quot;roles&quot;]}
+    )
+    # 3. rerank
+    passages = rerank(query, candidates, top_n=6)
+    # 4. generate with citations
+    answer = generate_answer(question, passages, require_citations=True)
+    # 5. verify citation coverage
+    return verify_answer(answer, passages)</p><h4>模板 2：数据质量检查</h4><p>def quality_check(doc: dict) -&gt; list[str]:
+    errors = []
+    required = [&quot;doc_id&quot;, &quot;title&quot;, &quot;text&quot;, &quot;source&quot;, &quot;version&quot;, &quot;access_level&quot;]
+    for field in required:
+        if not doc.get(field):
+            errors.append(f&quot;missing:{field}&quot;)
+    if len(doc.get(&quot;text&quot;, &quot;&quot;)) &lt; 200:
+        errors.append(&quot;too_short&quot;)
+    if doc.get(&quot;version_status&quot;) == &quot;obsolete&quot;:
+        errors.append(&quot;obsolete_version&quot;)
+    if contains_unredacted_pii(doc.get(&quot;text&quot;, &quot;&quot;)):
+        errors.append(&quot;unredacted_pii&quot;)
+    return errors</p><h3>课后测试题</h3><p class='indent'>6.1 单选：RAG 中 chunking 的主要作用是？</p><p>A. 把文档切成适合检索和上下文使用的片段</p><p>B. 压缩 GPU 显存</p><p>C. 替代权限控制</p><p>D. 自动保证答案正确</p><p class='indent'>6.2 多选：混合检索通常结合哪些能力？</p><p>A. 语义向量检索</p><p>B. 关键词/稀疏检索</p><p>C. 重排</p><p>D. 关闭 metadata 过滤</p><p class='indent'>6.3 单选：企业知识库 RAG 最不能忽视的是？</p><p>A. 文档权限和版本</p><p>B. 让所有人访问所有文档</p><p>C. 只保留图片</p><p>D. 取消引用</p><p class='indent'>6.4 多选：ETL 中常见数据质量问题包括？</p><p>A. 重复数据</p><p>B. 缺失字段</p><p>C. 编码错误</p><p>D. 权限标签缺失</p><p class='indent'>6.5 单选：Reranker 的主要作用是？</p><p>A. 对初始召回结果重新排序以提升相关性</p><p>B. 删除用户认证</p><p>C. 替代所有数据库</p><p>D. 生成最终 UI</p><h3>答案与解析</h3><p class='indent'>6.1 答案：A</p><p>解析：chunking 影响召回、上下文质量和引用粒度。</p><p class='indent'>6.2 答案：A/B/C</p><p>解析：混合检索常结合语义、关键词和重排，但仍需要权限过滤。</p><p class='indent'>6.3 答案：A</p><p>解析：权限和版本关系到安全与准确性。</p><p class='indent'>6.4 答案：A/B/C/D</p><p>解析：这些都会影响检索和合规。</p><p class='indent'>6.5 答案：A</p><p>解析：重排可提升 top 文档质量，但增加延迟。</p><h2>第7章  NVIDIA 相关平台工具概览</h2><div class='tablewrap'><table><tr><th>本章在考试中的位置<br>本模块考查 NVIDIA 代理式 AI 平台相关工具，包括 NeMo Guardrails、NIM 推理微服务、NeMo/Agent Intelligence Toolkit、TensorRT-LLM、Triton 推理服务器和 NVIDIA 硬件上的多模态工作流优化。</th></tr></table></div><h3>学习目标</h3><p>解释 NIM、NeMo Guardrails、Triton 和 TensorRT-LLM 的定位。</p><p>说明如何用 Guardrails 控制输入、输出、检索和工具执行风险。</p><p>理解推理优化中的吞吐、延迟、批处理和 GPU 利用率。</p><p>设计基于 NVIDIA 工具链的生产部署方案。</p><h3>考试考点拆解</h3><div class='tablewrap'><table><tr><th>考点</th><th>应掌握内容</th><th>易错点</th></tr><tr><td>NIM</td><td>模型推理微服务、标准接口、生产级部署和加速。</td><td>把 NIM 当成训练框架。</td></tr><tr><td>NeMo Guardrails</td><td>输入、输出、对话、检索和执行护栏。</td><td>只在最终输出后做简单关键词过滤。</td></tr><tr><td>Triton/TensorRT-LLM</td><td>推理服务化、批处理、多框架部署、LLM 推理优化。</td><td>只调 Prompt 不看推理瓶颈。</td></tr><tr><td>NVIDIA 硬件工作流</td><td>GPU 加速、多模态预处理、监控和性能优化。</td><td>忽略 GPU 显存、吞吐和批处理。</td></tr></table></div><h3>核心讲义</h3><h4>7.1 NVIDIA NIM</h4><p>NIM 可理解为面向生成式 AI 模型的推理微服务形态，便于以标准接口部署和调用模型。对于企业智能体，NIM 的价值在于简化模型服务化、提高推理性能，并让应用以稳定 API 集成模型能力。</p><p>考试中看到“高性能推理微服务”“标准 API 部署模型”“快速集成 LLM 推理服务”等关键词，应联想到 NIM。</p><h4>7.2 NeMo Guardrails</h4><p>Guardrails 用于控制 LLM 应用行为。常见护栏包括输入护栏、输出护栏、对话护栏、检索护栏和执行护栏。输入护栏可以识别越狱或敏感内容；输出护栏可检查有害内容和隐私泄露；执行护栏可限制工具调用。</p><p>真正的安全不能只依靠最终输出过滤。若危险工具已经执行，再过滤答案已经太晚。因此写操作、高风险工具和未授权数据访问应在执行前被拦截或要求人工审批。</p><h4>7.3 Triton 与 TensorRT-LLM</h4><p>Triton Inference Server 是模型推理服务化平台，可服务多种框架的模型并支持批处理、并发和监控。TensorRT-LLM 面向大语言模型推理优化，常用于降低延迟、提高吞吐和优化 GPU 利用率。</p><p>推理优化需要同时看首 token 延迟、总延迟、吞吐、GPU 利用率、显存、batch size 和并发。不同业务目标对应不同优化方向。</p><h4>7.4 NVIDIA Agent 工具链和多模态工作流</h4><p>NeMo/Agent Intelligence Toolkit 等工具可帮助构建和优化智能体工作流。多模态工作流在 NVIDIA 硬件上常涉及图像、音频、视频预处理、模型推理、结果融合和安全检查。</p><p>考试不一定要求记忆所有命令，但要求知道每类工具解决什么问题，并能在场景中选出合适组件。</p><h3>课堂练习</h3><div class='tablewrap'><table><tr><th>课堂练习 7.1<br>给出一个“企业 RAG 助手”的 NVIDIA 部署方案，说明 NIM、Guardrails、Triton、向量库和监控如何组合。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 7.2<br>设计一个 execution rail：当用户请求发送邮件或修改数据库时，系统应检查哪些条件？</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 7.3<br>分析推理延迟升高的可能原因：模型、batch、GPU、网络、上下文长度和工具调用分别如何影响？</th></tr></table></div><h3>代码模板</h3><h4>模板 1：调用 NIM/OpenAI 兼容接口的示例</h4><p>from openai import OpenAI
+
+client = OpenAI(
+    base_url=&quot;https://your-nim-endpoint/v1&quot;,
+    api_key=&quot;YOUR_API_KEY&quot;
+)
+
+response = client.chat.completions.create(
+    model=&quot;your-model-name&quot;,
+    messages=[
+        {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a safe enterprise AI agent.&quot;},
+        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Summarize the retrieved policy.&quot;}
+    ],
+    temperature=0.2,
+)
+print(response.choices[0].message.content)</p><h4>模板 2：Guardrails 规则思想示例</h4><p># 伪配置：高风险工具调用前必须满足权限和确认
+rails:
+  input:
+    - detect_jailbreak
+    - detect_sensitive_data
+  execution:
+    - name: require_approval_for_write_tools
+      applies_to: [send_email, update_database, delete_file]
+      condition: user.confirmed == true and user.role in allowed_roles
+  output:
+    - block_private_data_leakage
+    - require_citations_for_policy_answers</p><h3>课后测试题</h3><p class='indent'>7.1 单选：NIM 最贴近哪类能力？</p><p>A. 模型推理微服务和标准化部署</p><p>B. 用户画像手工录入</p><p>C. 只做数据标注</p><p>D. Excel 宏</p><p class='indent'>7.2 多选：Guardrails 可作用于哪些环节？</p><p>A. 输入</p><p>B. 输出</p><p>C. 检索</p><p>D. 工具执行</p><p class='indent'>7.3 单选：危险工具调用的最佳拦截位置是？</p><p>A. 工具执行前</p><p>B. 工具执行后只改写答案</p><p>C. 下周人工检查</p><p>D. 不记录</p><p class='indent'>7.4 多选：推理性能优化可能关注？</p><p>A. 首 token 延迟</p><p>B. 吞吐</p><p>C. GPU 利用率</p><p>D. 上下文长度</p><p class='indent'>7.5 单选：Triton 的主要定位是？</p><p>A. 推理服务器/模型服务化</p><p>B. 电子邮件客户端</p><p>C. 文档编辑器</p><p>D. 任务管理软件</p><h3>答案与解析</h3><p class='indent'>7.1 答案：A</p><p>解析：NIM 关注模型推理服务化和部署。</p><p class='indent'>7.2 答案：A/B/C/D</p><p>解析：护栏可以分层作用于多个环节。</p><p class='indent'>7.3 答案：A</p><p>解析：执行前拦截能防止真实副作用。</p><p class='indent'>7.4 答案：A/B/C/D</p><p>解析：这些都会影响体验和成本。</p><p class='indent'>7.5 答案：A</p><p>解析：Triton 用于模型推理服务部署。</p><h2>第8章  运行、监控和维护</h2><div class='tablewrap'><table><tr><th>本章在考试中的位置<br>本模块覆盖部署后的持续运营，包括监控仪表板、可靠性指标、日志和异常追踪、根因分析、历史版本基准测试、自动调优、再训练、版本控制和可用性透明性。</th></tr></table></div><h3>学习目标</h3><p>设计智能体系统的监控指标体系。</p><p>理解日志、trace 和根因分析在多步骤智能体中的作用。</p><p>建立线上质量监控、回归测试和版本追踪机制。</p><p>说明持续可用性、透明性和可信性的维护策略。</p><h3>考试考点拆解</h3><div class='tablewrap'><table><tr><th>考点</th><th>应掌握内容</th><th>易错点</th></tr><tr><td>监控指标</td><td>系统、推理、检索、工具、质量、安全、用户和成本指标。</td><td>只看 CPU/GPU，不看任务质量。</td></tr><tr><td>日志与 trace</td><td>记录用户请求、Prompt 版本、检索、工具、状态、安全拦截和输出。</td><td>只保存最终答案。</td></tr><tr><td>根因分析</td><td>定位错误在输入、检索、工具、模型、格式或护栏。</td><td>看到错误就换模型。</td></tr><tr><td>维护和版本控制</td><td>Prompt、模型、索引、工具和规则都要版本化和回归测试。</td><td>上线后不再评估。</td></tr></table></div><h3>核心讲义</h3><h4>8.1 智能体监控指标</h4><p>智能体系统的 dashboard 应包括系统指标、推理指标、成本指标、检索指标、工具指标、质量指标、安全指标和用户指标。仅监控 GPU 是否在线无法判断智能体是否在正确完成任务。</p><p>质量指标可以包括任务成功率、人工接管率、幻觉率、引用错误率、格式错误率和用户反馈评分。安全指标包括越权尝试、敏感信息拦截、有害输出拦截和高风险工具审批次数。</p><h4>8.2 Trace 和日志</h4><p>一次智能体输出可能经历多个步骤：用户输入、意图识别、query rewrite、检索、重排、工具调用、模型生成、安全检查和最终输出。Trace 应记录每一步的输入、输出、耗时、版本和错误码。</p><p>没有 trace 时，运维团队只能看到错误答案，却不知道是检索召回错、工具返回错、模型解释错还是输出格式错。</p><h4>8.3 根因分析</h4><p>根因分析可以按链路逐步排查：用户问题是否明确，Prompt 版本是否变化，检索是否召回正确文档，工具是否成功调用，工具返回是否可信，模型是否误解工具结果，guardrail 是否误拦截，下游解析是否失败。</p><p>排查结论应转化为回归测试样例，避免同类错误再次出现。</p><h4>8.4 维护、版本控制和持续改进</h4><p>生产智能体的可维护性依赖版本控制。Prompt、模型、embedding、索引、工具 schema、工作流图和 guardrail 规则都应有版本号，并能回溯到某次输出。</p><p>自动调优和再训练必须受到评估和审批约束。对于高风险行业，自动修改生产策略可能带来合规风险，应优先使用离线验证和灰度发布。</p><h3>课堂练习</h3><div class='tablewrap'><table><tr><th>课堂练习 8.1<br>设计一个智能体监控 dashboard，至少包含 20 个指标，并按系统、质量、安全、成本分类。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 8.2<br>给一条失败任务 trace，写出根因分析步骤和最小修复方案。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 8.3<br>设计一套 Prompt 版本回滚流程，要求包含触发条件、审批、验证和通知。</th></tr></table></div><h3>代码模板</h3><h4>模板 1：结构化日志事件</h4><p>import json, time, uuid
+
+def log_event(task_id: str, event_type: str, payload: dict):
+    event = {
+        &quot;event_id&quot;: str(uuid.uuid4()),
+        &quot;task_id&quot;: task_id,
+        &quot;event_type&quot;: event_type,
+        &quot;timestamp&quot;: time.time(),
+        &quot;payload&quot;: payload,
+    }
+    print(json.dumps(event, ensure_ascii=False))
+
+log_event(&quot;task-001&quot;, &quot;tool_call&quot;, {
+    &quot;tool&quot;: &quot;search_policy&quot;,
+    &quot;args_hash&quot;: &quot;sha256:...&quot;,
+    &quot;latency_ms&quot;: 240,
+    &quot;ok&quot;: True,
+    &quot;prompt_version&quot;: &quot;p2026-04-28&quot;,
+    &quot;model&quot;: &quot;llm-prod-v3&quot;
+})</p><h4>模板 2：质量指标聚合伪代码</h4><p>def aggregate_metrics(events: list[dict]) -&gt; dict:
+    total = len([e for e in events if e[&quot;event_type&quot;] == &quot;task_end&quot;])
+    failed = len([e for e in events if e.get(&quot;payload&quot;, {}).get(&quot;success&quot;) is False])
+    human = len([e for e in events if e[&quot;event_type&quot;] == &quot;human_handoff&quot;])
+    blocked = len([e for e in events if e[&quot;event_type&quot;] == &quot;safety_block&quot;])
+    return {
+        &quot;task_success_rate&quot;: 1 - failed / max(total, 1),
+        &quot;human_handoff_rate&quot;: human / max(total, 1),
+        &quot;safety_block_count&quot;: blocked,
+    }</p><h3>课后测试题</h3><p class='indent'>8.1 单选：智能体日志中最不应缺少的是？</p><p>A. Prompt、模型、检索、工具和安全检查版本轨迹</p><p>B. 只保存最终答案</p><p>C. 只保存 UI 截图</p><p>D. 只保存用户昵称</p><p class='indent'>8.2 多选：监控 dashboard 应包含哪些指标？</p><p>A. 延迟和错误率</p><p>B. 任务成功率</p><p>C. 工具超时率</p><p>D. 安全拦截数量</p><p class='indent'>8.3 单选：当新版本质量下降时，首先应做什么？</p><p>A. 定位变更并回滚或灰度暂停</p><p>B. 关闭所有监控</p><p>C. 删除旧版本</p><p>D. 提高输出字数</p><p class='indent'>8.4 多选：根因分析可能检查哪些环节？</p><p>A. 检索召回</p><p>B. 工具返回</p><p>C. 模型解释</p><p>D. 下游解析</p><p class='indent'>8.5 单选：人工接管率突然升高可能意味着？</p><p>A. 任务质量、工具或安全策略出现问题，需要分析</p><p>B. 系统一定更安全无需处理</p><p>C. 用户变少</p><p>D. 无需记录</p><h3>答案与解析</h3><p class='indent'>8.1 答案：A</p><p>解析：多组件系统需要完整轨迹支持复现和审计。</p><p class='indent'>8.2 答案：A/B/C/D</p><p>解析：运行、质量、工具和安全指标都重要。</p><p class='indent'>8.3 答案：A</p><p>解析：版本控制和回滚是生产维护关键。</p><p class='indent'>8.4 答案：A/B/C/D</p><p>解析：智能体链路多，错误可能发生在任一环节。</p><p class='indent'>8.5 答案：A</p><p>解析：接管率是重要质量和可用性信号。</p><h2>第9章  安全、道德与合规</h2><div class='tablewrap'><table><tr><th>本章在考试中的位置<br>本模块考查负责任 AI 和安全合规实践，包括系统安全、审计跟踪、隐私保护、企业政策、防偏见和有害内容、分层安全框架、许可和监管标准。</th></tr></table></div><h3>学习目标</h3><p>设计覆盖身份、输入、检索、工具、生成、输出和审计的分层安全框架。</p><p>说明隐私保护、最小权限和数据隔离在智能体中的必要性。</p><p>识别偏见、有害内容、幻觉和越权工具调用风险。</p><p>理解许可、监管和责任归属对智能体部署的影响。</p><h3>考试考点拆解</h3><div class='tablewrap'><table><tr><th>考点</th><th>应掌握内容</th><th>易错点</th></tr><tr><td>分层安全</td><td>身份、输入、检索、工具、生成、输出和审计多层防护。</td><td>只靠最终输出过滤。</td></tr><tr><td>隐私与权限</td><td>最小权限、数据隔离、脱敏、加密和访问审计。</td><td>RAG 检索时忽略 ACL。</td></tr><tr><td>偏见和有害内容</td><td>检测、缓解、评估和人工升级。</td><td>认为模型默认中立。</td></tr><tr><td>许可和监管</td><td>模型、数据、API、行业规则和审计要求。</td><td>开源或网页数据可任意商用。</td></tr></table></div><h3>核心讲义</h3><h4>9.1 分层安全框架</h4><p>智能体安全必须分层：身份层控制谁在访问；输入层识别越狱和敏感信息；检索层进行权限过滤；工具层进行白名单、参数校验和审批；生成层降低幻觉和有害内容；输出层脱敏和引用；审计层记录责任链。</p><p>如果只在最终输出后过滤，系统可能已经执行危险工具或访问了未授权数据。因此执行前控制和权限校验极其重要。</p><h4>9.2 隐私保护和最小权限</h4><p>智能体通常连接企业知识库、邮件、日历、数据库和文件系统。每个工具和检索请求都应以当前用户权限执行，而不是使用万能服务账号。敏感数据应根据业务需要脱敏、加密或不写入长期记忆。</p><p>最小权限原则要求智能体只获得完成当前任务所需权限。高风险操作应增加人工确认和审计。</p><h4>9.3 偏见、有害内容和幻觉</h4><p>模型可能产生偏见性建议、有害内容或编造事实。缓解策略包括安全分类器、输出审查、引用要求、事实核查、风险分级、人工升级和持续评估。</p><p>对于医疗、法律、金融等高风险场景，系统应明确限制、引用来源、提示不确定性，并在需要时要求专业人员介入。</p><h4>9.4 合规、许可和责任</h4><p>智能体可能使用开源模型、商业模型、第三方 API、企业文档和用户数据。上线前必须审查数据使用权、模型许可证、API 条款、隐私政策和行业监管要求。</p><p>可审计性是责任归属的基础。系统应能回答：谁发起任务、使用了哪些数据、调用了哪些工具、谁批准了高风险操作、输出依据是什么。</p><h3>课堂练习</h3><div class='tablewrap'><table><tr><th>课堂练习 9.1<br>为一个“自动回复客户邮件”的智能体设计分层安全控制点。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 9.2<br>列出一个企业 RAG 系统可能发生的 10 个隐私或权限风险，并提出对应防护措施。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 9.3<br>设计一个高风险操作审批策略：哪些工具必须审批，审批信息应记录哪些字段？</th></tr></table></div><h3>代码模板</h3><h4>模板 1：工具调用权限检查</h4><p>def authorize_tool_call(user: dict, tool: str, args: dict) -&gt; tuple[bool, str]:
+    policy = {
+        &quot;read_kb&quot;: {&quot;roles&quot;: [&quot;employee&quot;, &quot;admin&quot;], &quot;approval&quot;: False},
+        &quot;send_email&quot;: {&quot;roles&quot;: [&quot;editor&quot;, &quot;admin&quot;], &quot;approval&quot;: True},
+        &quot;delete_file&quot;: {&quot;roles&quot;: [&quot;admin&quot;], &quot;approval&quot;: True},
+    }
+    rule = policy.get(tool)
+    if not rule:
+        return False, &quot;工具不在白名单中&quot;
+    if not set(user.get(&quot;roles&quot;, [])) &amp; set(rule[&quot;roles&quot;]):
+        return False, &quot;用户角色无权限&quot;
+    if rule[&quot;approval&quot;] and not args.get(&quot;human_approved&quot;):
+        return False, &quot;需要人工审批&quot;
+    return True, &quot;允许执行&quot;</p><h4>模板 2：输出安全检查伪代码</h4><p>def output_guardrail(answer: str, context: dict) -&gt; dict:
+    violations = []
+    if contains_private_data(answer):
+        violations.append(&quot;private_data&quot;)
+    if contains_harmful_instruction(answer):
+        violations.append(&quot;harmful_instruction&quot;)
+    if context.get(&quot;requires_citation&quot;) and not has_citation(answer):
+        violations.append(&quot;missing_citation&quot;)
+    return {&quot;allow&quot;: not violations, &quot;violations&quot;: violations}</p><h3>课后测试题</h3><p class='indent'>9.1 单选：最小权限原则意味着？</p><p>A. 智能体只拥有完成当前任务所需权限</p><p>B. 所有工具都用管理员账号</p><p>C. 关闭审计</p><p>D. 让用户共享密码</p><p class='indent'>9.2 多选：分层安全可包括哪些层？</p><p>A. 输入</p><p>B. 检索</p><p>C. 工具执行</p><p>D. 审计</p><p class='indent'>9.3 单选：只在最终输出过滤的主要问题是？</p><p>A. 危险工具可能已经执行</p><p>B. 用户界面变慢</p><p>C. 无法改变字体</p><p>D. 会减少字数</p><p class='indent'>9.4 多选：合规审查可能涉及？</p><p>A. 数据使用权</p><p>B. 模型许可证</p><p>C. API 条款</p><p>D. 行业监管</p><p class='indent'>9.5 单选：高风险领域中最合适的策略是？</p><p>A. 增加引用、限制声明和人工升级</p><p>B. 鼓励模型自由猜测</p><p>C. 关闭日志</p><p>D. 取消权限控制</p><h3>答案与解析</h3><p class='indent'>9.1 答案：A</p><p>解析：最小权限降低越权和误操作风险。</p><p class='indent'>9.2 答案：A/B/C/D</p><p>解析：安全应覆盖全链路。</p><p class='indent'>9.3 答案：A</p><p>解析：执行前控制是关键。</p><p class='indent'>9.4 答案：A/B/C/D</p><p>解析：这些都是上线前合规内容。</p><p class='indent'>9.5 答案：A</p><p>解析：高风险任务需要可信证据和人工监督。</p><h2>第10章  人类-AI 交互和监督</h2><div class='tablewrap'><table><tr><th>本章在考试中的位置<br>本模块关注人如何有效监督和参与智能体系统，包括直观 UI、结构化反馈循环、透明机制、可解释推理、决策可追溯、人工监督和干预。</th></tr></table></div><h3>学习目标</h3><p>设计能展示目标、计划、工具状态、证据和风险的智能体 UI。</p><p>建立结构化反馈闭环，将用户反馈转化为评估和改进。</p><p>区分透明性与暴露完整内部推理链。</p><p>确定哪些场景需要 human-in-the-loop 审批或接管。</p><h3>考试考点拆解</h3><div class='tablewrap'><table><tr><th>考点</th><th>应掌握内容</th><th>易错点</th></tr><tr><td>交互 UI</td><td>显示任务目标、计划、进度、证据、工具调用和确认按钮。</td><td>只有聊天框，用户不知道系统在做什么。</td></tr><tr><td>反馈闭环</td><td>结构化标签、用户评论、人工审核和回归测试。</td><td>只收集模糊满意度。</td></tr><tr><td>透明性</td><td>展示数据源、工具、关键证据、置信度和限制。</td><td>暴露完整内部推理链。</td></tr><tr><td>人工监督</td><td>高风险、不确定、不可逆或合规敏感操作需要人工介入。</td><td>所有操作全自动无审批。</td></tr></table></div><h3>核心讲义</h3><h4>10.1 智能体 UI 设计</h4><p>好的智能体界面不只是聊天框。它应展示当前目标、计划步骤、工具调用状态、引用来源、可编辑中间结果、风险提示、确认按钮和反馈入口。对于长任务，用户需要知道系统执行到哪里，是否等待审批，是否遇到错误。</p><p>UI 设计直接影响信任。透明的过程展示能帮助用户理解系统能力边界，同时减少误用。</p><h4>10.2 Human-in-the-loop</h4><p>Human-in-the-loop 适用于高风险、高价值、不可逆或不确定任务，例如发送正式邮件、删除文件、修改数据库、财务审批、医学或法律建议。人工可以审批、纠正参数、选择候选答案、接管对话或审核输出。</p><p>考试中若题干出现“责任归属”“信任”“高风险”“合规”“不确定”，通常应考虑人工监督、审批和可追溯。</p><h4>10.3 透明性和可解释性</h4><p>透明性不等于暴露模型完整私有推理链。实际系统可以展示任务步骤、使用数据源、调用工具、关键证据、置信度、限制条件和人工审批记录。</p><p>可追溯性要求系统能回放关键决策依据。对于监管或企业场景，应保存足够证据以支持审计。</p><h4>10.4 反馈循环和持续学习</h4><p>用户反馈应被结构化收集，并进入评估和改进流程。例如“引用错误”应触发检索和引用评估；“没按格式”应触发输出 schema 改进；“需要人工接管”应触发任务边界或 UI 改进。</p><p>反馈闭环的目标不是让模型立即自我修改，而是形成可控的数据飞轮：收集、标注、复现、修复、评估、发布。</p><h3>课堂练习</h3><div class='tablewrap'><table><tr><th>课堂练习 10.1<br>设计一个“智能体任务面板”的 UI 信息架构，包含目标、计划、进度、证据、风险和确认按钮。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 10.2<br>列出 8 类必须人工确认的工具操作，并说明确认前应展示哪些信息。</th></tr></table></div><div class='tablewrap'><table><tr><th>课堂练习 10.3<br>设计一个反馈表单，使反馈能直接进入评估集。</th></tr></table></div><h3>代码模板</h3><h4>模板 1：人工审批请求对象</h4><p>from dataclasses import dataclass
+
+@dataclass
+class ApprovalRequest:
+    task_id: str
+    action: str
+    summary: str
+    tool_name: str
+    tool_args_preview: dict
+    risk_level: str
+    evidence_refs: list[str]
+    requested_by: str
+
+request = ApprovalRequest(
+    task_id=&quot;task-2026-001&quot;,
+    action=&quot;send_email&quot;,
+    summary=&quot;向作者发送正式通知邮件&quot;,
+    tool_name=&quot;gmail.send_email&quot;,
+    tool_args_preview={&quot;to&quot;: &quot;author@example.com&quot;, &quot;subject&quot;: &quot;Decision&quot;},
+    risk_level=&quot;medium&quot;,
+    evidence_refs=[&quot;draft-v3&quot;, &quot;policy-2026&quot;],
+    requested_by=&quot;agent-supervisor&quot;
+)</p><h4>模板 2：反馈表单结构</h4><p>FEEDBACK_FORM = {
+    &quot;task_id&quot;: &quot;&quot;,
+    &quot;rating&quot;: 0,
+    &quot;tags&quot;: [],  # fact_error, wrong_tool, citation_error, unsafe, too_slow, bad_tone
+    &quot;expected_answer&quot;: &quot;&quot;,
+    &quot;comment&quot;: &quot;&quot;,
+    &quot;allow_use_for_improvement&quot;: True,
+}</p><h3>课后测试题</h3><p class='indent'>10.1 单选：人机交互中最能提升长任务信任度的是？</p><p>A. 展示目标、计划、进度和证据</p><p>B. 隐藏所有步骤</p><p>C. 只输出最终一句话</p><p>D. 禁止反馈</p><p class='indent'>10.2 多选：哪些操作通常需要人工确认？</p><p>A. 发送正式邮件</p><p>B. 删除文件</p><p>C. 修改数据库</p><p>D. 读取公开 FAQ</p><p class='indent'>10.3 单选：透明性不应简单等同于？</p><p>A. 展示证据和工具轨迹</p><p>B. 暴露完整内部推理链</p><p>C. 显示来源</p><p>D. 说明限制</p><p class='indent'>10.4 多选：结构化反馈应包含？</p><p>A. 评分</p><p>B. 失败标签</p><p>C. 用户评论</p><p>D. 任务版本信息</p><p class='indent'>10.5 单选：Human-in-the-loop 的主要目的是什么？</p><p>A. 在高风险或不确定场景中确保责任、信任和安全</p><p>B. 让系统永远不能自动化</p><p>C. 减少所有日志</p><p>D. 替代权限系统</p><h3>答案与解析</h3><p class='indent'>10.1 答案：A</p><p>解析：透明的过程展示能提高可理解性和信任。</p><p class='indent'>10.2 答案：A/B/C</p><p>解析：有副作用或不可逆操作通常需要确认；读取公开 FAQ 风险较低。</p><p class='indent'>10.3 答案：B</p><p>解析：透明性应提供可审计信息，而不一定暴露完整内部推理。</p><p class='indent'>10.4 答案：A/B/C/D</p><p>解析：这些信息有助于复现和改进。</p><p class='indent'>10.5 答案：A</p><p>解析：人工监督用于控制风险并增强责任归属。</p><h2>附录 A：核心术语速查表</h2><div class='tablewrap'><table><tr><th>英文术语</th><th>中文/全称</th><th>中文解释</th></tr><tr><td>Agentic AI</td><td>代理式 AI</td><td>围绕目标持续感知、推理、行动、观察并调整的 AI 系统范式。</td></tr><tr><td>Agent</td><td>智能体</td><td>能够使用模型、工具、记忆和环境反馈完成任务的软件实体。</td></tr><tr><td>ReAct</td><td>推理-行动框架</td><td>Reasoning + Acting，通过推理、行动、观察循环完成多步任务。</td></tr><tr><td>Planner</td><td>规划器</td><td>将复杂目标拆解为子任务并安排执行顺序的组件。</td></tr><tr><td>Executor</td><td>执行器</td><td>按照计划调用工具、处理结果并更新状态的组件。</td></tr><tr><td>Memory</td><td>记忆</td><td>保存会话状态、长期偏好、历史任务和外部知识的机制。</td></tr><tr><td>RAG</td><td>检索增强生成</td><td>先检索外部知识，再将证据交给模型生成答案。</td></tr><tr><td>Embedding</td><td>嵌入</td><td>将文本或其他对象映射为向量，以便语义检索。</td></tr><tr><td>Vector Database</td><td>向量数据库</td><td>存储和检索向量表示的数据库，常用于 RAG。</td></tr><tr><td>Hybrid Search</td><td>混合检索</td><td>结合语义向量检索和关键词检索的检索方法。</td></tr><tr><td>Reranker</td><td>重排器</td><td>对初始召回结果再次排序，以提高相关性。</td></tr><tr><td>Guardrails</td><td>护栏</td><td>用于限制输入、输出、检索、对话和工具执行风险的规则或模型。</td></tr><tr><td>NIM</td><td>NVIDIA Inference Microservices</td><td>用于部署生成式 AI 模型推理服务的 NVIDIA 微服务形态。</td></tr><tr><td>Triton Inference Server</td><td>Triton 推理服务器</td><td>用于服务化部署多框架模型推理的 NVIDIA 推理服务器。</td></tr><tr><td>TensorRT-LLM</td><td>TensorRT-LLM</td><td>用于优化大语言模型在 NVIDIA GPU 上推理性能的工具链。</td></tr><tr><td>MLOps</td><td>机器学习运维</td><td>模型训练、部署、监控和治理流程。</td></tr><tr><td>AgentOps</td><td>智能体运维</td><td>面向智能体的 Prompt、工具、记忆、检索、trace 和安全治理。</td></tr><tr><td>HITL</td><td>Human-in-the-loop / 人在环</td><td>在高风险或不确定任务中引入人工审批、纠错或接管。</td></tr><tr><td>Idempotency</td><td>幂等性</td><td>重复执行同一请求不会产生重复副作用的性质。</td></tr><tr><td>Circuit Breaker</td><td>熔断器</td><td>下游持续故障时暂停调用，避免级联失败。</td></tr></table></div><h2>附录 B：综合模拟考试与答案解析</h2><p>模拟题 1 单选：某智能体在查询企业知识库时偶尔引用员工无权访问的文档，最应优先修复什么？</p><p>A. 提高 temperature</p><p>B. 检索层 ACL/metadata 权限过滤</p><p>C. 增加回答字数</p><p>D. 删除所有索引</p><p>模拟题 2 多选：生产级智能体的一次 trace 通常应记录哪些内容？</p><p>A. Prompt 版本</p><p>B. 检索结果</p><p>C. 工具调用参数与结果</p><p>D. 安全拦截结果</p><p>模拟题 3 单选：用户要求智能体删除一批文件，正确做法是？</p><p>A. 直接执行</p><p>B. 确认权限、展示预览、请求人工确认并记录审计</p><p>C. 让模型猜测文件路径</p><p>D. 关闭日志</p><p>模拟题 4 单选：RAG 答案经常缺少关键法规条款，优先检查什么？</p><p>A. 检索召回、chunking、top-k 和 reranker</p><p>B. UI 背景色</p><p>C. 是否使用更多表情</p><p>D. 是否删除引用</p><p>模拟题 5 多选：多智能体系统中防止混乱的机制包括？</p><p>A. 角色边界</p><p>B. 通信协议</p><p>C. 共享状态和任务锁</p><p>D. 无限循环直到成功</p><p>模拟题 6 单选：NIM、Triton、TensorRT-LLM 共同相关的主题更接近？</p><p>A. 模型推理部署和性能优化</p><p>B. 客户关系管理</p><p>C. PDF 编辑</p><p>D. 人工打分表</p><p>模拟题 7 多选：智能体评估集应包含哪些失败场景？</p><p>A. 工具超时</p><p>B. 检索为空</p><p>C. 用户输入模糊</p><p>D. 越权访问尝试</p><p>模拟题 8 单选：把所有用户输入自动写入长期记忆的主要风险是？</p><p>A. 记忆污染和隐私风险</p><p>B. 一定提升准确率</p><p>C. 减少审计需求</p><p>D. 替代权限系统</p><p>模拟题 9 多选：Human-in-the-loop 可用于哪些环节？</p><p>A. 审批高风险工具</p><p>B. 纠正工具参数</p><p>C. 审核最终输出</p><p>D. 选择候选方案</p><p>模拟题 10 单选：如果新 Prompt 上线后任务成功率下降，最合理的处理是？</p><p>A. 回滚或暂停灰度，并通过回归测试定位问题</p><p>B. 删除测试集</p><p>C. 增加营销话术</p><p>D. 停止监控</p><h3>综合模拟考试答案解析</h3><p>模拟题 1 答案：B</p><p>解析：未授权引用是检索权限过滤问题，应在检索阶段按用户权限过滤。</p><p>模拟题 2 答案：A/B/C/D</p><p>解析：完整 trace 支持审计、复现和根因分析。</p><p>模拟题 3 答案：B</p><p>解析：删除属于高风险不可逆操作，必须权限和人工确认。</p><p>模拟题 4 答案：A</p><p>解析：缺少关键证据通常与检索和切分相关。</p><p>模拟题 5 答案：A/B/C</p><p>解析：多智能体需要协议和状态控制；无限循环不可取。</p><p>模拟题 6 答案：A</p><p>解析：这些工具主要服务于模型推理部署与优化。</p><p>模拟题 7 答案：A/B/C/D</p><p>解析：鲁棒评估必须覆盖失败和安全边界。</p><p>模拟题 8 答案：A</p><p>解析：长期记忆需要写入策略、确认和隐私控制。</p><p>模拟题 9 答案：A/B/C/D</p><p>解析：人在环可以在多个阶段控制风险和提升质量。</p><p>模拟题 10 答案：A</p><p>解析：版本控制和回归测试是生产维护基本手段。</p><h2>参考资料</h2><p>Agentic AI Professional 相关公开认证方向 (AAI Professional) 认证页面：https://www.nvidia.cn/training/certification/agentic-ai-professional/</p><p>Agentic AI Professional 相关公开认证方向 认证考试学习指南：https://images.nvidia.cn/aem-dam/zh_cn/Solutions/training/certification/nvt-study-guide-new-agentic-ai-cert-exam-zhCN-4581053.pdf</p><p>NVIDIA NIM 文档：https://docs.nvidia.com/nim/</p><p>NVIDIA NeMo Guardrails 文档：https://docs.nvidia.com/nemo/guardrails/</p><p>NVIDIA Triton Inference Server 文档：https://docs.nvidia.com/deeplearning/triton-inference-server/</p><p>NVIDIA TensorRT-LLM 文档：https://nvidia.github.io/TensorRT-LLM/</p><div class='tablewrap'><table><tr><th>免责声明<br>本教材为根据公开考试大纲整理的学习资料，不代表 NVIDIA 官方出版物。考试报名、考试范围、权重、费用、语言、有效期等信息可能更新，请以 NVIDIA 官方页面和考试中心最新说明为准。</th></tr></table></div>
+  </div>
+  <div class="citation-note">
+    <strong>引用说明：</strong>本资料参考公开认证简介、公开学习指南、公开技术文档和通用工程实践整理；所有课堂练习、题目与知识卡片均为非官方原创学习内容。
+  </div>
+</div>
+</body></html>

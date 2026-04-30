@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AAI Professional 非官方学习资料平台</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#142033;--muted:#667085;--primary:#2563eb;--primary2:#7c3aed;--line:#dbe3ef;--shadow:0 20px 60px rgba(15,23,42,.10);--radius:24px}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI','Microsoft YaHei',Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 0 0,rgba(37,99,235,.14),transparent 30%),radial-gradient(circle at 100% 0,rgba(124,58,237,.13),transparent 30%),linear-gradient(180deg,#f8fafc,#eef2ff 60%,#f8fafc);min-height:100vh}
+.legal-banner{margin:0;padding:12px 20px;background:#fff7ed;color:#7c2d12;border-bottom:1px solid #fed7aa;font-size:13px;line-height:1.75}.legal-banner strong{font-weight:800}
+.wrap{max-width:1180px;margin:0 auto;padding:26px}
+.hero{background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.9);box-shadow:var(--shadow);border-radius:30px;padding:30px;margin-bottom:18px}
+.badge{display:inline-flex;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:999px;padding:6px 10px;font-size:13px;font-weight:700}
+h1{font-size:38px;margin:14px 0 8px;letter-spacing:-.04em}
+.hero p{color:var(--muted);line-height:1.85;max-width:960px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 10px 30px rgba(15,23,42,.07)}
+.card h2{font-size:21px;margin:0 0 8px}
+.card p{color:var(--muted);line-height:1.75;min-height:70px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--primary2));color:white;text-decoration:none;font-weight:700;border:0}
+.btn.secondary{background:#fff;color:#1e293b;border:1px solid var(--line)}
+.panel{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-top:18px}
+.tablewrap{overflow:auto} table{border-collapse:collapse;width:100%;background:white} th,td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top} th{background:#eff6ff;color:#1e3a8a}
+.footer{color:var(--muted);font-size:13px;line-height:1.7;margin:22px 0}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.wrap{padding:16px}h1{font-size:30px}.card p{min-height:auto}}
+</style>
+</head>
+<body>
+<div class="legal-banner">
+  <strong>免责声明：</strong>
+  本平台为非官方学习资料，基于公开认证简介、公开学习指南、公开技术文档、通用工程实践和原创教学扩展整理；
+  不是 NVIDIA 出品或授权的课程、教材、题库或考试材料，也未获得 NVIDIA 授权、认证、合作或背书；
+  不包含 NVIDIA DLI 等受限课程的内部课件、视频、实验环境、测验题、考试真题或受限资料。相关商标仅用于技术说明和学习引用。
+</div>
+<div class="wrap">
+  <section class="hero">
+    <span class="badge">AAI Professional · 非官方学习资料</span>
+    <h1>Agentic AI Professional 非官方学习平台</h1>
+    <p>本平台整合了去官方化改写后的 Word 教材、网页教材阅读、原创题库与模拟考试、知识卡片、免责声明和引用说明。可离线打开，也可部署到 GitHub Pages、Nginx、NAS 或企业内网。</p>
+    <p><a class="btn" href="course_reading.html">开始教材阅读</a> <a class="btn secondary" href="docs/AAI_Professional_NonOfficial_Textbook.docx">下载 Word 教材</a></p>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <h2>📖 教材阅读</h2>
+      <p>基于公开考试主题说明和通用 Agentic AI 工程实践原创扩展，含章节目标、讲义、练习、代码模板、测试题与解析。</p>
+      <a class="btn" href="course_reading.html">打开教材网页</a>
+    </div>
+    <div class="card">
+      <h2>✅ 在线刷题 / 模拟考试</h2>
+      <p>原创练习题库，支持章节刷题、模拟考试、错题复习和答案解析；题目不是考试真题。</p>
+      <a class="btn" href="quiz/index.html">打开刷题系统</a>
+    </div>
+    <div class="card">
+      <h2>🧠 知识卡片</h2>
+      <p>术语/缩写正面，背面包含英文全称、中文全称和中文解释，适合快速复习核心概念。</p>
+      <a class="btn" href="flashcards/index.html">打开知识卡片</a>
+    </div>
+    <div class="card">
+      <h2>📄 Word 教材</h2>
+      <p>完整 Word 版教材，已加入非官方声明、引用说明，并移除容易造成官方背书误解的主标题和措辞。</p>
+      <a class="btn" href="docs/AAI_Professional_NonOfficial_Textbook.docx">下载 DOCX</a>
+    </div>
+    <div class="card">
+      <h2>⚖️ 免责声明</h2>
+      <p>说明本平台的非官方属性、商标引用边界、非真题性质和发布注意事项。</p>
+      <a class="btn" href="docs/DISCLAIMER.md">查看免责声明</a>
+    </div>
+    <div class="card">
+      <h2>🔗 引用说明</h2>
+      <p>列明参考公开信息类型：公开认证简介、公开学习指南、公开技术文档和通用工程实践。</p>
+      <a class="btn" href="docs/CITATIONS.md">查看引用说明</a>
+    </div>
+  </section>
+
+  <p class="footer">建议发布时保留所有免责声明文件和页面顶部提示，不使用“出品或授权课程”“出品或授权教材”“出品或授权题库”“授权资料”等表述。</p>
+</div>
+</body>
+</html>
