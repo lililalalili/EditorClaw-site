@@ -8,20 +8,27 @@
     :root{
       --bg1:#d8efff;--bg2:#eef7ff;--panel:#ffffffee;--text:#1d2a3a;--sub:#5d6d83;--accent:#4b8bff;
       --ok:#15a06b;--bad:#d84a4a;--road:#5b6570;--roadLine:#f6d85f;--shadow:0 10px 24px rgba(19,40,72,.12);
-      --radius:18px;--route-h:56dvh;--panel-h:46dvh;
+      --radius:18px;--route-h:62dvh;--panel-h:38dvh;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
     html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 45%,#f8fbff 100%);color:var(--text);}
     body{display:flex;justify-content:center;overflow:hidden;}
     .app{width:100%;max-width:430px;height:100dvh;position:relative;overflow:hidden;background:linear-gradient(180deg,#cfeaff 0%,#edf7ff 55%,#f8fbff 100%);}
-    .sky{position:absolute;inset:0;background:
+    .sky{position:absolute;inset:0;z-index:0;background:
       radial-gradient(circle at 15% 12%, rgba(255,255,255,.9) 0 34px, transparent 35px),
       radial-gradient(circle at 24% 10%, rgba(255,255,255,.9) 0 24px, transparent 25px),
       radial-gradient(circle at 76% 18%, rgba(255,255,255,.85) 0 30px, transparent 31px),
       radial-gradient(circle at 84% 16%, rgba(255,255,255,.83) 0 24px, transparent 25px),
       linear-gradient(180deg,#bce6ff 0%, #edf8ff 58%, #f8fbff 100%);
     }
-    .ground{position:absolute;left:-12%;right:-12%;bottom:-8px;height:66%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);border-radius:50% 50% 0 0/100% 100% 0 0;}
+    .mountains{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .mountain{position:absolute;bottom:-8px;border-radius:50% 50% 0 0/100% 100% 0 0;}
+    .mountain-right{z-index:1;width:140%;height:94%;left:30%;background:linear-gradient(180deg,#9eb9b7 0%,#86a8a8 58%,#719697 100%);opacity:.96;}
+    .cloud-right-front{position:absolute;z-index:5;right:12%;top:11%;width:132px;height:54px;pointer-events:none;}
+    .cloud-right-front::before{content:"";position:absolute;left:0;top:16px;width:58px;height:36px;border-radius:999px;background:rgba(255,255,255,.92);box-shadow:38px -14px 0 8px rgba(255,255,255,.92),78px 4px 0 2px rgba(255,255,255,.90);}
+    .mountain-middle{z-index:3;left:-12%;right:-12%;height:78%;background:linear-gradient(180deg,#8bd1a5 0%,#73c68c 58%,#61b978 100%);}
+    .mountain-left{z-index:4;width:120%;height:62%;left:-60%;background:linear-gradient(180deg,#8fd384 0%,#72c76d 62%,#62b95f 100%);opacity:.98;}
+
     .hud{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:30;display:flex;justify-content:space-between;gap:10px;}
     .pill{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);box-shadow:var(--shadow);border-radius:999px;padding:10px 14px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
 
@@ -31,25 +38,25 @@
     .draw-layer.active{pointer-events:auto;}
     .draw-start{fill:rgba(75,139,255,.16);stroke:rgba(75,139,255,.55);stroke-width:2;}
     .draw-pulse{fill:none;stroke:rgba(75,139,255,.28);stroke-width:3;stroke-dasharray:6 8;}
-    .draw-guide{fill:none;stroke:rgba(75,139,255,.16);stroke-width:22;stroke-linecap:round;}
+    .draw-guide{fill:none;stroke:rgba(75,139,255,.16);stroke-width:18;stroke-linecap:round;}
     .draw-arrow{fill:rgba(75,139,255,.78);}
 
     .cars-layer{position:absolute;left:0;right:0;top:0;height:var(--route-h);z-index:28;pointer-events:none;overflow:hidden;}
-    .car{position:absolute;width:118px;height:74px;transform:translate(-50%,-50%) rotate(0deg);filter:drop-shadow(0 9px 10px rgba(0,0,0,.18));opacity:0;}
+    .car{position:absolute;width:102px;height:64px;transform:translate(-50%,-50%) rotate(0deg);filter:drop-shadow(0 9px 10px rgba(0,0,0,.18));opacity:0;}
     .car.visible{opacity:1;}
     .car svg{width:100%;height:100%;display:block;overflow:visible;}
     .car.driving svg{animation:carBob .34s ease-in-out infinite alternate;}
     .car.driving .wheel-group{transform-origin:center center;}
     @keyframes carBob{from{transform:translateY(-1px);}to{transform:translateY(2px);}}
 
-    .panel{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);height:var(--panel-h);background:var(--panel);backdrop-filter:blur(10px);border-radius:24px;padding:14px 14px 16px;box-shadow:var(--shadow);z-index:16;overflow-x:hidden;overflow-y:auto;display:flex;flex-direction:column;}
+    .panel{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);height:var(--panel-h);background:var(--panel);backdrop-filter:blur(10px);border-radius:24px;padding:12px 14px 14px;box-shadow:var(--shadow);z-index:16;overflow-x:hidden;overflow-y:auto;display:flex;flex-direction:column;}
     .panel::-webkit-scrollbar{width:6px;}.panel::-webkit-scrollbar-thumb{background:#cddcf3;border-radius:999px;}.panel::-webkit-scrollbar-track{background:transparent;}
     .panel.draw-mode .feedback{display:block;}
-    .quiz-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px;flex:0 0 auto;}
+    .quiz-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:8px;flex:0 0 auto;}
     .title{font-size:18px;font-weight:800;}
     .subtitle{display:none;}
     .mini{font-size:13px;color:var(--sub);text-align:right;line-height:1;white-space:nowrap;flex:0 0 auto;align-self:center;min-width:max-content;}
-    .quiz-card{display:flex;gap:12px;align-items:center;background:#f7fbff;border-radius:20px;padding:12px;margin-bottom:10px;border:1px solid #e1edfb;flex:0 0 auto;}
+    .quiz-card{display:flex;gap:12px;align-items:center;background:#f7fbff;border-radius:20px;padding:10px;margin-bottom:8px;border:1px solid #e1edfb;flex:0 0 auto;}
     .pic{width:108px;height:108px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px #e9eef7;overflow:hidden;flex:0 0 auto;}
     .word-box{flex:1;min-width:0;}
     .word-cn{font-size:14px;color:var(--sub);margin-bottom:8px;}
@@ -85,6 +92,7 @@
     .btn{border:none;border-radius:16px;padding:14px 18px;font-size:17px;font-weight:800;background:var(--accent);color:#fff;width:100%;}
     .btn.secondary{margin-top:10px;background:#eef4ff;color:#1b3355;}
     .small-note{font-size:12px;color:var(--sub);margin-top:10px;line-height:1.5;}
+    .version-note{margin-top:10px;font-size:12px;color:#8aa0b8;text-align:center;font-weight:700;}
     .picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left;margin:14px 0 10px;}
     .pick{background:#f7fbff;border:1px solid #dfeafb;border-radius:16px;padding:10px;}.pick label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px;font-weight:700;}
     .pick select{width:100%;border:none;background:#fff;border-radius:12px;padding:12px 10px;font-size:16px;box-shadow:inset 0 0 0 1px #d9e8fb;color:var(--text);}
@@ -92,7 +100,7 @@
 
     .hint-float{position:absolute;left:50%;top:58px;transform:translateX(-50%);z-index:20;background:rgba(255,255,255,.92);color:#18467f;border:1px solid rgba(75,139,255,.18);box-shadow:var(--shadow);padding:8px 12px;border-radius:999px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;white-space:nowrap;}
     .hint-float.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
-    .car-speech{position:absolute;z-index:29;max-width:220px;background:rgba(255,255,255,.96);color:#21456d;border:2px solid rgba(75,139,255,.22);border-radius:20px;padding:10px 14px;font-size:13px;font-weight:800;line-height:1.35;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .22s ease, transform .22s ease;}
+    .car-speech{position:absolute;z-index:29;max-width:220px;background:rgba(255,255,255,.96);color:#21456d;border:2px solid rgba(75,139,255,.22);border-radius:20px;padding:10px 14px;font-size:16px;line-height:1.35;font-weight:800;line-height:1.35;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .22s ease, transform .22s ease;}
     .car-speech.show{opacity:1;transform:translateY(0);}
     .car-speech::after{content:"";position:absolute;left:18px;bottom:-10px;width:18px;height:18px;background:rgba(255,255,255,.96);border-right:2px solid rgba(75,139,255,.22);border-bottom:2px solid rgba(75,139,255,.22);transform:rotate(45deg);border-bottom-right-radius:4px;}
 
@@ -111,7 +119,7 @@
 <body>
 <div class="app" id="app">
   <div class="sky"></div>
-  <div class="ground"></div>
+  <div class="mountains"><div class="mountain mountain-right"></div><div class="cloud-right-front"></div><div class="mountain mountain-middle"></div><div class="mountain mountain-left"></div></div>
 
   <div class="hud">
     <div class="pill"><span>🚗</span><span id="stageInfo">第 1 / 1 题</span></div>
@@ -169,7 +177,8 @@
         </div>
       </div>
       <div class="unit-note" id="unitSummary">请选择一个单元。</div>
-      <button class="btn" id="startBtn">开始游戏</button>
+      <button class="btn" id="startBtn" type="button" onclick="window.__wordRoadStart && window.__wordRoadStart(event)">开始游戏</button>
+      <div class="version-note">版本：v34</div>
       <div class="small-note">规则：1 个字母的单词只有一级；2 个字母的单词有一级、二级；3 个字母的单词有一级、二级、三级；4 个字母及以上的单词再增加第四关。一级从 3 个字母中选 1 个；二级从固定的 4 个字母中依次选 2 个；三级从固定的 4 个字母中依次选 3 个；第四关把全部字母打乱后列在下方，逐个点击字母填入上方横线，再点确认。答对后在上方手绘路线，小车会沿你画出的路线开出画面。累计答错 3 次游戏结束。</div>
     </div>
   </div>
@@ -233,7 +242,7 @@
     {body:'#bca0ff', body2:'#dccfff', line:'#8d75d8', glass:'#ebf1ff', deco:'#faf7ff', variant:'puff'}
   ];
 
-  const CAR_ROAD_OFFSET = 14;
+  const CAR_ROAD_OFFSET = 10;
 
   const geometry = {
     routeH: 0,
@@ -311,12 +320,12 @@
     const appRect = els.app.getBoundingClientRect();
     const panelRect = els.quizPanel.getBoundingClientRect();
     const W = els.app.clientWidth || 430;
-    const routeH = Math.max(280, Math.floor(panelRect.top - appRect.top - 14));
+    const routeH = Math.max(320, Math.floor(panelRect.top - appRect.top - 10));
     els.app.style.setProperty('--route-h', `${routeH}px`);
     geometry.W = W;
     geometry.routeH = routeH;
-    const startY = Math.max(126, routeH - 28);
-    const startX = 59;
+    const startY = Math.max(154, routeH - 18);
+    const startX = 56;
     geometry.startPos = { x: startX, y: startY };
     geometry.hiddenPos = { x: -118, y: startY };
     geometry.forkPos = { x: Math.min(W - 78, startX + 56), y: startY };
@@ -325,6 +334,8 @@
     positionSpeechBubble();
   }
 
+
+
   function renderScene() {
     const w = geometry.W;
     const routeH = geometry.routeH;
@@ -332,8 +343,8 @@
     const sy = geometry.startPos.y;
     const fx = geometry.forkPos.x;
     const fy = geometry.forkPos.y;
-    const roadW = 62;
-    const centerW = 6;
+    const roadW = 50;
+    const centerW = 5;
     const roadStartX = -8;
     const guideEndX = Math.min(w - 48, fx + 52);
     els.scene.innerHTML = `
@@ -345,7 +356,7 @@
         <g filter="url(#roadShadow)">
           <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#59646f" stroke-width="${roadW}" stroke-linecap="round" fill="none"/>
           <path d="M ${roadStartX} ${sy} L ${fx} ${fy}" stroke="#f6d85f" stroke-width="${centerW}" stroke-dasharray="18 18" stroke-linecap="round" fill="none"/>
-          <ellipse cx="${sx - 8}" cy="${sy}" rx="58" ry="21" fill="rgba(89,100,111,.18)"/>
+          <ellipse cx="${sx - 8}" cy="${sy}" rx="48" ry="17" fill="rgba(89,100,111,.18)"/>
         </g>
         <path d="M ${fx} ${fy} Q ${fx+18} ${fy-18} ${guideEndX} ${fy-48}" class="draw-guide"/>
         <g filter="url(#forkGlow)">
@@ -360,11 +371,10 @@
   function renderDrawPath() {
     const pts = state.drawPoints || [];
     const poly = pts.map(p => `${p.x},${p.y}`).join(' ');
-    const fork = geometry.forkPos;
+    const fork = geometry.forkPos || { x: 0, y: 0 };
     els.drawSvg.innerHTML = `
-      <polyline points="${poly}" fill="none" stroke="rgba(62,86,120,.12)" stroke-width="74" stroke-linecap="round" stroke-linejoin="round"></polyline>
-      <polyline points="${poly}" fill="none" stroke="#59646f" stroke-width="62" stroke-linecap="round" stroke-linejoin="round"></polyline>
-      <polyline points="${poly}" fill="none" stroke="#f6d85f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="18 18"></polyline>
+      ${poly ? `<polyline points="${poly}" fill="none" stroke="#59646f" stroke-width="50" stroke-linecap="round" stroke-linejoin="round"></polyline>
+      <polyline points="${poly}" fill="none" stroke="#f6d85f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="18 18"></polyline>` : ''}
       ${state.drawMode ? `<circle class="draw-start" cx="${fork.x}" cy="${fork.y}" r="18"></circle><circle class="draw-pulse" cx="${fork.x}" cy="${fork.y}" r="26"></circle>` : ''}
     `;
   }
@@ -373,8 +383,8 @@
     state.drawPoints = [];
     state.drawMode = false;
     state.isDrawing = false;
-    els.drawLayer.classList.remove('active');
-    els.dragHint.classList.remove('show');
+    if (els.drawLayer) els.drawLayer.classList.remove('active');
+    if (els.dragHint) els.dragHint.classList.remove('show');
     renderDrawPath();
   }
 
@@ -578,6 +588,10 @@
     return shuffle(options);
   }
 
+  function cloneQuestion(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
   function loadStage() {
     if (state.wrong >= 3) return endGame(false);
     if (state.stage >= state.questionOrder.length) return endGame(true);
@@ -586,7 +600,7 @@
     state.isAnimating = false;
     state.stepLocked = false;
     clearDrawPath();
-    const q = structuredClone(state.questionOrder[state.stage]);
+    const q = cloneQuestion(state.questionOrder[state.stage]);
     q.filledLetters = {};
     q.currentStep = 0;
     state.currentQuestion = q;
@@ -992,8 +1006,15 @@
 
   function startGame() {
     cancelAnimationFrame(state.raf);
-    state.selectedModule = els.moduleSelect.value;
-    state.selectedUnit = els.unitSelect.value;
+    state.selectedModule = els.moduleSelect.value || Object.keys(UNIT_DATA)[0];
+    const availableUnits = Object.keys(UNIT_DATA[state.selectedModule] || {});
+    state.selectedUnit = (els.unitSelect.value && UNIT_DATA[state.selectedModule] && UNIT_DATA[state.selectedModule][els.unitSelect.value])
+      ? els.unitSelect.value
+      : availableUnits[0];
+    if (!state.selectedUnit) {
+      alert('当前单元没有可用单词，请重新选择。');
+      return;
+    }
     state.questionOrder = buildQuestionsForSelection();
     state.stage = 0;
     state.wrong = 0;
@@ -1066,9 +1087,21 @@
     if (/sour/.test(key)) return '🍋'; if (/bitter/.test(key)) return '☕'; if (/hungry/.test(key)) return '🍽️'; return '🖼️';
   }
 
+  function handleStartPress(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (state.isStarting) return;
+    state.isStarting = true;
+    try {
+      startGame();
+    } finally {
+      setTimeout(() => { state.isStarting = false; }, 350);
+    }
+  }
+
   els.moduleSelect.addEventListener('change', () => { state.selectedModule = els.moduleSelect.value; populateUnitSelect(); });
   els.unitSelect.addEventListener('change', () => { state.selectedUnit = els.unitSelect.value; updateUnitSummary(); });
-  els.startBtn.addEventListener('click', startGame);
+  els.startBtn.addEventListener('click', handleStartPress);
+  els.startBtn.addEventListener('touchend', handleStartPress, { passive:false });
   els.restartBtn.addEventListener('click', () => { els.endOverlay.classList.add('hidden'); els.startOverlay.classList.remove('hidden'); populateSelectors(); });
   els.closeBtn.addEventListener('click', () => els.endOverlay.classList.add('hidden'));
   els.resetWordBtn.addEventListener('click', resetScramble);
@@ -1089,6 +1122,7 @@
     }
   });
 
+  window.__wordRoadStart = handleStartPress;
   initState();
 })();
 </script>
