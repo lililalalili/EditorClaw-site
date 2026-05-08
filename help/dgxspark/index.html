@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Install NemoClaw / OpenClaw on DGX Spark Behind a Proxy</title>
+  <meta name="description" content="A practical step-by-step guide for installing NemoClaw and OpenClaw on DGX Spark behind a proxy, with GPU passthrough and airgap OpenShell gateway image setup." />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #172033;
+      --text: #e5e7eb;
+      --muted: #aeb7c7;
+      --line: #334155;
+      --accent: #60a5fa;
+      --accent-2: #34d399;
+      --warn: #fbbf24;
+      --danger: #fb7185;
+      --code: #020617;
+      --code-border: #1e293b;
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, rgba(96, 165, 250, 0.22), transparent 34%),
+                  radial-gradient(circle at top right, rgba(52, 211, 153, 0.16), transparent 30%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: var(--accent); }
+
+    .page {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 28px;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    aside {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      padding: 22px;
+      background: rgba(17, 24, 39, 0.82);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    aside h2 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    nav a {
+      display: block;
+      padding: 8px 10px;
+      margin: 2px 0;
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    nav a:hover { background: rgba(96, 165, 250, 0.12); }
+
+    main {
+      min-width: 0;
+    }
+
+    header.hero {
+      padding: 38px;
+      margin-bottom: 24px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(17, 24, 39, 0.96), rgba(23, 32, 51, 0.92));
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      color: var(--accent-2);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+
+    h1 {
+      margin: 10px 0 14px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .notice {
+      margin-top: 22px;
+      padding: 16px 18px;
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      border-radius: 14px;
+      color: #fde68a;
+    }
+
+    section {
+      padding: 28px;
+      margin: 20px 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(17, 24, 39, 0.78);
+      box-shadow: 0 12px 42px rgba(0, 0, 0, 0.20);
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 27px;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      margin-top: 26px;
+      font-size: 20px;
+    }
+
+    p, li { color: var(--text); }
+
+    .muted { color: var(--muted); }
+
+    ul, ol { padding-left: 22px; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      background: rgba(15, 23, 42, 0.86);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      border-radius: 7px;
+      padding: 0.12em 0.36em;
+      font-size: 0.92em;
+    }
+
+    pre {
+      position: relative;
+      overflow: auto;
+      padding: 18px;
+      background: var(--code);
+      border: 1px solid var(--code-border);
+      border-radius: 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    pre code {
+      display: block;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #dbeafe;
+      white-space: pre;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(23, 32, 51, 0.75);
+    }
+
+    .card strong {
+      color: #ffffff;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      background: rgba(96, 165, 250, 0.10);
+      color: #bfdbfe;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .success { color: #86efac; }
+    .warning { color: #fde68a; }
+    .danger { color: #fda4af; }
+
+    .footer {
+      padding: 30px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      .page { grid-template-columns: 1fr; padding: 18px; }
+      aside { position: static; max-height: none; }
+      header.hero { padding: 26px; }
+      section { padding: 22px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <aside>
+      <h2>Contents</h2>
+      <nav>
+        <a href="#overview">Overview</a>
+        <a href="#variables">0. Replace placeholders</a>
+        <a href="#system-check">1. System checks</a>
+        <a href="#shell-git-proxy">2. Shell and Git proxy</a>
+        <a href="#docker-daemon-proxy">3. Docker daemon proxy</a>
+        <a href="#docker-container-proxy">4. Docker container proxy</a>
+        <a href="#install-cli">5. Install NemoClaw CLI</a>
+        <a href="#why-airgap">6. Why airgap is needed</a>
+        <a href="#pull-images">7. Pull k3s images</a>
+        <a href="#build-airgap">8. Build airgap image</a>
+        <a href="#local-registry">9. Local Docker registry</a>
+        <a href="#start-gateway">10. Start GPU gateway</a>
+        <a href="#onboarding">11. NemoClaw onboarding</a>
+        <a href="#ui">12. OpenClaw UI</a>
+        <a href="#status">13. Status commands</a>
+        <a href="#troubleshooting">14. Troubleshooting</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="overview">
+        <div class="eyebrow">DGX Spark · NemoClaw · OpenClaw · OpenShell</div>
+        <h1>Install NemoClaw / OpenClaw on DGX Spark Behind a Proxy</h1>
+        <p class="subtitle">
+          A practical step-by-step installation guide for DGX Spark users running Docker, OpenShell, NemoClaw, OpenClaw, local Ollama models, GPU passthrough, and a proxy such as Clash Verge.
+        </p>
+        <div class="badge-row">
+          <span class="badge">Docker proxy</span>
+          <span class="badge">Container proxy</span>
+          <span class="badge">Airgap gateway image</span>
+          <span class="badge">Local Docker registry</span>
+          <span class="badge">GPU passthrough</span>
+          <span class="badge">Local Ollama</span>
+        </div>
+        <div class="notice">
+          This sanitized version removes personal usernames, machine-specific usernames, and private LAN addresses. Replace all placeholders such as <code>&lt;DGX_IP&gt;</code>, <code>&lt;SSH_USER&gt;</code>, and <code>&lt;MODEL_NAME&gt;</code> with your own values.
+        </div>
+      </header>
+
+      <section id="variables">
+        <h2>0. Replace placeholders</h2>
+        <p>Use your own values before running commands.</p>
+        <pre><code>export DGX_IP="&lt;DGX_IP&gt;"
+export PROXY_PORT="&lt;PROXY_PORT&gt;"
+export PROXY="http://${DGX_IP}:${PROXY_PORT}"
+export SSH_USER="&lt;SSH_USER&gt;"
+export OPENCLAW_GATEWAY_IMAGE="ghcr.io/nvidia/openshell/cluster:0.0.36"
+export AIRGAP_IMAGE="localhost:5000/openshell-cluster-airgap:0.0.36"
+export OLLAMA_MODEL="&lt;MODEL_NAME&gt;"</code></pre>
+        <p>Example model names may include locally available Ollama models such as <code>nemotron-3-super:120b</code>, but use the model actually installed on your machine.</p>
+      </section>
+
+      <section id="system-check">
+        <h2>1. Check basic system status</h2>
+        <pre><code>hostname -I
+node -v
+npm -v
+docker --version
+nvidia-smi</code></pre>
+        <p>Check Docker can see the NVIDIA GPU:</p>
+        <pre><code>docker run --rm --runtime=nvidia --gpus all ubuntu nvidia-smi</code></pre>
+        <p>If Docker cannot pull <code>ubuntu</code>, fix Docker proxy first.</p>
+      </section>
+
+      <section id="shell-git-proxy">
+        <h2>2. Configure shell proxy and Git proxy</h2>
+        <p>If your proxy runs on the DGX Spark host, make sure the proxy allows LAN access and use the host IP instead of <code>127.0.0.1</code> when containers need to reach it.</p>
+        <pre><code>export http_proxy="${PROXY}"
+export https_proxy="${PROXY}"
+export HTTP_PROXY="${PROXY}"
+export HTTPS_PROXY="${PROXY}"
+export no_proxy="localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10"
+export NO_PROXY="$no_proxy"</code></pre>
+        <p>Configure Git:</p>
+        <pre><code>git config --global http.proxy "${PROXY}"
+git config --global https.proxy "${PROXY}"
+git config --global http.version HTTP/1.1</code></pre>
+        <p>Test connectivity:</p>
+        <pre><code>curl -x "${PROXY}" -I https://github.com --max-time 20
+curl -x "${PROXY}" -I https://ghcr.io/v2/ --max-time 20
+curl -x "${PROXY}" -I https://registry-1.docker.io/v2/ --max-time 20
+git ls-remote https://github.com/NVIDIA/NemoClaw.git | head</code></pre>
+        <p>For Docker Hub, <code>HTTP/2 401</code> is normal. It means the registry is reachable but unauthenticated.</p>
+      </section>
+
+      <section id="docker-daemon-proxy">
+        <h2>3. Configure Docker daemon proxy</h2>
+        <p>Docker daemon does not automatically inherit shell proxy variables.</p>
+        <pre><code>sudo mkdir -p /etc/systemd/system/docker.service.d
+
+sudo tee /etc/systemd/system/docker.service.d/http-proxy.conf &gt; /dev/null &lt;&lt;EOF
+[Service]
+Environment="HTTP_PROXY=${PROXY}"
+Environment="HTTPS_PROXY=${PROXY}"
+Environment="NO_PROXY=localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10"
+Environment="http_proxy=${PROXY}"
+Environment="https_proxy=${PROXY}"
+Environment="no_proxy=localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10"
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl restart docker</code></pre>
+        <p>Verify without entering a pager:</p>
+        <pre><code>systemctl --no-pager show --property=Environment docker
+docker info | grep -i -E "proxy|http|https" || true</code></pre>
+        <p>Test image pulls:</p>
+        <pre><code>for i in 1 2 3; do
+  echo "=== test $i ==="
+  docker pull ghcr.io/nvidia/openshell/cluster:0.0.36
+  docker pull docker.io/rancher/mirrored-pause:3.6
+done</code></pre>
+      </section>
+
+      <section id="docker-container-proxy">
+        <h2>4. Configure Docker container proxy</h2>
+        <p>This makes newly created containers receive proxy environment variables.</p>
+        <pre><code>mkdir -p ~/.docker
+
+cat &gt; ~/.docker/config.json &lt;&lt;EOF
+{
+  "proxies": {
+    "default": {
+      "httpProxy": "${PROXY}",
+      "httpsProxy": "${PROXY}",
+      "noProxy": "localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10"
+    }
+  }
+}
+EOF</code></pre>
+        <p>Test:</p>
+        <pre><code>docker run --rm --entrypoint env ghcr.io/nvidia/openshell/cluster:0.0.36 | grep -i proxy</code></pre>
+        <p>Expected output should include <code>HTTP_PROXY</code> and <code>HTTPS_PROXY</code>.</p>
+      </section>
+
+      <section id="install-cli">
+        <h2>5. Install NemoClaw CLI</h2>
+        <pre><code>curl -fsSL --retry 5 --retry-all-errors -L \
+  https://www.nvidia.com/nemoclaw.sh \
+  -o /tmp/nemoclaw_install.sh
+
+ls -lh /tmp/nemoclaw_install.sh
+head -n 20 /tmp/nemoclaw_install.sh
+
+bash /tmp/nemoclaw_install.sh</code></pre>
+        <p>Check installation:</p>
+        <pre><code>source ~/.bashrc
+which nemoclaw
+nemoclaw --version
+openshell --version</code></pre>
+        <p>If GitHub cloning fails with TLS errors, repeat the proxy tests and confirm:</p>
+        <pre><code>git ls-remote https://github.com/NVIDIA/NemoClaw.git | head</code></pre>
+        <p>A Python <code>externally-managed-environment</code> warning may appear during model-router installation. In the tested workflow, it did not block the core NemoClaw CLI installation.</p>
+      </section>
+
+      <section id="why-airgap">
+        <h2>6. Why a custom airgap gateway image is needed</h2>
+        <p>The OpenShell gateway is a Docker container that starts an embedded k3s cluster. Even when Docker daemon proxy is correct, the k3s/containerd inside the gateway may fail to pull required images.</p>
+        <p>Common failing images include:</p>
+        <pre><code>rancher/mirrored-pause:3.6
+rancher/mirrored-metrics-server:v0.8.1
+rancher/local-path-provisioner:v0.0.35
+rancher/klipper-helm:v0.9.14-build20260309
+rancher/mirrored-coredns-coredns:1.14.2
+registry.k8s.io/agent-sandbox/agent-sandbox-controller:v0.1.0</code></pre>
+        <p>Typical errors include:</p>
+        <pre><code>ImagePullBackOff
+ErrImagePull
+failed to pull
+TLS handshake timeout
+connection reset by peer
+EOF</code></pre>
+        <p>The robust fix is to preload these images into <code>/var/lib/rancher/k3s/agent/images/</code> inside a custom OpenShell cluster image.</p>
+      </section>
+
+      <section id="pull-images">
+        <h2>7. Pull all required k3s images</h2>
+        <pre><code>IMAGES=(
+  docker.io/rancher/mirrored-pause:3.6
+  docker.io/rancher/mirrored-metrics-server:v0.8.1
+  docker.io/rancher/local-path-provisioner:v0.0.35
+  docker.io/rancher/klipper-helm:v0.9.14-build20260309
+  docker.io/rancher/mirrored-coredns-coredns:1.14.2
+  registry.k8s.io/agent-sandbox/agent-sandbox-controller:v0.1.0
+)
+
+for img in "${IMAGES[@]}"; do
+  echo "=== pulling $img ==="
+  for i in 1 2 3 4 5; do
+    docker pull "$img" && break
+    echo "retry $i failed: $img"
+    sleep 5
+  done
+done</code></pre>
+        <p>Save them into one airgap tarball:</p>
+        <pre><code>docker save \
+  docker.io/rancher/mirrored-pause:3.6 \
+  docker.io/rancher/mirrored-metrics-server:v0.8.1 \
+  docker.io/rancher/local-path-provisioner:v0.0.35 \
+  docker.io/rancher/klipper-helm:v0.9.14-build20260309 \
+  docker.io/rancher/mirrored-coredns-coredns:1.14.2 \
+  registry.k8s.io/agent-sandbox/agent-sandbox-controller:v0.1.0 \
+  -o /tmp/openshell-k3s-images-airgap.tar
+
+ls -lh /tmp/openshell-k3s-images-airgap.tar</code></pre>
+      </section>
+
+      <section id="build-airgap">
+        <h2>8. Build the custom OpenShell airgap image</h2>
+        <pre><code>mkdir -p /tmp/openshell-cluster-airgap
+cp /tmp/openshell-k3s-images-airgap.tar /tmp/openshell-cluster-airgap/
+
+cat &gt; /tmp/openshell-cluster-airgap/Dockerfile &lt;&lt;EOF
+FROM ghcr.io/nvidia/openshell/cluster:0.0.36
+
+USER root
+
+RUN mkdir -p /var/lib/rancher/k3s/agent/images
+
+COPY openshell-k3s-images-airgap.tar \
+  /var/lib/rancher/k3s/agent/images/openshell-k3s-images-airgap.tar
+
+ENV HTTP_PROXY=${PROXY}
+ENV HTTPS_PROXY=${PROXY}
+ENV http_proxy=${PROXY}
+ENV https_proxy=${PROXY}
+ENV NO_PROXY=localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10
+ENV no_proxy=localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10
+EOF
+
+docker build \
+  -t local/openshell-cluster-airgap:0.0.36 \
+  -t localhost:5000/openshell-cluster-airgap:0.0.36 \
+  /tmp/openshell-cluster-airgap</code></pre>
+        <p>Test the image:</p>
+        <pre><code>docker run --rm --entrypoint sh local/openshell-cluster-airgap:0.0.36 -lc '
+  env | grep -i proxy
+  ls -lh /var/lib/rancher/k3s/agent/images/
+'</code></pre>
+      </section>
+
+      <section id="local-registry">
+        <h2>9. Start a local Docker registry</h2>
+        <p>OpenShell may try to <code>docker pull</code> the image. A pure local tag may be treated as a remote repository. Use a local registry instead.</p>
+        <pre><code>docker rm -f local-registry 2&gt;/dev/null || true
+
+docker run -d \
+  --name local-registry \
+  --restart unless-stopped \
+  -p 5000:5000 \
+  registry:2</code></pre>
+        <p>Check:</p>
+        <pre><code>docker ps | grep local-registry</code></pre>
+        <p>Push the airgap image:</p>
+        <pre><code>docker push localhost:5000/openshell-cluster-airgap:0.0.36
+docker pull localhost:5000/openshell-cluster-airgap:0.0.36</code></pre>
+      </section>
+
+      <section id="start-gateway">
+        <h2>10. Start OpenShell gateway with GPU</h2>
+        <p>Clean old state:</p>
+        <pre><code>openshell gateway destroy --name nemoclaw || true
+openshell gateway destroy -g nemoclaw || true
+
+docker rm -f openshell-cluster-nemoclaw 2&gt;/dev/null || true
+docker volume ls -q --filter "name=openshell-cluster-nemoclaw" | xargs -r docker volume rm</code></pre>
+        <p>Start gateway using the local registry image:</p>
+        <pre><code>OPENSHELL_CLUSTER_IMAGE=localhost:5000/openshell-cluster-airgap:0.0.36 \
+openshell gateway start --name nemoclaw --gpu</code></pre>
+        <p>Expected success:</p>
+        <pre><code>✓ Checking Docker
+✓ Downloading gateway
+✓ Initializing environment
+✓ Starting gateway
+✓ Gateway ready
+
+Name: nemoclaw
+Endpoint: https://127.0.0.1:8080
+
+✓ Active gateway set to 'nemoclaw'</code></pre>
+        <p>Verify image and health:</p>
+        <pre><code>docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}" | grep openshell
+
+docker inspect --format '{{.State.Health.Status}}' openshell-cluster-nemoclaw</code></pre>
+        <p>Verify GPU passthrough:</p>
+        <pre><code>docker inspect openshell-cluster-nemoclaw \
+  --format 'Image={{.Config.Image}} DeviceRequests={{json .HostConfig.DeviceRequests}}'</code></pre>
+        <p>Inside logs, a good sign is:</p>
+        <pre><code>Got registration request from device plugin with resourceName="nvidia.com/gpu"</code></pre>
+      </section>
+
+      <section id="onboarding">
+        <h2>11. Run NemoClaw onboarding</h2>
+        <pre><code>nemoclaw onboard --gpu</code></pre>
+        <h3>Recommended choices</h3>
+        <div class="grid">
+          <div class="card">
+            <strong>Brave Web Search</strong>
+            <p>Choose <code>N</code> at first. Enable it later after the core system works.</p>
+          </div>
+          <div class="card">
+            <strong>Messaging channels</strong>
+            <p>Skip Telegram, Discord, and Slack initially. Add them later when you have tokens ready.</p>
+          </div>
+          <div class="card">
+            <strong>Policy presets</strong>
+            <p>Use <code>Balanced</code>, keep <code>npm</code>, <code>pypi</code>, <code>huggingface</code>, <code>brew</code>, <code>brave</code>, and <code>local-inference</code>.</p>
+          </div>
+          <div class="card">
+            <strong>GitHub</strong>
+            <p>Enable <code>github</code> if you want the sandbox to work with source repositories.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="ui">
+        <h2>12. Access the OpenClaw UI</h2>
+        <p>At the end of onboarding, NemoClaw should show something like:</p>
+        <pre><code>OpenClaw UI
+Dashboard: http://127.0.0.1:18789/
+Token: nemoclaw my-assistant gateway-token --quiet</code></pre>
+        <p>Get token:</p>
+        <pre><code>nemoclaw my-assistant gateway-token --quiet</code></pre>
+        <p>If your browser is on the DGX Spark machine, open:</p>
+        <pre><code>http://127.0.0.1:18789/</code></pre>
+        <p>If you are connecting from another computer, use SSH port forwarding from your local computer:</p>
+        <pre><code>ssh -L 18789:127.0.0.1:18789 &lt;SSH_USER&gt;@&lt;DGX_IP&gt;</code></pre>
+        <p>Then open locally:</p>
+        <pre><code>http://127.0.0.1:18789/</code></pre>
+        <p>If the browser asks for auth, append:</p>
+        <pre><code>http://127.0.0.1:18789/#token=&lt;your-token&gt;</code></pre>
+        <p class="warning">Do not publish your token.</p>
+      </section>
+
+      <section id="status">
+        <h2>13. Useful status commands</h2>
+        <pre><code>nemoclaw list
+openshell gateway status
+
+docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+
+docker logs --tail=300 openshell-cluster-nemoclaw | \
+  grep -Ei "ImagePull|ErrImage|BackOff|failed to pull|EOF|error|failed|nvidia|gpu|openshell"</code></pre>
+      </section>
+
+      <section id="troubleshooting">
+        <h2>14. Troubleshooting</h2>
+        <h3>Problem: <code>curl: SSL_ERROR_SYSCALL</code></h3>
+        <pre><code>curl -x "${PROXY}" -I https://registry-1.docker.io/v2/ --max-time 20</code></pre>
+        <p>If Docker Hub returns <code>401</code>, it is reachable.</p>
+
+        <h3>Problem: <code>git clone</code> fails with <code>gnutls_handshake()</code></h3>
+        <pre><code>git config --global http.proxy "${PROXY}"
+git config --global https.proxy "${PROXY}"
+git config --global http.version HTTP/1.1</code></pre>
+
+        <h3>Problem: Docker pull fails but curl works</h3>
+        <p>Docker daemon needs its own proxy. Repeat Step 3.</p>
+
+        <h3>Problem: New containers do not have proxy variables</h3>
+        <pre><code>docker run --rm --entrypoint env ghcr.io/nvidia/openshell/cluster:0.0.36 | grep -i proxy</code></pre>
+
+        <h3>Problem: OpenShell gateway uses default GHCR image instead of airgap image</h3>
+        <pre><code>docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}" | grep openshell</code></pre>
+        <p>The image should be:</p>
+        <pre><code>localhost:5000/openshell-cluster-airgap:0.0.36</code></pre>
+
+        <h3>Problem: <code>pull access denied for local/openshell-cluster-airgap</code></h3>
+        <p>Do not use a pure local image tag as <code>OPENSHELL_CLUSTER_IMAGE</code>. Use the local registry image:</p>
+        <pre><code>localhost:5000/openshell-cluster-airgap:0.0.36</code></pre>
+
+        <h3>Problem: <code>ImagePullBackOff</code> inside gateway</h3>
+        <p>Find the missing image:</p>
+        <pre><code>docker logs --tail=300 openshell-cluster-nemoclaw | \
+  grep -Ei "ImagePull|ErrImage|BackOff|failed to pull|EOF|manifest"</code></pre>
+        <p>Pull it on the host, add it to the <code>docker save</code> command in Step 7, rebuild the airgap image, push it to the local registry, and restart gateway.</p>
+
+        <h3>Problem: Existing gateway was started without GPU passthrough</h3>
+        <pre><code>openshell gateway destroy --name nemoclaw || true
+
+docker rm -f openshell-cluster-nemoclaw 2&gt;/dev/null || true
+
+docker volume ls -q --filter "name=openshell-cluster-nemoclaw" | xargs -r docker volume rm
+
+OPENSHELL_CLUSTER_IMAGE=localhost:5000/openshell-cluster-airgap:0.0.36 \
+openshell gateway start --name nemoclaw --gpu
+
+nemoclaw onboard --gpu</code></pre>
+
+        <h3>Problem: Ollama reachability warning during onboarding</h3>
+        <p>You may see a warning that local Ollama is responding on <code>127.0.0.1</code> but Docker container reachability failed. If NemoClaw still creates the provider and sets the inference route, continue and test inference after onboarding.</p>
+      </section>
+
+      <section>
+        <h2>15. Final expected result</h2>
+        <pre><code>NemoClaw CLI installed
+OpenShell gateway ready
+GPU passthrough enabled
+Ollama local inference provider configured
+OpenClaw launched inside sandbox
+OpenClaw UI available at http://127.0.0.1:18789/</code></pre>
+        <p>Core commands for daily use:</p>
+        <pre><code>openshell gateway status
+nemoclaw list
+nemoclaw my-assistant gateway-token --quiet</code></pre>
+      </section>
+
+      <div class="footer">
+        <p>Sanitized guide for public GitHub Pages publishing. Replace placeholders with your own local configuration before use.</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
